@@ -1,0 +1,62 @@
+group 'ru.krista.crypt'
+version '1.0'
+
+buildscript {
+    repositories {
+        google()
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:4.1.0'
+    }
+}
+
+rootProject.allprojects {
+    repositories {
+        google()
+        jcenter()
+    }
+}
+
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 30
+
+    lintOptions {
+        disable 'InvalidPackage'
+    }
+
+    defaultConfig {
+        minSdkVersion 16
+    }
+
+    dexOptions {
+        preDexLibraries = false
+        javaMaxHeapSize "4g"
+        additionalParameters =["--core-library"]
+    }
+
+    packagingOptions {
+        exclude 'META-INF/Digest.CP'
+        exclude 'META-INF/Sign.CP'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/LICENSE.txt'
+        doNotStrip "*/arm64-v8a/*.so"
+        doNotStrip "*/armeabi/*.so"
+        doNotStrip "*/x86_64/*.so"
+        doNotStrip "*/x86/*.so"
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation group: 'commons-io', name: 'commons-io', version: '2.5'
+    implementation group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1'
+    implementation 'androidx.annotation:annotation:1.1.0'
+}
