@@ -9,8 +9,12 @@ import 'certificates.dart';
 class Home extends StatefulWidget {
   final String title;
   final String hint;
+  final Future<String> Function(String rawCertificate) onCertificateSelected;
   const Home(
-      {Key key, this.title = "Подпись", this.hint = "Выберите сертификат"})
+      {Key key,
+      this.onCertificateSelected,
+      this.title = "Подпись",
+      this.hint = "Выберите сертификат"})
       : super(key: key);
 
   @override
@@ -79,7 +83,10 @@ class _HomeState extends State<Home> {
                   );
 
                 return snapshot.data
-                    ? Certificates(hint: widget.hint)
+                    ? Certificates(
+                        hint: widget.hint,
+                        onCertificateSelected: widget.onCertificateSelected,
+                      )
                     : Center(
                         child: Text("Не удалось инициализировать провайдер"));
               }),

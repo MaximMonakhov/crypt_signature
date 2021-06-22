@@ -1,5 +1,6 @@
 import 'package:api_event/models/api_response.dart';
 import 'package:crypt_signature/bloc/native.dart';
+import 'package:crypt_signature/bloc/ui.dart';
 import 'package:crypt_signature/crypt_signature.dart';
 import 'package:crypt_signature/models/certificate.dart';
 import 'package:crypt_signature/ui/error.dart';
@@ -8,9 +9,11 @@ import 'package:flutter/material.dart';
 
 class CertificateWidget extends StatelessWidget {
   final Certificate certificate;
+  final Future<String> Function(String rawCertificate) onCertificateSelected;
   final void Function(Certificate) removeCallback;
 
-  const CertificateWidget(this.certificate, this.removeCallback, {Key key})
+  const CertificateWidget(this.certificate, this.removeCallback,
+      {Key key, this.onCertificateSelected})
       : super(key: key);
 
   @override
@@ -18,12 +21,38 @@ class CertificateWidget extends StatelessWidget {
     List<String> dateSplit = certificate.notAfterDate.split(" ");
     String date = dateSplit[2] + " " + dateSplit[1] + " " + dateSplit[5];
 
-    sign(Certificate certificate) async {
+    signData(Certificate certificate) async {
       String password = await showPasswordDialog(context,
           "Введите пароль для\n доступа к контейнеру приватного ключа");
 
       if (password != null && password.isNotEmpty) {
+        UI.lockScreen();
         ApiResponse response = await Native.sign(certificate, password);
+        await Future.delayed(Duration(seconds: 1));
+        UI.unlockScreen();
+
+        if (response.status == Status.COMPLETED) {
+          Navigator.of(CryptSignature.rootContext).pop(response.data);
+        } else
+          showError(context,
+              "Возникла ошибка во время подписи.\nПроверьте правильность введенного пароля",
+              details: response.message);
+      }
+    }
+
+    sign(Certificate certificate) async {
+      UI.lockScreen();
+      Native.data = await onCertificateSelected(certificate.certificate);
+      UI.unlockScreen();
+
+      String password = await showPasswordDialog(context,
+          "Введите пароль для\n доступа к контейнеру приватного ключа");
+
+      if (password != null && password.isNotEmpty) {
+        UI.lockScreen();
+        ApiResponse response = await Native.sign(certificate, password);
+        await Future.delayed(Duration(seconds: 1));
+        UI.unlockScreen();
         if (response.status == Status.COMPLETED) {
           Navigator.of(CryptSignature.rootContext).pop(response.data);
         } else
@@ -34,7 +63,12 @@ class CertificateWidget extends StatelessWidget {
     }
 
     return GestureDetector(
-      onTap: () => sign(certificate),
+      onTap: () {
+        if (onCertificateSelected == null)
+          signData(certificate);
+        else
+          sign(certificate);
+      },
       child: Container(
         margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5.0),
         padding:

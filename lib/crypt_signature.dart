@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:crypt_signature/ui/home.dart';
@@ -15,7 +14,8 @@ class CryptSignature {
   static BuildContext rootContext;
   String data;
 
-  static Future<String> sign(BuildContext context, String base64Data,
+  /// Подписать данные
+  static Future<String> signData(BuildContext context, String base64Data,
       {String title = "Подпись", String hint = "Выберите сертификат"}) async {
     Native.data = base64Data;
     CryptSignature.rootContext = context;
@@ -28,6 +28,27 @@ class CryptSignature {
 
     String result = await Navigator.of(context).push(
         FadePageRoute(builder: (context) => Home(title: title, hint: hint)));
+
+    return result;
+  }
+
+  /// Подписать отложенные данные
+  static Future<String> sign(BuildContext context,
+      Future<String> Function(String rawCertificate) onCertificateSelected,
+      {String title = "Подпись", String hint = "Выберите сертификат"}) async {
+    CryptSignature.rootContext = context;
+
+    sharedPreferences = await SharedPreferences.getInstance();
+
+    Directory directory = await getApplicationDocumentsDirectory();
+    await Directory(directory.path + '/certificates').create();
+
+    String result = await Navigator.of(context).push(FadePageRoute(
+        builder: (context) => Home(
+              title: title,
+              hint: hint,
+              onCertificateSelected: onCertificateSelected,
+            )));
 
     return result;
   }
