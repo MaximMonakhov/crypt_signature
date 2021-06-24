@@ -156,35 +156,31 @@ public class CryptSignaturePlugin implements FlutterPlugin, MethodCallHandler {
     }
 
     private String getParameterMap(X509Certificate certificate) {
-        Map<String, String> parameterMap = new HashMap<>();
+        StringBuilder stringBuilder = new StringBuilder();
 
-        parameterMap.put("validFromDate", certificate.getNotBefore().toString());
-        parameterMap.put("validToDate", certificate.getNotAfter().toString());
-        parameterMap.put("issuer", certificate.getIssuerX500Principal().getName());
-        parameterMap.put("subject", certificate.getSubjectX500Principal().getName());
-        parameterMap.put("subjectInfo", certificate.getSubjectDN().getName());
-        parameterMap.put("issuerInfo", certificate.getIssuerDN().getName());
-        parameterMap.put("serialNumber", certificate.getSerialNumber().toString());
-        parameterMap.put("signAlgoritm[name]", certificate.getSigAlgName());
-        parameterMap.put("signAlgoritm[oid]", certificate.getSigAlgOID());
+        stringBuilder.append("validFromDate=").append(certificate.getNotBefore().toString()).append("&");
+        stringBuilder.append("validToDate=").append(certificate.getNotAfter().toString()).append("&");
+        stringBuilder.append("issuer=").append(certificate.getIssuerX500Principal().getName()).append("&");
+        stringBuilder.append("subject=").append(certificate.getSubjectX500Principal().getName()).append("&");
+        stringBuilder.append("subjectInfo=").append(certificate.getSubjectDN().getName()).append("&");
+        stringBuilder.append("issuerInfo=").append(certificate.getIssuerDN().getName()).append("&");
+        stringBuilder.append("serialNumber=").append(certificate.getSerialNumber().toString()).append("&");
+        stringBuilder.append("signAlgoritm[name]=").append(certificate.getSigAlgName()).append("&");
+        stringBuilder.append("signAlgoritm[oid]=").append(certificate.getSigAlgOID());
 
-        return parameterMap.toString();
+        return stringBuilder.toString();
     }
 
     private String getCertificateDescription(X509Certificate certificate) {
         StringBuilder stringBuilder = new StringBuilder();
 
-        try {
-            stringBuilder.append("Владелец: ").append(certificate.getSubjectX500Principal().getName()).append("\n");
-            stringBuilder.append("Серийный номер: ").append(certificate.getSerialNumber().toString()).append("\n");
-            stringBuilder.append("Издатель: ").append(certificate.getIssuerX500Principal().getName()).append("\n");
-            stringBuilder.append("Алгоритм подписи: ").append(certificate.getSigAlgName()).append("\n");
-            stringBuilder.append("     oid: ").append(certificate.getSigAlgOID()).append("\n");
-            stringBuilder.append("Действует с: ").append(certificate.getNotBefore().toString()).append("\n");
-            stringBuilder.append("Действует по: ").append(certificate.getNotAfter().toString()).append("\n");
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Не удалось получить описание сертификата: " + e);
-        }
+        stringBuilder.append("Владелец: ").append(certificate.getSubjectX500Principal().getName()).append("\n");
+        stringBuilder.append("Серийный номер: ").append(certificate.getSerialNumber().toString()).append("\n");
+        stringBuilder.append("Издатель: ").append(certificate.getIssuerX500Principal().getName()).append("\n");
+        stringBuilder.append("Алгоритм подписи: ").append(certificate.getSigAlgName()).append("\n");
+        stringBuilder.append("     oid: ").append(certificate.getSigAlgOID()).append("\n");
+        stringBuilder.append("Действует с: ").append(certificate.getNotBefore().toString()).append("\n");
+        stringBuilder.append("Действует по: ").append(certificate.getNotAfter().toString()).append("\n");
 
         return stringBuilder.toString();
     }
