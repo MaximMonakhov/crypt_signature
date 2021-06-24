@@ -5,6 +5,7 @@ import android.util.Base64;
 
 import androidx.annotation.NonNull;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.json.simple.JSONObject;
 
 import java.io.FileInputStream;
@@ -17,6 +18,8 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
@@ -146,8 +149,44 @@ public class CryptSignaturePlugin implements FlutterPlugin, MethodCallHandler {
         obj.put("notAfterDate", certificate.getNotAfter().toString());
         obj.put("serialNumber", certificate.getSerialNumber().toString());
         obj.put("algorithm", certificate.getPublicKey().getAlgorithm());
+        obj.put("parameterMap", getParameterMap(certificate));
+        obj.put("certificateDescription", getCertificateDescription(certificate));
 
         return obj.toJSONString();
+    }
+
+    private String getParameterMap(X509Certificate certificate) {
+        Map<String, String> parameterMap = new HashMap<>();
+
+        parameterMap.put("validFromDate", certificate.getNotBefore().toString());
+        parameterMap.put("validToDate", certificate.getNotAfter().toString());
+        parameterMap.put("issuer", certificate.getIssuerX500Principal().getName());
+        parameterMap.put("subject", certificate.getSubjectX500Principal().getName());
+        parameterMap.put("subjectInfo", certificate.getSubjectDN().getName());
+        parameterMap.put("issuerInfo", certificate.getIssuerDN().getName());
+        parameterMap.put("serialNumber", certificate.getSerialNumber().toString());
+        parameterMap.put("signAlgoritm[name]", certificate.getSigAlgName());
+        parameterMap.put("signAlgoritm[oid]", certificate.getSigAlgOID());
+
+        return parameterMap.toString();
+    }
+
+    private String getCertificateDescription(X509Certificate certificate) {
+        StringBuilder stringBuilder = new StringBuilder();
+
+        try {
+            stringBuilder.append("Владелец: ").append(certificate.getSubjectX500Principal().getName()).append("\n");
+            stringBuilder.append("Серийный номер: ").append(certificate.getSerialNumber().toString()).append("\n");
+            stringBuilder.append("Издатель: ").append(certificate.getIssuerX500Principal().getName()).append("\n");
+            stringBuilder.append("Алгоритм подписи: ").append(certificate.getSigAlgName()).append("\n");
+            stringBuilder.append("     oid: ").append(certificate.getSigAlgOID()).append("\n");
+            stringBuilder.append("Действует с: ").append(certificate.getNotBefore().toString()).append("\n");
+            stringBuilder.append("Действует по: ").append(certificate.getNotAfter().toString()).append("\n");
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Не удалось получить описание сертификата: " + e);
+        }
+
+        return stringBuilder.toString();
     }
 
     private MethodResponse<String> sign(String uuid, String password, String base64Data) {

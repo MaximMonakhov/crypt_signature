@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:api_event/models/api_response.dart';
 import 'package:crypt_signature/bloc/native.dart';
 import 'package:crypt_signature/bloc/ui.dart';
@@ -42,7 +44,7 @@ class CertificateWidget extends StatelessWidget {
 
     sign(Certificate certificate) async {
       UI.lockScreen();
-      Native.data = await onCertificateSelected(certificate.certificate);
+      Native.data = await onCertificateSelected(json.encode(certificate));
       UI.unlockScreen();
 
       String password = await showPasswordDialog(context,

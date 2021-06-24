@@ -12,6 +12,8 @@ class Certificate {
   final String notAfterDate;
   final String serialNumber;
   final String algorithm;
+  final String parameterMap;
+  final String certificateDescription;
 
   Certificate(
       {this.uuid,
@@ -20,7 +22,9 @@ class Certificate {
       this.issuerDN,
       this.notAfterDate,
       this.serialNumber,
-      this.algorithm});
+      this.algorithm,
+      this.parameterMap,
+      this.certificateDescription});
 
   Map<String, dynamic> toJson() => {
         'uuid': uuid,
@@ -29,7 +33,9 @@ class Certificate {
         'issuerDN': issuerDN,
         'notAfterDate': notAfterDate,
         'serialNumber': serialNumber,
-        'algorithm': algorithm
+        'algorithm': algorithm,
+        'parameterMap': parameterMap,
+        'certificateDescription': certificateDescription
       };
 
   static Certificate fromJson(Map<String, dynamic> json) => Certificate(
@@ -39,7 +45,9 @@ class Certificate {
       issuerDN: json['issuerDN'] as String,
       notAfterDate: json['notAfterDate'] as String,
       serialNumber: json['serialNumber'] as String,
-      algorithm: json['algorithm'] as String);
+      algorithm: json['algorithm'] as String,
+      parameterMap: json['parameterMap'] as String,
+      certificateDescription: json['certificateDescription'] as String);
 
   @override
   // ignore: hash_and_equals
