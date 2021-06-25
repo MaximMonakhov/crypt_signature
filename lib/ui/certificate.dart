@@ -42,7 +42,10 @@ class CertificateWidget extends StatelessWidget {
       Native.data = await onCertificateSelected(json.encode(certificate));
       UI.unlockScreen();
 
-      if (Native.data == null) showError(context, "Возникла ошибка во время подписи");
+      if (Native.data == null) {
+        showError(context, "Возникла ошибка во время подписи");
+        return;
+      }
 
       String password = await showPasswordDialog(context, "Введите пароль для\n доступа к контейнеру приватного ключа");
 

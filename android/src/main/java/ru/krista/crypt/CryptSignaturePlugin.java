@@ -9,10 +9,12 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.json.simple.JSONObject;
 
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.MessageDigest;
 import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.Signature;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
@@ -141,7 +143,7 @@ public class CryptSignaturePlugin implements FlutterPlugin, MethodCallHandler {
         }
     }
 
-    private String getCertificateInfo(X509Certificate certificate, String alias) throws CertificateEncodingException {
+    private String getCertificateInfo(X509Certificate certificate, String alias) throws CertificateEncodingException, IOException {
         JSONObject obj = new JSONObject();
         obj.put("certificate", Base64.encodeToString(certificate.getEncoded(), Base64.NO_WRAP));
         obj.put("alias", alias);
@@ -155,7 +157,7 @@ public class CryptSignaturePlugin implements FlutterPlugin, MethodCallHandler {
         return obj.toJSONString();
     }
 
-    private String getParameterMap(X509Certificate certificate) {
+    private String getParameterMap(X509Certificate certificate) throws IOException {
         StringBuilder stringBuilder = new StringBuilder();
 
         stringBuilder.append("validFromDate=").append(certificate.getNotBefore().toString()).append("&");
@@ -166,7 +168,8 @@ public class CryptSignaturePlugin implements FlutterPlugin, MethodCallHandler {
         stringBuilder.append("issuerInfo=").append(certificate.getIssuerDN().getName()).append("&");
         stringBuilder.append("serialNumber=").append(certificate.getSerialNumber().toString()).append("&");
         stringBuilder.append("signAlgoritm[name]=").append(certificate.getSigAlgName()).append("&");
-        stringBuilder.append("signAlgoritm[oid]=").append(certificate.getSigAlgOID());
+        stringBuilder.append("signAlgoritm[oid]=").append(certificate.getSigAlgOID()).append("&");
+        stringBuilder.append("hashAlgoritm[alias]=").append(getDigestAlgorithm(certificate.getPublicKey()));
 
         return stringBuilder.toString();
     }
@@ -183,6 +186,54 @@ public class CryptSignaturePlugin implements FlutterPlugin, MethodCallHandler {
         stringBuilder.append("Действует по: ").append(certificate.getNotAfter().toString()).append("\n");
 
         return stringBuilder.toString();
+    }
+
+    private String getDigestAlgorithm(PublicKey publicKey) throws IOException {
+        PublicKeyInfo publicKeyInfo = new PublicKeyInfo();
+        publicKeyInfo.decode(publicKey.getEncoded());
+
+        String algorithm = OID.DERToOID(publicKeyInfo.algorithmIdentifier.algorithm.getContent());
+
+        String digestAlgorithm;
+
+        switch (algorithm) {
+            case "1.2.643.2.2.19":
+                digestAlgorithm = "1.2.643.2.2.9";
+                break;
+            case "1.2.643.7.1.1.1.1":
+                digestAlgorithm = "1.2.643.7.1.1.2.2";
+                break;
+            case "1.2.643.7.1.1.1.2":
+                digestAlgorithm = "1.2.643.7.1.1.2.3";
+                break;
+            default: throw new FatalError();
+        }
+
+        return digestAlgorithm;
+    }
+
+    private String getSignatureAlgorithm(PublicKey publicKey) throws IOException {
+        PublicKeyInfo publicKeyInfo = new PublicKeyInfo();
+        publicKeyInfo.decode(publicKey.getEncoded());
+
+        String algorithm = OID.DERToOID(publicKeyInfo.algorithmIdentifier.algorithm.getContent());
+
+        String signatureAlgorithm;
+
+        switch (algorithm) {
+            case "1.2.643.2.2.19":
+                signatureAlgorithm = JCP.RAW_GOST_EL_SIGN_NAME;
+                break;
+            case "1.2.643.7.1.1.1.1":
+                signatureAlgorithm = JCP.RAW_GOST_SIGN_2012_256_NAME;
+                break;
+            case "1.2.643.7.1.1.1.2":
+                signatureAlgorithm = JCP.RAW_GOST_SIGN_2012_512_NAME;
+                break;
+            default: throw new FatalError();
+        }
+
+        return signatureAlgorithm;
     }
 
     private MethodResponse<String> sign(String uuid, String password, String base64Data) {
@@ -209,32 +260,8 @@ public class CryptSignaturePlugin implements FlutterPlugin, MethodCallHandler {
 
                 log.info(certificate.getPublicKey().getAlgorithm());
 
-                PublicKeyInfo publicKeyInfo = new PublicKeyInfo();
-                publicKeyInfo.decode(certificate.getPublicKey().getEncoded());
-
-                String algorithm = OID.DERToOID(publicKeyInfo.algorithmIdentifier.algorithm.getContent());
-
-                String digestAlgorithm;
-                String signatureAlgorithm;
-
-                switch (algorithm) {
-                    case "1.2.643.2.2.19":
-                        digestAlgorithm = "1.2.643.2.2.9";
-                        signatureAlgorithm = JCP.RAW_GOST_EL_SIGN_NAME;
-                        break;
-                    case "1.2.643.7.1.1.1.1":
-                        digestAlgorithm = "1.2.643.7.1.1.2.2";
-                        signatureAlgorithm = JCP.RAW_GOST_SIGN_2012_256_NAME;
-                        break;
-                    case "1.2.643.7.1.1.1.2":
-                        digestAlgorithm = "1.2.643.7.1.1.2.3";
-                        signatureAlgorithm = JCP.RAW_GOST_SIGN_2012_512_NAME;
-                        break;
-                    default: throw new FatalError();
-                }
-
                 MessageDigest md = MessageDigest.getInstance(
-                        digestAlgorithm,
+                        getDigestAlgorithm(certificate.getPublicKey()),
                         JCSP.PROVIDER_NAME
                 );
                 md.update(data);
@@ -245,7 +272,7 @@ public class CryptSignaturePlugin implements FlutterPlugin, MethodCallHandler {
                 log.info("Сертификат распакован");
                 PrivateKey privateKey = (PrivateKey) keyStorePFX.getKey(alias, password.toCharArray());
 
-                Signature signature = Signature.getInstance(signatureAlgorithm, JCSP.PROVIDER_NAME);
+                Signature signature = Signature.getInstance(getSignatureAlgorithm(certificate.getPublicKey()), JCSP.PROVIDER_NAME);
                 signature.initSign(privateKey);
                 signature.update(digest);
                 byte[] sign = signature.sign();
