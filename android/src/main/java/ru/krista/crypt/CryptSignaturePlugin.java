@@ -5,12 +5,13 @@ import android.util.Base64;
 
 import androidx.annotation.NonNull;
 
-import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.codec.binary.Hex;
 import org.json.simple.JSONObject;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigInteger;
 import java.security.KeyStore;
 import java.security.MessageDigest;
 import java.security.PrivateKey;
@@ -20,8 +21,6 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Logger;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
@@ -149,7 +148,7 @@ public class CryptSignaturePlugin implements FlutterPlugin, MethodCallHandler {
         obj.put("alias", alias);
         obj.put("issuerDN", certificate.getSubjectDN().toString());
         obj.put("notAfterDate", certificate.getNotAfter().toString());
-        obj.put("serialNumber", certificate.getSerialNumber().toString());
+        obj.put("serialNumber", Hex.encodeHexString(certificate.getSerialNumber().toByteArray()));
         obj.put("algorithm", certificate.getPublicKey().getAlgorithm());
         obj.put("parameterMap", getParameterMap(certificate));
         obj.put("certificateDescription", getCertificateDescription(certificate));
@@ -166,7 +165,7 @@ public class CryptSignaturePlugin implements FlutterPlugin, MethodCallHandler {
         stringBuilder.append("subject=").append(certificate.getSubjectX500Principal().getName()).append("&");
         stringBuilder.append("subjectInfo=").append(certificate.getSubjectDN().getName()).append("&");
         stringBuilder.append("issuerInfo=").append(certificate.getIssuerDN().getName()).append("&");
-        stringBuilder.append("serialNumber=").append(certificate.getSerialNumber().toString()).append("&");
+        stringBuilder.append("serialNumber=").append(Hex.encodeHexString(certificate.getSerialNumber().toByteArray())).append("&");
         stringBuilder.append("signAlgoritm[name]=").append(certificate.getSigAlgName()).append("&");
         stringBuilder.append("signAlgoritm[oid]=").append(certificate.getSigAlgOID()).append("&");
         stringBuilder.append("hashAlgoritm[alias]=").append(getDigestAlgorithm(certificate.getPublicKey()));
@@ -178,7 +177,7 @@ public class CryptSignaturePlugin implements FlutterPlugin, MethodCallHandler {
         StringBuilder stringBuilder = new StringBuilder();
 
         stringBuilder.append("Владелец: ").append(certificate.getSubjectX500Principal().getName()).append("\n");
-        stringBuilder.append("Серийный номер: ").append(certificate.getSerialNumber().toString()).append("\n");
+        stringBuilder.append("Серийный номер: ").append(Hex.encodeHexString(certificate.getSerialNumber().toByteArray())).append("\n");
         stringBuilder.append("Издатель: ").append(certificate.getIssuerX500Principal().getName()).append("\n");
         stringBuilder.append("Алгоритм подписи: ").append(certificate.getSigAlgName()).append("\n");
         stringBuilder.append("     oid: ").append(certificate.getSigAlgOID()).append("\n");
@@ -278,9 +277,10 @@ public class CryptSignaturePlugin implements FlutterPlugin, MethodCallHandler {
                 byte[] sign = signature.sign();
 
                 JSONObject contentJson = new JSONObject();
-                contentJson.put("data", base64Data);
+                contentJson.put("sign-data", base64Data);
+                contentJson.put("serialNumber", certificate.getSerialNumber().toString());
                 contentJson.put("certificate", Base64.encodeToString(certificate.getEncoded(), Base64.NO_WRAP));
-                contentJson.put("sign", Base64.encodeToString(sign, Base64.NO_WRAP));
+                contentJson.put("signature", Base64.encodeToString(sign, Base64.NO_WRAP));
 
                 return new MethodResponse<String>(contentJson.toString(), MethodResponseCode.SUCCESS);
             } else {
