@@ -38,9 +38,9 @@ class Native {
 
       file.delete();
 
-      return ApiResponse.completed(certificate);
+      return ApiResponse.completed(data: certificate);
     } catch (exception) {
-      return ApiResponse.error(exception.toString());
+      return ApiResponse.error(message: exception.toString());
     }
   }
 
@@ -50,9 +50,9 @@ class Native {
       String result = await _channel.invokeMethod("sign",
           {"uuid": certificate.uuid, "password": password, "data": data});
 
-      return ApiResponse.completed(result);
+      return ApiResponse.completed(data: result);
     } catch (exception) {
-      return ApiResponse.error(exception.toString());
+      return ApiResponse.error(message: exception.toString());
     }
   }
 }
