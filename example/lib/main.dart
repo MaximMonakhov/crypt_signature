@@ -39,6 +39,8 @@ class _MyHomePageState extends State<MyHomePage> {
     return data;
   }
 
+  String result = "";
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,14 +53,23 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            TextButton(
-              onPressed: () async {
-                String result = await CryptSignature.signData(context, data,
-                    title: "Войти по сертификату", hint: "Выберите сертификат");
+            Column(
+              children: [
+                TextButton(
+                  onPressed: () async {
+                    String result = await CryptSignature.signData(context, data,
+                        title: "Войти по сертификату",
+                        hint: "Выберите сертификат");
 
-                print(result);
-              },
-              child: Text("Подписать: " + data),
+                    setState(() {
+                      this.result = result;
+                    });
+                    print(result);
+                  },
+                  child: Text("Подписать: " + data),
+                ),
+                Text(result)
+              ],
             ),
             TextButton(
               onPressed: () async {

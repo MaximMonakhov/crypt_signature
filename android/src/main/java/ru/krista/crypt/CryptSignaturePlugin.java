@@ -22,6 +22,8 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.logging.Logger;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.common.MethodCall;
@@ -122,9 +124,12 @@ public class CryptSignaturePlugin implements FlutterPlugin, MethodCallHandler {
 
             while (aliasesPFX.hasMoreElements()) {
                 String aliasPFX = aliasesPFX.nextElement();
+                log.info("aliasPFX" + aliasPFX);
                 if (keyStorePFX.isKeyEntry(aliasPFX))
                     alias = aliasPFX;
             }
+
+            log.info("alias" + alias);
 
             if (alias != null) {
                 log.info("Сертификат распакован");
@@ -148,7 +153,7 @@ public class CryptSignaturePlugin implements FlutterPlugin, MethodCallHandler {
         obj.put("alias", alias);
         obj.put("issuerDN", certificate.getSubjectDN().toString());
         obj.put("notAfterDate", certificate.getNotAfter().toString());
-        obj.put("serialNumber", Hex.encodeHexString(certificate.getSerialNumber().toByteArray()));
+        obj.put("serialNumber", new String( Hex.encodeHex(certificate.getSerialNumber().toByteArray())));
         obj.put("algorithm", certificate.getPublicKey().getAlgorithm());
         obj.put("parameterMap", getParameterMap(certificate));
         obj.put("certificateDescription", getCertificateDescription(certificate));
@@ -165,7 +170,7 @@ public class CryptSignaturePlugin implements FlutterPlugin, MethodCallHandler {
         stringBuilder.append("subject=").append(certificate.getSubjectX500Principal().getName()).append("&");
         stringBuilder.append("subjectInfo=").append(certificate.getSubjectDN().getName()).append("&");
         stringBuilder.append("issuerInfo=").append(certificate.getIssuerDN().getName()).append("&");
-        stringBuilder.append("serialNumber=").append(Hex.encodeHexString(certificate.getSerialNumber().toByteArray())).append("&");
+        stringBuilder.append("serialNumber=").append(new String(Hex.encodeHex(certificate.getSerialNumber().toByteArray()))).append("&");
         stringBuilder.append("signAlgoritm[name]=").append(certificate.getSigAlgName()).append("&");
         stringBuilder.append("signAlgoritm[oid]=").append(certificate.getSigAlgOID()).append("&");
         stringBuilder.append("hashAlgoritm[alias]=").append(getDigestAlgorithm(certificate.getPublicKey()));
@@ -177,7 +182,7 @@ public class CryptSignaturePlugin implements FlutterPlugin, MethodCallHandler {
         StringBuilder stringBuilder = new StringBuilder();
 
         stringBuilder.append("Владелец: ").append(certificate.getSubjectX500Principal().getName()).append("\n");
-        stringBuilder.append("Серийный номер: ").append(Hex.encodeHexString(certificate.getSerialNumber().toByteArray())).append("\n");
+        stringBuilder.append("Серийный номер: ").append(new String(Hex.encodeHex(certificate.getSerialNumber().toByteArray()))).append("\n");
         stringBuilder.append("Издатель: ").append(certificate.getIssuerX500Principal().getName()).append("\n");
         stringBuilder.append("Алгоритм подписи: ").append(certificate.getSigAlgName()).append("\n");
         stringBuilder.append("     oid: ").append(certificate.getSigAlgOID()).append("\n");
@@ -246,8 +251,9 @@ public class CryptSignaturePlugin implements FlutterPlugin, MethodCallHandler {
             Enumeration<String> aliasesPFX = keyStorePFX.aliases();
 
             while (aliasesPFX.hasMoreElements()) {
-                String aliasPFX = aliasesPFX.nextElement();
-                if (keyStorePFX.isKeyEntry(aliasPFX))
+                 String aliasPFX = aliasesPFX.nextElement();
+                log.info(aliasPFX);
+                 if (keyStorePFX.isKeyEntry(aliasPFX))
                     alias = aliasPFX;
             }
 
@@ -289,6 +295,13 @@ public class CryptSignaturePlugin implements FlutterPlugin, MethodCallHandler {
             }
         } catch (Exception exception) {
             log.info("Ошибка при чтении сертификата");
+            StringWriter writer = new StringWriter();
+PrintWriter printWriter = new PrintWriter( writer );
+exception.printStackTrace( printWriter );
+printWriter.flush();
+
+String stackTrace = writer.toString();
+            log.info(stackTrace);
             return new MethodResponse<String>("Ошибка: " + exception.toString(), MethodResponseCode.ERROR);
         }
     }
