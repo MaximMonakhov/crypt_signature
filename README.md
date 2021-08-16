@@ -1,7 +1,7 @@
 # Flutter-плагин для подписания данных с помощью ГОСТ сертификатов
 
 ## Форматы сертификатов
-Плагин принимает сертификаты формата .pfx
+Плагин принимает сертификаты формата .pfx <br>
 Алгоритмы: ГОСТ 2001, ГОСТ 2012, ГОСТ 2012 Strong
 
 ## Настройки для проекта к которому подключается плагин
@@ -11,7 +11,7 @@
 
 ### 2. ```AndroidManifest.xml``` 
 ```
-<applicationandroid:extractNativeLibs="true"></application>
+<application android:extractNativeLibs="true"></application>
 ```
 
 ### 3. ```gradle.propeties```
