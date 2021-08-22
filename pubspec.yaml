@@ -1,6 +1,6 @@
 name: crypt_signature
 description: crypt
-version: 2.0.0
+version: 2.0.1
 author: monakhov
 homepage: https://github.com/MaximMonakhov/crypt_signature
 
@@ -16,6 +16,7 @@ dependencies:
   uuid: ^3.0.2
   path_provider: ^2.0.1
   file_picker: ^3.0.4
+  mask_text_input_formatter: ^2.0.0
 
 dev_dependencies:
   flutter_test:

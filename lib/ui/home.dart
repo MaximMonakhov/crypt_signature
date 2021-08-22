@@ -1,8 +1,11 @@
 import 'package:api_event/api_event.dart';
 import 'package:crypt_signature/bloc/native.dart';
 import 'package:crypt_signature/crypt_signature.dart';
+import 'package:crypt_signature/ui/error.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 import 'certificates.dart';
 
@@ -22,16 +25,47 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  Event<bool> csp = new Event<bool>();
+  Event<int> csp = new Event<int>();
 
   @override
   void initState() {
-    _initCSP();
+    checkLicense();
+
     super.initState();
   }
 
-  _initCSP() async {
-    bool result = await Native.initCSP();
+  void checkLicense() {
+    String license = CryptSignature.sharedPreferences.getString("license");
+
+    if (license == null || license.isEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        setNewLicenseSheet();
+      });
+    } else
+      _initCSP(license);
+  }
+
+  void setNewLicenseSheet() async {
+    var maskFormatter = new MaskTextInputFormatter(
+        mask: '#####-#####-#####-#####-#####',
+        filter: {"#": RegExp(r'[0-9+A-Z]')});
+    String newLicense = await showInputDialog(
+        context,
+        "Введите вашу лицензию Крипто ПРО",
+        "Номер лицензии",
+        false,
+        TextInputType.emailAddress,
+        inputFormatters: [maskFormatter]);
+
+    if (newLicense != null && newLicense.isNotEmpty) {
+      CryptSignature.sharedPreferences.setString("license", newLicense);
+      _initCSP(newLicense);
+    } else
+      csp.publish(Native.INIT_CSP_LICENSE_ERROR);
+  }
+
+  _initCSP(String license) async {
+    int result = await Native.initCSP(license);
     csp.publish(result);
   }
 
@@ -66,7 +100,7 @@ class _HomeState extends State<Home> {
               ),
             ),
           ),
-          body: StreamBuilder<bool>(
+          body: StreamBuilder<int>(
               stream: csp.stream,
               builder: (context, snapshot) {
                 if (!snapshot.hasData)
@@ -82,13 +116,37 @@ class _HomeState extends State<Home> {
                     ),
                   );
 
-                return snapshot.data
+                return snapshot.data == Native.INIT_CSP_OK
                     ? Certificates(
                         hint: widget.hint,
                         onCertificateSelected: widget.onCertificateSelected,
                       )
-                    : Center(
-                        child: Text("Не удалось инициализировать провайдер"));
+                    : snapshot.data == Native.INIT_CSP_LICENSE_ERROR
+                        ? Center(
+                            child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text("Неверная лицензия"),
+                              GestureDetector(
+                                behavior: HitTestBehavior.translucent,
+                                onTap: () {
+                                  setNewLicenseSheet();
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(20.0),
+                                  child: Text(
+                                    "Ввести лицензию заново",
+                                    style: TextStyle(
+                                        color: Colors.blue,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ))
+                        : Center(
+                            child:
+                                Text("Не удалось инициализировать провайдер"));
               }),
         ),
       ),

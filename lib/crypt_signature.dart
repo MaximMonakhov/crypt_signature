@@ -21,7 +21,6 @@ class CryptSignature {
     CryptSignature.rootContext = context;
 
     sharedPreferences = await SharedPreferences.getInstance();
-    //await sharedPreferences.clear();
 
     Directory directory = await getApplicationDocumentsDirectory();
     await Directory(directory.path + '/certificates').create();
@@ -51,5 +50,9 @@ class CryptSignature {
             )));
 
     return result;
+  }
+
+  static void clear() {
+    CryptSignature.sharedPreferences.clear();
   }
 }

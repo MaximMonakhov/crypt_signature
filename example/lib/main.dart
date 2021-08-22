@@ -68,7 +68,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   },
                   child: Text("Подписать: " + data),
                 ),
-                Text(result)
+                Text(result ?? "")
               ],
             ),
             TextButton(

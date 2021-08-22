@@ -7,16 +7,26 @@ import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 
 class Native {
+  static const int INIT_CSP_OK = 0;
+  static const int INIT_CSP_LICENSE_ERROR = 1;
+  static const int INIT_CSP_ERROR = -1;
+
   static const MethodChannel _channel = const MethodChannel('crypt_signature');
   static String data;
 
-  static Future<bool> initCSP() async {
+  static Future<int> initCSP(String license) async {
     try {
-      dynamic result = await _channel.invokeMethod("initCSP");
+      dynamic result =
+          await _channel.invokeMethod("initCSP", {"license": license});
       return result;
     } catch (exception) {
       print("Не удалось инициализировать провайдер: " + exception.toString());
-      return false;
+
+      if (exception is PlatformException) {
+        return exception.details;
+      }
+
+      return INIT_CSP_ERROR;
     }
   }
 

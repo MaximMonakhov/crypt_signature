@@ -42,8 +42,12 @@ class _CertificatesState extends State<Certificates> {
 
     if (filePickerResult != null) {
       File file = File(filePickerResult.files.single.path);
-      String password = await showPasswordDialog(
-          context, "Введите пароль для\n распаковки сертификата");
+      String password = await showInputDialog(
+          context,
+          "Введите пароль для\n распаковки сертификата",
+          "Пароль",
+          true,
+          TextInputType.visiblePassword);
 
       if (password != null && password.isNotEmpty) {
         ApiResponse<Certificate> response =

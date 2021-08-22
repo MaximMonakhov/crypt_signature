@@ -24,8 +24,12 @@ class CertificateWidget extends StatelessWidget {
     String date = dateSplit[2] + " " + dateSplit[1] + " " + dateSplit[5];
 
     signData(Certificate certificate) async {
-      String password = await showPasswordDialog(context,
-          "Введите пароль для\n доступа к контейнеру приватного ключа");
+      String password = await showInputDialog(
+          context,
+          "Введите пароль для\n доступа к контейнеру приватного ключа",
+          "Пароль",
+          true,
+          TextInputType.visiblePassword);
 
       if (password != null && password.isNotEmpty) {
         UI.lockScreen();
@@ -52,8 +56,12 @@ class CertificateWidget extends StatelessWidget {
         return;
       }
 
-      String password = await showPasswordDialog(context,
-          "Введите пароль для\n доступа к контейнеру приватного ключа");
+      String password = await showInputDialog(
+          context,
+          "Введите пароль для\n доступа к контейнеру приватного ключа",
+          "Пароль",
+          true,
+          TextInputType.visiblePassword);
 
       if (password != null && password.isNotEmpty) {
         UI.lockScreen();

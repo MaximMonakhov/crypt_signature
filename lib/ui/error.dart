@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-Future<String> showPasswordDialog(BuildContext context, String message) async {
-  String password = await showDialog(
+Future<String> showInputDialog(BuildContext context, String message,
+    String hintText, bool obscureText, TextInputType keyboardType,
+    {List<TextInputFormatter> inputFormatters}) async {
+  String value = await showDialog(
     context: context,
     builder: (BuildContext context) {
       TextEditingController controller = new TextEditingController();
@@ -23,8 +26,10 @@ Future<String> showPasswordDialog(BuildContext context, String message) async {
             TextField(
               controller: controller,
               maxLines: 1,
+              inputFormatters: inputFormatters ?? [],
               autofocus: true,
-              obscureText: true,
+              keyboardType: keyboardType,
+              obscureText: obscureText,
               textAlign: TextAlign.center,
               style: TextStyle(
                   decoration: TextDecoration.none,
@@ -36,7 +41,7 @@ Future<String> showPasswordDialog(BuildContext context, String message) async {
                 filled: true,
                 fillColor: Color.fromRGBO(230, 236, 240, 1),
                 hintMaxLines: 1,
-                hintText: "Пароль",
+                hintText: hintText,
                 hintStyle: TextStyle(
                     color: Color.fromRGBO(134, 145, 173, 1), fontSize: 14.0),
                 border: OutlineInputBorder(
@@ -62,7 +67,7 @@ Future<String> showPasswordDialog(BuildContext context, String message) async {
     },
   );
 
-  return password;
+  return value;
 }
 
 showError(BuildContext context, String message, {String details}) {

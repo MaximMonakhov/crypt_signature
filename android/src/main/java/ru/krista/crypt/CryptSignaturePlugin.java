@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import org.apache.commons.codec.binary.Hex;
 import org.json.simple.JSONObject;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,6 +17,7 @@ import java.security.KeyStore;
 import java.security.MessageDigest;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.Security;
 import java.security.Signature;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
@@ -33,14 +35,29 @@ import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
 
 import ru.CryptoPro.JCP.JCP;
+import ru.CryptoPro.JCP.tools.JCPLogger;
 import ru.CryptoPro.JCSP.CSPConfig;
+import ru.CryptoPro.JCSP.CSPProviderInterface;
 import ru.CryptoPro.JCSP.JCSP;
+import ru.CryptoPro.JCSP.support.License;
+import ru.cprocsp.ACSP.tools.common.CSPLicenseConstants;
+import ru.cprocsp.ACSP.tools.common.CSPTool;
+import ru.cprocsp.ACSP.tools.common.Infrastructure;
+import ru.cprocsp.ACSP.tools.license.ACSPLicense;
+import ru.cprocsp.ACSP.tools.license.CSPLicense;
+import ru.cprocsp.ACSP.tools.license.LicenseInterface;
 import ru.krista.exceptions.FatalError;
 import ru.krista.io.asn1.core.OID;
 import ru.krista.io.asn1.x509.PublicKeyInfo;
 
-/** CryptSignaturePlugin */
+/**
+ * CryptSignaturePlugin
+ */
 public class CryptSignaturePlugin implements FlutterPlugin, MethodCallHandler {
+    public static final int INIT_CSP_OK = 0;
+    public static final int INIT_CSP_LICENSE_ERROR = 1;
+    public static final int INIT_CSP_ERROR = -1;
+
     private Context context;
     private final Logger log = Logger.getLogger(this.getClass().getName());
     private MethodChannel channel;
@@ -56,11 +73,18 @@ public class CryptSignaturePlugin implements FlutterPlugin, MethodCallHandler {
     public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
         switch (call.method) {
             case "initCSP": {
-                boolean resulty = initCSP();
+                int resulty;
 
-                if (resulty)
-                    result.success(true);
-                else result.error("ERROR", "Ошибка при инициализации провайдера", null);
+                try {
+                    String license = call.argument("license");
+                    resulty = initCSP(license);
+                    if (resulty == INIT_CSP_OK)
+                        result.success(resulty);
+                    else result.error("ERROR", "Ошибка при инициализации провайдера", resulty);
+                } catch (Exception e) {
+                    result.error("ERROR", "Ошибка при инициализации провайдера: " + e.getMessage(), INIT_CSP_ERROR);
+                }
+
                 break;
             }
             case "installCertificate": {
@@ -96,18 +120,34 @@ public class CryptSignaturePlugin implements FlutterPlugin, MethodCallHandler {
         channel.setMethodCallHandler(null);
     }
 
-    private boolean initCSP() {
+    private int initCSP(String license) throws Exception {
         log.info("Инициализация провайдера CSP");
+        log.info("Лицензия: " + license);
 
-        int initCode = CSPConfig.initEx(context);
+        int initCode = CSPConfig.init(context);
+        log.info("Код инициализации провайдера: " + initCode);
 
         if (initCode == CSPConfig.CSP_INIT_OK) {
             log.info("Провайдер инициализирован");
-            return true;
-        } else {
-            log.info("Провайдер не инициализирован");
-            return false;
+
+            if (Security.getProvider("JCSP") == null)
+                Security.addProvider(new JCSP());
+
+            int licenseStatus = setLicense(license);
+
+            if (licenseStatus != CSPConfig.LICENSE_STATUS_OK) return INIT_CSP_LICENSE_ERROR;
+
+            return INIT_CSP_OK;
         }
+
+        log.info("Провайдер не инициализирован");
+        return INIT_CSP_ERROR;
+    }
+
+    private int setLicense(String license) {
+        CSPProviderInterface providerInfo = CSPConfig.INSTANCE.getCSPProviderInfo();
+        LicenseInterface licenseInterface = providerInfo.getLicense();
+        return licenseInterface.checkAndSave(license, false);
     }
 
     private MethodResponse<String> installCertificate(String path, String password) {
@@ -153,7 +193,7 @@ public class CryptSignaturePlugin implements FlutterPlugin, MethodCallHandler {
         obj.put("alias", alias);
         obj.put("issuerDN", certificate.getSubjectDN().toString());
         obj.put("notAfterDate", certificate.getNotAfter().toString());
-        obj.put("serialNumber", new String( Hex.encodeHex(certificate.getSerialNumber().toByteArray())));
+        obj.put("serialNumber", new String(Hex.encodeHex(certificate.getSerialNumber().toByteArray())));
         obj.put("algorithm", certificate.getPublicKey().getAlgorithm());
         obj.put("parameterMap", getParameterMap(certificate));
         obj.put("certificateDescription", getCertificateDescription(certificate));
@@ -210,7 +250,8 @@ public class CryptSignaturePlugin implements FlutterPlugin, MethodCallHandler {
             case "1.2.643.7.1.1.1.2":
                 digestAlgorithm = "1.2.643.7.1.1.2.3";
                 break;
-            default: throw new FatalError();
+            default:
+                throw new FatalError();
         }
 
         return digestAlgorithm;
@@ -234,7 +275,8 @@ public class CryptSignaturePlugin implements FlutterPlugin, MethodCallHandler {
             case "1.2.643.7.1.1.1.2":
                 signatureAlgorithm = JCP.RAW_GOST_SIGN_2012_512_NAME;
                 break;
-            default: throw new FatalError();
+            default:
+                throw new FatalError();
         }
 
         return signatureAlgorithm;
@@ -251,9 +293,9 @@ public class CryptSignaturePlugin implements FlutterPlugin, MethodCallHandler {
             Enumeration<String> aliasesPFX = keyStorePFX.aliases();
 
             while (aliasesPFX.hasMoreElements()) {
-                 String aliasPFX = aliasesPFX.nextElement();
+                String aliasPFX = aliasesPFX.nextElement();
                 log.info(aliasPFX);
-                 if (keyStorePFX.isKeyEntry(aliasPFX))
+                if (keyStorePFX.isKeyEntry(aliasPFX))
                     alias = aliasPFX;
             }
 
@@ -296,11 +338,11 @@ public class CryptSignaturePlugin implements FlutterPlugin, MethodCallHandler {
         } catch (Exception exception) {
             log.info("Ошибка при чтении сертификата");
             StringWriter writer = new StringWriter();
-PrintWriter printWriter = new PrintWriter( writer );
-exception.printStackTrace( printWriter );
-printWriter.flush();
+            PrintWriter printWriter = new PrintWriter(writer);
+            exception.printStackTrace(printWriter);
+            printWriter.flush();
 
-String stackTrace = writer.toString();
+            String stackTrace = writer.toString();
             log.info(stackTrace);
             return new MethodResponse<String>("Ошибка: " + exception.toString(), MethodResponseCode.ERROR);
         }
