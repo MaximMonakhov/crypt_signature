@@ -9,6 +9,7 @@ Future<String> showInputDialog(BuildContext context, String message,
     builder: (BuildContext context) {
       TextEditingController controller = new TextEditingController();
       return AlertDialog(
+        backgroundColor: Colors.white,
         titlePadding: EdgeInsets.symmetric(vertical: 20.0),
         contentPadding:
             EdgeInsets.only(left: 20, right: 20.0, top: 0, bottom: 5.0),
