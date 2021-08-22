@@ -1,0 +1,6 @@
+framework module crypt_signature {
+  umbrella header "crypt_signature-umbrella.h"
+
+  export *
+  module * { export * }
+}

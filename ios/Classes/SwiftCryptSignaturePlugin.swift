@@ -3,6 +3,9 @@ import UIKit
 
 public class SwiftCryptSignaturePlugin: NSObject, FlutterPlugin {
   public static func register(with registrar: FlutterPluginRegistrar) {
+    initCSP()
+    addCert();
+    
     let channel = FlutterMethodChannel(name: "crypt_signature", binaryMessenger: registrar.messenger())
     let instance = SwiftCryptSignaturePlugin()
     registrar.addMethodCallDelegate(instance, channel: channel)

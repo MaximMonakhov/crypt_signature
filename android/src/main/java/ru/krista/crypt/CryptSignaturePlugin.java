@@ -162,14 +162,16 @@ public class CryptSignaturePlugin implements FlutterPlugin, MethodCallHandler {
             String alias = null;
             Enumeration<String> aliasesPFX = keyStorePFX.aliases();
 
+            log.info("Получение списка сертификатов");
+
             while (aliasesPFX.hasMoreElements()) {
                 String aliasPFX = aliasesPFX.nextElement();
-                log.info("aliasPFX" + aliasPFX);
-                if (keyStorePFX.isKeyEntry(aliasPFX))
+                log.info("Сертификат: " + aliasPFX);
+                if (keyStorePFX.isKeyEntry(aliasPFX)) {
+                    log.info("Сертификат связанный с приватным ключем: " + aliasPFX);
                     alias = aliasPFX;
+                }
             }
-
-            log.info("alias" + alias);
 
             if (alias != null) {
                 log.info("Сертификат распакован");
