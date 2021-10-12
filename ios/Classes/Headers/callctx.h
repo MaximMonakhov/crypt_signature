@@ -35,7 +35,7 @@ struct RND_CONTEXT_;
 * \param length [in] ������ ������ ��� ��������� ������������������.
 * \return TRUE, ��������� ������������������ ��������, FALSE �����.
 */
-typedef CSP_BOOL(*GetRandomFunction)(pCP_CALL_CTX pCallCtx, struct RND_CONTEXT_ *context, LPBYTE buffer, uint32_t length, uint32_t flags) ATTR_USERES;
+typedef CSP_BOOL(*GetRandomFunction)(pCP_CALL_CTX pCallCtx, struct RND_CONTEXT_ *context, LPBYTE buffer, uint32_t length, uint32_t flags);
 
 
 /*! \internal
@@ -46,7 +46,7 @@ typedef CSP_BOOL(*GetRandomFunction)(pCP_CALL_CTX pCallCtx, struct RND_CONTEXT_ 
 * \return TRUE, ��������� ������������������ ����� ���� �������� (��� ���������������),
 *  FALSE �����.
 */
-typedef CSP_BOOL(*IsRandomInitedFunction)(struct RND_CONTEXT_ *context) ATTR_USERES;
+typedef CSP_BOOL(*IsRandomInitedFunction)(struct RND_CONTEXT_ *context);
 
 /*! \internal
 * \brief ��������� �� ������� ��������� ��������� ���.
@@ -55,7 +55,7 @@ typedef CSP_BOOL(*IsRandomInitedFunction)(struct RND_CONTEXT_ *context) ATTR_USE
 *  ������ ��������� ���������.
 * \param seed [out] ���������������� ������������������.
 */
-typedef CSP_BOOL(*GetRandomSeedFunction)(struct RND_CONTEXT_ *context, LPBYTE seed, size_t length) ATTR_USERES;
+typedef CSP_BOOL(*GetRandomSeedFunction)(struct RND_CONTEXT_ *context, LPBYTE seed, size_t length);
 
 /*! \internal
 * \brief ��������� �� ������� ��������� ���������������� ������������������.
@@ -64,7 +64,7 @@ typedef CSP_BOOL(*GetRandomSeedFunction)(struct RND_CONTEXT_ *context, LPBYTE se
 *  ������ ��������� ���������.
 * \param seed [in] ���������������� ������������������.
 */
-typedef CSP_BOOL(*SetRandomSeedFunction)(pCP_CALL_CTX pCallCtx, struct RND_CONTEXT_ *context, const LPBYTE seed, size_t length) ATTR_USERES;
+typedef CSP_BOOL(*SetRandomSeedFunction)(pCP_CALL_CTX pCallCtx, struct RND_CONTEXT_ *context, const LPBYTE seed, size_t length);
 /*! \internal
 * \brief ������� ������������� ��������� �� �������� ���������,
 *  � ��������� � �������������� ������� CPSetProvParam(), PP_RANDOM.

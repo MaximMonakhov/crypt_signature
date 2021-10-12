@@ -52,5 +52,3 @@
 "Successful deleting passwords" = "Удаление паролей завершилось успехом";
 "Error deleting passwords" = "Удаление паролей завершилось ошибкой";
 "Delete saved passwords" = "Удалить сохраненные пароли";
-"<password>" = "<пароль>";
-"<confirmation>" = "<подтверждение>";

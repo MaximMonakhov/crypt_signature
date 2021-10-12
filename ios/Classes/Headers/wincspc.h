@@ -14,9 +14,9 @@
 
 /*!
  * \file $RCSfile$
- * \version $Revision: 207546 $
- * \date $Date:: 2020-03-02 17:00:35 +0400#$
- * \author $Author: frolov $
+ * \version $Revision: 199212 $
+ * \date $Date:: 2019-09-13 14:58:11 +0400#$
+ * \author $Author: ivan $
  *
  * \brief XXX
  *
@@ -504,17 +504,5 @@ struct CPC_CONFIG2_ {//::CPC_CONFIG_ ��� �����������
 #if defined(__cplusplus)
 } // extern "C"
 #endif // defined(__cplusplus)
-
-#define ACQUIRE_CONTEXT_ADD_INFO_CARRIER_IDENTIFIER  ((DWORD)0x4321)
-
-/*��������� ������������ ��� �������� �������������� ������� �� �������� ���������.
- ���������� ������������� ����� �������� � ��������� ��������� ����������.
-*/
-typedef struct ACQUIRECONTEXTADDINFO_ {
-    DWORD dwType;
-    BYTE pbSessionIdentifier[CARRIER_CLIENT_IDENTIFIER_SIZE];
-    DWORD cbAdditionalData;
-    BYTE* pbAdditionalData;
-} ACQUIRECONTEXTADDINFO, *PACQUIRECONTEXTADDINFO;
 
 #endif /* _WINCSPC_H_INCLUDED */

@@ -95,13 +95,6 @@ extern "C" {
 #define CP_ECDSA_AES_PROV CP_ECDSA_AES_PROV_A
 #endif //!UNICODE
 
-#define CP_RSA_BASE_PROV_A "Crypto-Pro RSA Cryptographic Service Provider"
-#ifdef UNICODE
-#define CP_RSA_BASE_PROV CAT_L(CP_RSA_BASE_PROV_A)
-#else //!UNICODE
-#define CP_RSA_BASE_PROV CP_RSA_BASE_PROV_A
-#endif //!UNICODE
-
 #define CP_KC1_GR3410_94_PROV_A "Crypto-Pro GOST R 34.10-94 KC1 CSP"
 #define CP_KC1_GR3410_94_PROV_W L"Crypto-Pro GOST R 34.10-94 KC1 CSP"
 #ifdef UNICODE
@@ -255,7 +248,7 @@ extern "C" {
 
 /* ���� ���������� */
 /* Container Types */
-#define KEY_CARRIER_VERSION_V1 1 /* �� �������������� � 3 ����� 2020 ���� */
+#define KEY_CARRIER_VERSION_V1 1
 #define KEY_CARRIER_VERSION_V2 2
 #define KEY_CARRIER_VERSION_V3 3 /* FKC-1. unused in 5.0 */
 #define KEY_CARRIER_VERSION_V4 4 /* FKC-2. */
@@ -379,13 +372,6 @@ extern "C" {
 /* ���� �������� CALG_TLS1_MASTER ��� ���������� ECDHE */
 #define CP_CREATE_TLS_PREMASTER	  0x00004000
 
-/* ���� ������������ Diffie-Hellman */
-#define CP_FORCE_GOST_DH	  0x00008000
-
-/* ���� ������������ ��� ������ � ImportKey � ExportKey ������ � �������������� Diffie-Hellman.
-   ������������ ������ � ������ ��� ASN.1 ��������� � ����������� �� �������� �����. */
-#define CP_PRIMITIVE_PUBLICKEYBLOB 0x00000020
-
 /* �������������� ������ ���������� ����� ��������� ������ �� ��������� ������� ����� ����������*/
 #define ISO10126_PADDING 4
 #define ANSI_X923_PADDING 5
@@ -402,7 +388,6 @@ extern "C" {
 #define CP_ECC_PLAIN_SIGNATURE				(0x00000008) // ������ ������� (r|s) � LittleEndian
 #define CP_CONTANER_AFFECTED_SIGNATURE			(0x00000010)
 #define CP_ECC_PLAIN_SIGNATURE_CNG_REVERSED		(0x00000020) // ������ ������� (s|r) � LittleEndian
-#define CP_PSEUDO_RANDOM_K_ONLY				(0x00000040) // ��������� ����� ������ ��������� k
 
 #define CMS_BLOCKLEN_TAG			'B'
 
@@ -477,11 +462,8 @@ extern "C" {
 #define ALG_SID_PBKDF2				63
 #define ALG_SID_MGM_AUTH			65
 #define ALG_SID_ANSI_X9_19_MAC			66
-#define ALG_SID_KDF_TREE_HMAC_SHA_256		67
 
 #define ALG_SID_HASH_VALUE_STORAGE		81
-
-#define ALG_SID_ANSI_X963_KDF			82
 
 /* VKO GOST R 34.10-2012 512-bit outputs sub-id*/
 #define ALG_SID_SYMMETRIC_512			34
@@ -510,7 +492,6 @@ extern "C" {
 #define ALG_SID_UECSYMMETRIC_EPHEM		47
 
 #define ALG_SID_GENERIC_SECRET			21
-#define ALG_SID_GOST_GENERIC_SECRET		22
 
 #define ALG_CLASS_UECSYMMETRIC                (6 << 13)
 
@@ -740,9 +721,6 @@ extern "C" {
 #define CALG_GENERIC_SECRET \
     (ALG_CLASS_DATA_ENCRYPT | ALG_TYPE_BLOCK | ALG_SID_GENERIC_SECRET)
 
-#define CALG_GOST_GENERIC_SECRET \
-    (ALG_CLASS_DATA_ENCRYPT | ALG_TYPE_BLOCK | ALG_SID_GOST_GENERIC_SECRET)
-
 #define CALG_PRO_DIVERS \
     (ALG_CLASS_DATA_ENCRYPT | ALG_TYPE_BLOCK | ALG_SID_PRODIVERS)
 #define CALG_RIC_DIVERS \
@@ -753,11 +731,6 @@ extern "C" {
 
 #define CALG_KDF_TREE_GOSTR3411_2012_256 \
     (ALG_CLASS_DATA_ENCRYPT | ALG_TYPE_BLOCK | ALG_SID_KDF_TREE_GOSTR3411_2012_256)
-#define CALG_KDF_TREE_HMAC_SHA_256 \
-    (ALG_CLASS_DATA_ENCRYPT | ALG_TYPE_BLOCK | ALG_SID_KDF_TREE_HMAC_SHA_256)
-
-#define CALG_ANSI_X963_KDF \
-    (ALG_CLASS_HASH | ALG_TYPE_ANY | ALG_SID_ANSI_X963_KDF)
 
 #ifndef CALG_ECDSA
     #ifndef ALG_SID_ECDSA
@@ -908,12 +881,6 @@ extern "C" {
 #define TLS_RSA_WITH_AES_256_CBC_SHA256 0x003d
 #define TLS_RSA_WITH_AES_128_GCM_SHA256 0x009c
 #define TLS_RSA_WITH_AES_256_GCM_SHA384 0x009d
-#define TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA 0xC013
-#define TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA 0xC014
-#define TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256 0xC027
-#define TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384 0xC028
-#define TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 0xC02F
-#define TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 0xC030
 #endif
 
 #define TLS_LEGACY_SUITE_CNAME                                      "TLS_GOST_R_3410_WITH_28147_LEGACY"
@@ -931,12 +898,6 @@ extern "C" {
 #define TLS_RSA_WITH_AES_256_CBC_SHA256_SUITE_CNAME                 "TLS_RSA_WITH_AES_256_CBC_SHA256"
 #define TLS_RSA_WITH_AES_128_GCM_SHA256_SUITE_CNAME                 "TLS_RSA_WITH_AES_128_GCM_SHA256"
 #define TLS_RSA_WITH_AES_256_GCM_SHA384_SUITE_CNAME                 "TLS_RSA_WITH_AES_256_GCM_SHA384"
-#define TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA_SUITE_CNAME		    "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"
-#define TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA_SUITE_CNAME		    "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA"
-#define TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_SUITE_CNAME	    "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256"
-#define TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384_SUITE_CNAME	    "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384"
-#define TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256_SUITE_CNAME	    "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"
-#define TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384_SUITE_CNAME	    "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384"
 
 #define TLS_LEGACY_SUITE_NAME                                       L"" TLS_LEGACY_SUITE_CNAME
 #define TLS_CIPHER_94_SUITE_NAME                                    L"" TLS_CIPHER_94_SUITE_CNAME
@@ -953,12 +914,6 @@ extern "C" {
 #define TLS_RSA_WITH_AES_256_CBC_SHA256_SUITE_NAME                  L"" TLS_RSA_WITH_AES_256_CBC_SHA256_SUITE_CNAME
 #define TLS_RSA_WITH_AES_128_GCM_SHA256_SUITE_NAME                  L"" TLS_RSA_WITH_AES_128_GCM_SHA256_SUITE_CNAME
 #define TLS_RSA_WITH_AES_256_GCM_SHA384_SUITE_NAME                  L"" TLS_RSA_WITH_AES_256_GCM_SHA384_SUITE_CNAME
-#define TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA_SUITE_NAME		    L"" TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA_SUITE_CNAME
-#define TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA_SUITE_NAME		    L"" TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA_SUITE_CNAME
-#define TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_SUITE_NAME	    L"" TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_SUITE_CNAME
-#define TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384_SUITE_NAME	    L"" TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384_SUITE_CNAME
-#define TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256_SUITE_NAME	    L"" TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256_SUITE_CNAME
-#define TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384_SUITE_NAME	    L"" TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384_SUITE_CNAME
 
 #define ALG_TYPE_CIPHER_SUITE                   (15 << 9)
 
@@ -974,11 +929,6 @@ extern "C" {
 /* ������������ ����� ����� GENERIC_SECRET */
 #define MAX_GENERIC_SECRET_KEY_BITLEN   4096
 #define MAX_GENERIC_SECRET_KEYLEN	512
-
-#define MAX_GOST_GENERIC_SECRET_KEY_BITLEN	4096
-#define MAX_GOST_GENERIC_SECRET_KEYLEN		512
-#define MIN_GOST_GENERIC_SECRET_KEY_BITLEN	64
-#define MIN_GOST_GENERIC_SECRET_KEYLEN		8
 
 #define CRYPT_ALG_PARAM_OID_GROUP_ID            20
 
@@ -1094,7 +1044,6 @@ extern "C" {
 #define PP_CONTROL_KEY_TIME_VALIDITY 169
 #define PP_CSP_MODE 170
 #define PP_REFCOUNT 171
-#define PP_RESERVED4         172
 
 #define PP_SIGNATURE_KEY_FP 211
 #define PP_EXCHANGE_KEY_FP 212
@@ -1133,9 +1082,6 @@ extern "C" {
 
 #define PP_EXTERNAL_CONTAINER_LINK 227
 #define PP_UNIQUE_FILTER 228
-#define PP_CARRIER_FREE_SPACE 229
-#define PP_CARRIER_CLIENT_CLEANUP 230
-#define PP_MEDIA_TYPE 231
 
 /* ����, ������������ ��� ������������ ��� ��������� ������� ���������� �����
     ���� property_flags. ��������� �������� CRYPT_PROPERTY* ��������� ����. */
@@ -1206,14 +1152,6 @@ extern "C" {
    ��-���-��������� ����� ���������� ��� ������ ��� ��-��������.
    ������������ � ���� ASCIIZ-������. */
 #define ERR_CRYPT_MEDIA_INVALID "INVALID_MEDIA"
-
-#define CARRIER_CLIENT_IDENTIFIER_SIZE 8
-
-/*����������� ���������� ����� ������ ��� PP_UNIQUE_FILTER*/
-#define CARRIER_MAX_UNIQUE_FILTER_LEN 255
-
-/*����������� ��������� ����� ������ ��� PP_MEDIA_TYPE*/
-#define CARRIER_MAX_MEDIA_TYPE_LEN 255
 
 /* �������������� ��������� ������� ���� */
 #define HP_HASHSTARTVECT 0x0008
@@ -1452,10 +1390,6 @@ extern "C" {
 #define szCPOID_RSA_SMIMEaaSigningCertificateV2 "1.2.840.113549.1.9.16.2.47"
 #define szCPOID_RSA_SMIMEaaETSotherSigCert "1.2.840.113549.1.9.16.2.19"
 
-/* OIDs ECDH single pass SHA key derivation */
-#define szOID_DH_SINGLE_PASS_STDDH_SHA224_KDF	"1.3.132.1.11.0"
-#define szOID_DH_SINGLE_PASS_STDDH_SHA512_KDF	"1.3.132.1.11.3"
-
 /* GUIDs for extending CryptEncodeObject/CryptDecodeObject functionality */
 /* ����� ���������� ���������������, ������������ ��� ���������� ����������������
    ������� CryptEncodeObject/CryptDecodeObject */
@@ -1542,11 +1476,11 @@ typedef struct _CRYPT_X509_GR3410_2012_PARAMETERS {
 
 //short names
 #define CP_GOST_28147_ALG			"GOST 28147-89"
-#define CP_GOST_R3412_2015_M_ALG		"GR 34.12-15 M"
-#define CP_GOST_R3412_2015_K_ALG		"GR 34.12-15 K"
+#define CP_GOST_R3412_2015_M_ALG		"GR 34.12 64 M"
+#define CP_GOST_R3412_2015_K_ALG		"GR 34.12 128 K"
 #define CP_GOST_28147_MAC_ALG			"GOST 28147-89 MAC"
-#define CP_GOST_R3413_2015_M_MAC_ALG		"GR 34.13-15 M MAC"
-#define CP_GOST_R3413_2015_K_MAC_ALG		"GR 34.13-15 K MAC"
+#define CP_GOST_R3413_2015_M_MAC_ALG		"GR 34.13 64 M MAC"
+#define CP_GOST_R3413_2015_K_MAC_ALG		"GR 34.13 128 K MAC"
 #define CP_GOST_HMAC_ALG			"HMAC GOST 28147-89"
 #define CP_GOST_R3411_ALG			"GOST R 34.11-94"
 #define CP_GOST_R3411_2012_256_ALG		"GR 34.11-2012 256"
@@ -1641,18 +1575,6 @@ typedef struct _CRYPT_X509_GR3410_2012_PARAMETERS {
 */
 #define CRYPT_MODE_OMAC_CTR	35
 
-/* ����� ���������� ��� �������� AES-������ �� RFC-3394 */
-/*! \ingroup ProCSPData
-*  \brief ����� ���������� ��� �������� AES-������ �� RFC-3394
-*/
-#define CRYPT_MODE_WRAP		36
-
-/* ����� ���������� ��� �������� AES-������ � ��������� �� RFC-5649 */
-/*! \ingroup ProCSPData
-*  \brief ����� ���������� ��� �������� AES-������ � ��������� �� RFC-5649
-*/
-#define CRYPT_MODE_WRAP_PAD	37
-
 /* ����� ���������� ����� ��� ���� 28147-89, ������� � ������.*/
 /*! \ingroup ProCSPData
  *  \brief ����� � ������ ����� ���� 28147-89 � �������� ������
@@ -1713,7 +1635,7 @@ typedef struct _CRYPT_X509_GR3410_2012_PARAMETERS {
 /*! \ingroup ProCSPData
 *  \brief ������������ ����������� ����� ����� ����������� (��� ������������� �������).
 */
-#define MAX_READER_NAME_LEN		255
+#define MAX_READER_NAME_LEN		64
 
 /*! \ingroup ProCSPData
 *  \brief ����� CRC.
@@ -2086,36 +2008,6 @@ typedef struct _CRYPT_SIMPLEBLOB_512 {
     */
 }   CRYPT_SIMPLEBLOB_512, *PCRYPT_SIMPLEBLOB_512;
 
-
-/*!
-* \ingroup ProCSPData
-*
-* \brief ��������������� (�. �. ���������������� ���������) CRYPT_SIMPLEBLOB_KEXP15 ��������� ��������� �������� ����
-* ���� SIMPLEBLOB ��� ������������� ��������� KEXP15 ��� �������� ������ "��������� CSP".
-* � ���� tSimpleBlobHeader.BlobHeader.bVersion ������ ���� ������� ��������� KEXP15_BLOB_VERSION.
-* � ���� tSimpleBlobHeader.Magic ������ ���� ������ KEXP15_MAGIC.
-*
-* \req_wincryptex
-* \sa CRYPT_SIMPLEBLOB_HEADER
-* \sa CPExportKey
-* \sa CPImportKey
-*/
-typedef struct _CRYPT_SIMPLEBLOB_KEXP15 {
-    CRYPT_SIMPLEBLOB_HEADER tSimpleBlobHeader;
-    /*!< ����� ��������� ��������� ����� ���� SIMPLEBLOB "��������� CSP".
-    */
-    BYTE    bEncryptedKey[1];
-    /*!< �������� ASN1 ��������� � DER ���������, ���������� ������������� ����:
-    * \code
-    *    GostKeyTransportKExp15 ::= SEQUENCE {
-    *		ukm                       OCTET STRING,
-    *		encryptedKeyData          OCTET STRING,
-    *		encryptedMac              OCTET STRING
-    *    }
-    * \endcode
-    */
-}   CRYPT_SIMPLEBLOB_KEXP15, *PCRYPT_SIMPLEBLOB_KEXP15;
-
 /*!
  * \ingroup ProCSPData
  *
@@ -2258,7 +2150,7 @@ typedef struct _CRYPT_PUBKEYPARAM {
  *
  * \brief ��������� CRYPT_PUBKEY_INFO_HEADER �������� ���������
  * ����� ��������� ����� ��� ����� �������� ����
- * �� ���� � 34.10-2001 ��� ���� � 34.10-2012.
+ * �� ���� � 34.10-2001.
  *
  * \req_wincryptex
  * \sa _PUBLICKEYSTRUC
@@ -2270,12 +2162,11 @@ typedef struct _CRYPT_PUBKEY_INFO_HEADER {
     BLOBHEADER BlobHeader;
                     /*!< ����� ��������� ��������� �����. ���������� ��� ��� � �������� �����
                      * ������������ � �������� �����. ��� �������� ������ ��������
-                     * ����� ������ CALG_GR3410, CALG_GR3410EL, CALG_GR3410_12_256
-		     * ��� CALG_GR3410_12_512. ��� ��������
+                     * ����� ������, ���� CALG_GR3410, ���� CALG_GR3410EL. ��� ��������
                      * ��� �������� �������� � ����������. ��. \ref _PUBLICKEYSTRUC.
                      */
     CRYPT_PUBKEYPARAM KeyParam;
-                    /*!< �������� ������� � ����� ������ ���� � 34.10-2001 � ���� � 34.10-2012.
+                    /*!< �������� ������� � ����� ������ ���� � 34.10-2001.
                      */
 } CRYPT_PUBKEY_INFO_HEADER;
 
@@ -2296,24 +2187,14 @@ typedef struct _CRYPT_PUBLICKEYBLOB {
                      */
     BYTE    bASN1GostR3410_2001_PublicKeyParameters[1/*������������*/];
                     /*!< �������� ASN1 ��������� � DER ���������, ������������
-                     * ��������� ��������� �����.
-		     * ��� ������ ���� � 34.10-2001 ��������� �������
-                     * ����� GostR3410-2001-PublicKeyParameters
+                     * ��������� ��������� �����, ��� ������� �����
+                     * GostR3410-2001-PublicKeyParameters
                      * CPPK [RFC 4491] � CPALGS [RFC 4357].
-		     * ��� ������ ���� � 34.10-2012 ��������� �������
-		     * ����� GostR3410-2012-PublicKeyParameters
-		     * � ������������ �� ����������, ��������� � �. 5.2.1.2
-		     * � 1323565.1.023-2018.
                      */
     BYTE    bPublicKey[1/*������������*/];
-                    /*!< �������� �������� ����.
-                     * ��� ������ ���� � 34.10-2001, ��� ������� ����� GostR3410-2001-PublicKey
+                    /*!< �������� �������� ���� � ������� ������������� (ASN1 DER)
+                     * ��� ������� ����� GostR3410-2001-PublicKey
                      * CPPK [RFC 4491].
-		     * ��� ������ ���� � 34.10-2012 � ������ ����� 256 ���, ��� �������
-		     * ����� GostR3410-2012-256-PublicKey, � ������ ����� 512 ���, ��� �������
-		     * ����� GostR3410-2012-512-PublicKey,
-		     * � ������������ � ��������� � �. 5.2.2
-		     * � 1323565.1.023-2018.
                      * ����� ������� ����� tPublicKeyParam.KeyParam.BitLen/8.
                      */
 }   CRYPT_PUBLICKEYBLOB, *PCRYPT_PUBLICKEYBLOB;
@@ -3078,6 +2959,16 @@ typedef struct _CRYPT_CONTAINER_PARAM {
 * \sa CPSetProvParam
 */
 
+#define ENABLE_CARRIER_TYPE_CSP 0x01   // ������� ��������������� (CSP 3.6 - CSP 4.0)
+#define ENABLE_CARRIER_TYPE_FKC_NO_SM 0x02  // ��� ��� SM (������� ���, ������ ���� � �.�.)
+#define ENABLE_CARRIER_TYPE_FKC_SM 0x04 // ��� � SM (SESPAKE)
+#define ENABLE_ANY_CARRIER_TYPE (ENABLE_CARRIER_TYPE_CSP|ENABLE_CARRIER_TYPE_FKC_NO_SM|ENABLE_CARRIER_TYPE_FKC_SM)
+
+#define DISABLE_EVERY_CARRIER_OPERATION 0x00  // ����������� ���� ��������� ��������� ���������
+#define ENABLE_CARRIER_OPEN_ENUM 0x01   // �� ����������� ����� ��������� ����� ��������� � ����������� ����������
+#define ENABLE_CARRIER_CREATE 0x02  // �� ����������� ����� ��������� ����� ��������� ����������
+#define ENABLE_ANY_OPERATION (ENABLE_CARRIER_OPEN_ENUM|ENABLE_CARRIER_CREATE)
+
 typedef struct _CRYPT_CARRIER_TYPES {
     DWORD enabled_types; /*!< ����������� ���� ���������. */
     DWORD enabled_operations; /*!< ����������� �������� ��� ����������� ���������. */
@@ -3086,108 +2977,20 @@ typedef struct _CRYPT_CARRIER_TYPES {
 /*!
 * \ingroup ProCSPData
 *
-* \defgroup CarrierTypeFlags �����, ������������ � ���������� PP_CARRIER_TYPES.
+* \brief �����, ���������� ����� CryptGetProvParam(PP_ENUMREADERS, CRYPT_MEDIA) � CryptGetProvParam(PP_CARRIER_FLAGS)
 *
 * \req_wincryptex
 * \sa CPGetProvParam
-* \sa CPSetProvParam
-*
-* \{
 */
 
-/*!
- *  \brief ��������� ������������� ��������� ������� ��������� ����������������� (CSP 3.6 - CSP 4.0).
- */
-#define ENABLE_CARRIER_TYPE_CSP 0x01
-
-/*!
- *  \brief ��������� ������������� ��� ��� SM (������� ���, JaCarta ���� � �.�.).
- */
-#define ENABLE_CARRIER_TYPE_FKC_NO_SM 0x02
-
-/*!
- *  \brief ��������� ������������� ��� � SM (SESPAKE).
- */
-#define ENABLE_CARRIER_TYPE_FKC_SM 0x04
-
-/*!
- *  \brief ��������� ������������� ���� ����� ���������.
- */
-#define ENABLE_ANY_CARRIER_TYPE (ENABLE_CARRIER_TYPE_CSP|ENABLE_CARRIER_TYPE_FKC_NO_SM|ENABLE_CARRIER_TYPE_FKC_SM)
-
-/*!
- *  \brief �� ����������� ����� ��������� �� ��������� ������� ��������
- */
-#define DISABLE_EVERY_CARRIER_OPERATION 0x00
-
-/*!
- *  \brief �� ����������� ����� ��������� ��������� ������ �������� � ������������ �����������.
- */
-#define ENABLE_CARRIER_OPEN_ENUM 0x01
-
-/*!
- *  \brief �� ����������� ����� ��������� ��������� ������ �������� �����������.
- */
-#define ENABLE_CARRIER_CREATE 0x02
-
-/*!
- *  \brief �� ����������� ����� ��������� ��������� ��� ��������.
- */
-#define ENABLE_ANY_OPERATION (ENABLE_CARRIER_OPEN_ENUM|ENABLE_CARRIER_CREATE)
-
-/*! \} */
-
-/*!
-* \ingroup ProCSPData
-*
-* \defgroup CarrierFlags �����, ������������ ����� CryptGetProvParam(PP_ENUMREADERS, CRYPT_MEDIA) � CryptGetProvParam(PP_CARRIER_FLAGS)
-*
-* \req_wincryptex
-* \sa CPGetProvParam
-*
-* \{
-*/
-
-/*!
- *  \brief ������� ������������� �������� (���������� � �����-���� � ����-�����������)
- */
-#define CARRIER_FLAG_REMOVABLE 1
-
-/*!
- *  \brief ������� ������� ����������� ������ (���������� � �����-���� � ����-�����������)
- */
-#define CARRIER_FLAG_UNIQUE 2
-/*!
- *  \brief ������� ��������, ����������� ����������� �� ������ ���������� (���������� � HSM)
- */
-#define CARRIER_FLAG_PROTECTED 4
-
-/*!
- *  \brief ������� ���-�������� (�������� � �������������� �������)
- */
-#define CARRIER_FLAG_FUNCTIONAL_CARRIER 8
-
-/*!
- *  \brief ������� ���-�������� � ���������� ����������� ������ ����������� � ��������� SESPAKE
- */
-#define CARRIER_FLAG_SECURE_MESSAGING 16
-
-/*!
- *  \brief ������� ����������� ��������� ��������� ����� �� ���-��������
- */
-#define CARRIER_FLAG_ABLE_SET_KEY 32
-
-/*!
- *  \brief ������� ����������� ����������� ����������� ������������� ������� (SafeTouch, ������� ������)
- */
-#define CARRIER_FLAG_ABLE_VISUALISE_SIGNATURE 64
-
-/*!
- *  \brief ������� ������������ ����������� (��� ���������� � ������ ������)
- */
-#define CARRIER_FLAG_VIRTUAL 128
-
-/*! \} */
+#define CARRIER_FLAG_REMOVABLE 1                  /* ������� ������������� �������� (���������� � �����-���� � ����-�����������) */
+#define CARRIER_FLAG_UNIQUE 2                     /* ������� ������� ����������� ������ (���������� � �����-���� � ����-�����������) */
+#define CARRIER_FLAG_PROTECTED 4                  /* ������� ��������, ����������� ����������� �� ������ ���������� (���������� � HSM) */
+#define CARRIER_FLAG_FUNCTIONAL_CARRIER 8         /* ������� ���-�������� (�������� � �������������� �������) */
+#define CARRIER_FLAG_SECURE_MESSAGING 16          /* ������� ���-�������� � ���������� ����������� ������ ����������� � ��������� SESPAKE */
+#define CARRIER_FLAG_ABLE_SET_KEY 32		  /* ������� ����������� ��������� ��������� ����� �� ���-�������� */
+#define CARRIER_FLAG_ABLE_VISUALISE_SIGNATURE 64  /* ������� ����������� ����������� ����������� ������������� ������� (SafeTouch, ������� ������) */
+#define CARRIER_FLAG_VIRTUAL 128                  /* ������� ������������ ����������� (��� ���������� � ������ ������) */
 
 /*!
 * \ingroup ProCSPData
@@ -3207,7 +3010,7 @@ typedef struct _CRYPT_ENUMREADER_INFO {
 /*!
 * \ingroup ProCSPData
 *
-* \brief ���� � ����������� � ������ ������ / �������, �������������� �����
+* \brief ���� � ����������� � �����������, �������������� �����
 * ��������������� ���������������.
 *
 * \req_wincryptex
@@ -3222,23 +3025,23 @@ typedef struct _CRYPT_ENUMREADER_INFO_MEDIA {
          * <tr><td>
          * NO_MEDIA
          * </td><td>
-         *      ����� �� ��������� � ����������� ��� �������� �� ��������������.
+         *      ����� �� ���������
          * </td></tr><tr><td>
          * NO_UNIQUE
          * </td><td>
-         *      �������� �� ������������ UNIQUE.
+         *      �������� �� ������������ UNIQUE (NB: ��� USB-Flash-��������� �� Unix �� ����� UNIQUE, � �� Windows � �����)
          * </td></tr><tr><td>
          * INVALID_MEDIA
          * </td><td>
-         *      ��� ������ � ��������� �������� ������. � CSP 5.0 �� ������������.
+         *      ��� ������ � ��������� �������� ������
          * </td></tr><tr><td>
          * IS_FKC
          * </td><td>
-         *      ���-�������� � ��-���-����������. � CSP 5.0 �� ������������.
+         *      ���-�������� � ��-���-����������
          * </td></tr><tr><td>
          * NO_FKC
          * </td><td>
-         *      ��-���-�������� � ���-����������. � CSP 5.0 �� ������������.
+         *      ��-���-�������� � ���-����������
          * </td></tr><tr><td>
          * GEM_35000030CFE53C70
          * </td><td>
@@ -3261,7 +3064,7 @@ typedef struct _CRYPT_ENUMREADER_INFO_MEDIA {
          *      ������ UNIQUE-�����
          * </td></tr></table>
     	 */
-    BYTE   Flags; /*!< ����� �����������. \sa CarrierFlags */
+    BYTE   Flags; /*!< ����� �����������. */
 } CRYPT_ENUMREADER_INFO_MEDIA;
 
 /*!
@@ -4061,14 +3864,6 @@ typedef struct _CPC_FAST_CODE {
  */
 #define CSP_FAST_CODE_SHA1 (1<<26)
 
- /*!
-  * \brief ����, ������������ ������� \ref CPGetProvParam (PP_FAST_CODE_FLAGS).
-  * ������������ ��� ���� ��� ��������, ����� ���
-  * ����������� � ������� �������������� MGM.
-  * ����� 1 � ������ �������� ���� ������ �������,
-  * � 0 �����.
-  */
-#define CSP_FAST_CODE_MGM_AUTH (1<<29)
 
 /*!
  *  \brief ����� ������, ������������ �������� \ref CPGetProvParam (PP_FAST_CODE_FLAGS).
@@ -4100,7 +3895,7 @@ typedef struct _CPC_FAST_CODE {
  *  \brief ����� ������, ������������ �������� \ref CPGetProvParam (PP_FAST_CODE_FLAGS).
  *  ���������� ��� ����� ������� ����������.
  */
-#define CSP_FAST_CODE_ALL_CRYPT (CSP_FAST_CODE_ALL_ENCRYPT|CSP_FAST_CODE_ALL_DECRYPT|CSP_FAST_CODE_MD_ECB|CSP_FAST_CODE_IMIT|CSP_FAST_CODE_IMIT_2015|CSP_FAST_CODE_MGM_AUTH)
+#define CSP_FAST_CODE_ALL_CRYPT (CSP_FAST_CODE_ALL_ENCRYPT|CSP_FAST_CODE_ALL_DECRYPT|CSP_FAST_CODE_MD_ECB|CSP_FAST_CODE_IMIT|CSP_FAST_CODE_IMIT_2015)
 
 /*!
  *  \brief ����� ������, ������������ �������� \ref CPGetProvParam (PP_FAST_CODE_FLAGS).
@@ -4178,11 +3973,10 @@ typedef struct _CPC_FAST_CODE {
  *  \brief ��������� �������� ��������� op_type ������� \ref CPC_Kernel_Fpu_Begin_Callback.
  *  ��������, ��� ������ ������� FPU ��������� � ������� ������������������� ����������.
  *  ����� ������ �������� �������������� ������ ������� ������������������� ����������,
- *  ������������ ���������� MMX, SSE2, SSSE3, AVX � CLMUL.
+ *  ������������ ���������� MMX, SSE2, SSSE3 � AVX.
  *  � ������ ���� x64 MMX ���������� �� ������������.
- *  � ������ ���� CLMUL ���������� �� ������������.
  */
-#define CSP_OPERATION_CIPHER2	(CSP_FAST_CODE_E_ECB | CSP_FAST_CODE_E_CNT | CSP_FAST_CODE_E_OFB | CSP_FAST_CODE_E_CTR | CSP_FAST_CODE_D_ECB | CSP_FAST_CODE_D_CBC | CSP_FAST_CODE_D_CNT | CSP_FAST_CODE_D_OFB | CSP_FAST_CODE_D_CTR | CSP_FAST_CODE_D_CFB | CSP_FAST_CODE_MD_ECB | CSP_FAST_CODE_MGM_AUTH)
+#define CSP_OPERATION_CIPHER2	(CSP_FAST_CODE_E_ECB | CSP_FAST_CODE_E_CNT | CSP_FAST_CODE_E_OFB | CSP_FAST_CODE_E_CTR | CSP_FAST_CODE_D_ECB | CSP_FAST_CODE_D_CBC | CSP_FAST_CODE_D_CNT | CSP_FAST_CODE_D_OFB | CSP_FAST_CODE_D_CTR | CSP_FAST_CODE_D_CFB | CSP_FAST_CODE_MD_ECB)
 
 
 /*!
@@ -4209,14 +4003,6 @@ typedef struct _CPC_FAST_CODE {
  *  ������������ ���������� MMX � SSE2. ����������� ������ � ���������������� ������.
  */
 #define CSP_OPERATION_MULT	(CSP_FAST_CODE_ALL_MULT)
-
- /*!
-  *  \brief ������� ����� ��� ���������/���������� �������� ���� ������� MGM_Auth ������ MGM.
-  *  ������ �������� ���������� ����� ���� ��������������� ������� �������,
-  *  ������������ ���������� SSSE3 + CLMUL.
-  *  � ������ ���� ���������� �� ������������.
-  */
-#define CSP_OPERATION_MGM_AUTH	(CSP_FAST_CODE_MGM_AUTH)
 
 /*!
  *  \brief ������� ����� ��� ���������/���������� �������� ���� ��� ������� GHASH ������ GCM ���������� ������������.
@@ -4367,7 +4153,6 @@ typedef struct _CRYPT_LCD_QUERY_PARAM {
  * <tr><td>CALG_GR3412_2015_M</td><td>������������� ��������� ���������� �� ���� � 34.12-2015 �����. </td></tr>
  * <tr><td>CALG_GR3412_2015_K</td><td>������������� ��������� ���������� �� ���� � 34.12-2015 ��������. </td></tr>
  * <tr><td>CALG_SYMMETRIC_512</td><td>������������� ��������� ��������� ����� ������ ����� �� �����-�������� � ������ ������ 512 ���.</td></tr>
- * <tr><td>CALG_GOST_GENERIC_SECRET</td><td>������������� ��������� ����� ������������ �����.</td></tr>
  * <tr><td>CALG_DH_EL_SF </td><td>������������� ��������� ������ ������ �� �����-�������� �� ���� ��������� ����� ������������. �������� ���� ���������� �� ���� � 34.10 2001.</td></tr>
  * <tr><td>CALG_DH_EL_EPHEM</td><td> ������������� ��������� ������ ������ �� �����-�������� �� ���� ��������� ����� ��������� ����. �������� ���� ���������� �� ���� � 34.10 2001.</td></tr>
  * <tr><td>CALG_DH_GR3410_12_256_SF</td><td>������������� ��������� ������ ������ �� �����-�������� �� ���� ��������� ����� ������������. �������� ���� ���������� �� ���� � 34.10 2012 (256 ���).</td></tr>
@@ -4740,10 +4525,8 @@ typedef struct _CPCERT_ISSUER_SIGN_TOOL {
  * </td></tr>
  * </table> 
  *
- * ��� ���������� ������� �������������� ������ ����������: CRYPT_MODE_CNT, CRYPT_MODE_CFB, CRYPT_MODE_CBCSTRICT, CRYPT_MODE_CTR, CRYPT_MODE_MGM.
- * �� ���� ������� ���������� ����� ���� ����������� ���� CRYPT_SIMPLEMIX_MODE.
- * � ������� ���������� CRYPT_MODE_CNT, CRYPT_MODE_CFB, CRYPT_MODE_CBCSTRICT ����� ���� ����������� ���� CRYPT_PROMIX_MODE.
- * � ������ ���������� CRYPT_MODE_CTR ����� ���� ����������� ���� CRYPT_ACPKM_MODE.
+ * ��� ���������� ������� �������������� ������ ����������: CRYPT_MODE_CNT, CRYPT_MODE_CFB, CRYPT_MODE_CBCSTRICT.
+ * �� ���� ������� ���������� ����� ���� ������������ �����: CRYPT_PROMIX_MODE, CRYPT_SIMPLEMIX_MODE.
  *
  * � �������� ������ ���������� ����� ������� ������� ����������.
  *
@@ -5458,7 +5241,6 @@ typedef struct _CPCERT_ISSUER_SIGN_TOOL {
 #define CP_REUSABLE_HMAC		(0x4)
 #define CP_MULTI_HASH_FLAG		(0x8)
 #define CP_IMIT_NO_KEY_LOAD             (0x10)
-#define CP_HASH_ITER_NUMBER		(0x20)
 
 #define MIN_MULTI_HASH_COUNT		(0x01)
 #define MAX_MULTI_HASH_COUNT		(0x40)
@@ -5593,10 +5375,6 @@ typedef  struct CSP_Multipacket_DEC_ {
 * - n - ����� ��������� � ������� �������.
 */
 #define MultiPacket_DEC_RES(p,n) (((CSP_Multipacket_DEC*)p)[n].dwDecResult)
-
-// ���������, ������������ � CertEnumPhysicalStore ��� ���������� Windows-�������� �
-// Capilite-����������. ���������� CERT_PHYSICAL_STORE_DEFAULT_NAME � ������� ����������.
-#define CERT_PHYSICAL_STORE_WINDOWS_NAME L".Windows"
 
 #endif /* _WINCRYPTEX_H_INCLUDED */
 /** \endcond */

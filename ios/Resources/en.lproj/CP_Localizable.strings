@@ -201,5 +201,3 @@ Error=%x";
 "Error deleting passwords" = "Error deleting passwords";
 "Delete saved passwords" = "Delete saved passwords";
 "Remember" = "Remember";
-"<password>" = "<password>";
-"<confirmation>" = "<confirmation>";

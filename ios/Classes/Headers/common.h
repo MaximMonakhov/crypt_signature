@@ -1,7 +1,7 @@
 #ifndef _COMMON_H_INCLUDED_
 #define _COMMON_H_INCLUDED_
 
-#define BUILD_YEAR	"2020"
+#define BUILD_YEAR	"2019"
 
 /* Code types for USE_CODE #define */
 #define USE_CODE_C	    1

@@ -10,7 +10,6 @@
     using _com_util::ConvertStringToBSTR;
 #endif //_WIN32
 
-#include<compiler_attributes.h>
 #ifdef UNIX
 #include <cstdarg>
 #include <wchar.h>

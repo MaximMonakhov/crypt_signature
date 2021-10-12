@@ -66,11 +66,6 @@ typedef struct _CPSSP_CTX_FLAGS_ {
     unsigned int extended_master_secret : 1;
     unsigned int session_reused : 1;
     unsigned int client_legacy_sent : 1;
-    unsigned int elliptic_curves : 1;
-    unsigned int ec_point_formats : 1;
-    // Новые флаги добавлять строго в конец!
-    unsigned int ServerKeyExchangeMsgExpected : 1;
-    unsigned int SessionTicketAcquired : 1;
 } CPSSP_CTX_FLAGS, *PCPSSP_CTX_FLAGS;
 
 #ifdef KSP_LITE

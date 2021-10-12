@@ -275,11 +275,6 @@ typedef ULONG_PTR NCRYPT_PROV_HANDLE;
 
 #define CRYPT_BLOB_VER3         0x00000080  /* export version 3 of a blob type*/
 
-// dwFlags definitions for CryptDecrypt
-//  See also CRYPT_OAEP, above.
-//  Note, the following flag is not supported for CryptEncrypt
-#define CRYPT_DECRYPT_RSA_NO_PADDING_CHECK      0x00000020
-
 /* dwFlags definitions for CryptCreateHash*/
 #define CRYPT_SECRETDIGEST      0x00000001
 
@@ -1002,7 +997,6 @@ CryptDecodeObject(
 //--------------------------------------------------------------------------
 #define X509_CERTIFICATE_TEMPLATE           ((LPCSTR) 64)
 #define szOID_CERTIFICATE_TEMPLATE      "1.3.6.1.4.1.311.21.7"
-#define X509_OBJECT_IDENTIFIER              ((LPCSTR) 73)
 #define X509_ALGORITHM_IDENTIFIER           ((LPCSTR) 74)
 
 //+-------------------------------------------------------------------------
@@ -1329,11 +1323,6 @@ typedef struct _CRYPT_ALGORITHM_IDENTIFIER {
 #define szOID_NIST_AES192_CBC		    "2.16.840.1.101.3.4.1.22"
 #define szOID_NIST_AES256_CBC		    "2.16.840.1.101.3.4.1.42"
 
-// ECDH single pass ephemeral-static KeyAgreement KeyEncryptionAlgorithm
-#define szOID_DH_SINGLE_PASS_STDDH_SHA1_KDF   "1.3.133.16.840.63.0.2"
-#define szOID_DH_SINGLE_PASS_STDDH_SHA256_KDF "1.3.132.1.11.1"
-#define szOID_DH_SINGLE_PASS_STDDH_SHA384_KDF "1.3.132.1.11.2"
-
 // NIST Hash Algorithms
 // joint-iso-itu-t(2) country(16) us(840) organization(1) gov(101) csor(3) nistalgorithm(4) hashalgs(2)
 
@@ -1508,6 +1497,10 @@ typedef struct _CERT_RDN_ATTR {
 #define szOID_PKIX_PE                   "1.3.6.1.5.5.7.1"
 #define szOID_AUTHORITY_INFO_ACCESS     "1.3.6.1.5.5.7.1.1"
 
+// Contains the minimum base CRL Number that can be used with a delta CRL.
+#define szOID_DELTA_CRL_INDICATOR       "2.5.29.27"
+#define szOID_ISSUING_DIST_POINT        "2.5.29.28"
+
 // UPN principal name in SubjectAltName
 #ifndef szOID_NT_PRINCIPAL_NAME
 #define szOID_NT_PRINCIPAL_NAME         "1.3.6.1.4.1.311.20.2.3"
@@ -1570,11 +1563,6 @@ typedef struct _CERT_RDN_ATTR {
 // For encoding: when set, CERT_RDN_UTF8_STRING is selected instead of
 // CERT_RDN_UNICODE_STRING.
 #define CERT_RDN_ENABLE_UTF8_UNICODE_FLAG   0x20000000
-
-// For encoding: when set, CERT_RDN_UTF8_STRING is selected instead of
-// CERT_RDN_PRINTABLE_STRING for DirectoryString types. Also,
-// enables CERT_RDN_ENABLE_UTF8_UNICODE_FLAG.
-#define CERT_RDN_FORCE_UTF8_UNICODE_FLAG    0x10000000
 
 // For encoding: when set, the characters aren't checked to see if they
 // are valid for the Value Type.
@@ -2167,19 +2155,13 @@ typedef struct _CRYPT_TIME_STAMP_REQUEST_INFO {
 
 #define CERT_OCSP_RESPONSE_PROP_ID          70
 #define CERT_REQUEST_ORIGINATOR_PROP_ID     71	// string:machine DNS name
-#define CERT_NCRYPT_KEY_HANDLE_PROP_ID      78
-#define CERT_HCRYPTPROV_OR_NCRYPT_KEY_HANDLE_PROP_ID   79
-
 #define CERT_CA_OCSP_AUTHORITY_INFO_ACCESS_PROP_ID 81
+
+#define CERT_FIRST_RESERVED_PROP_ID         82
 
 #define CERT_SUBJECT_PUB_KEY_BIT_LENGTH_PROP_ID 92
 
 #define CERT_NO_EXPIRE_NOTIFICATION_PROP_ID 97
-
-#define CERT_NCRYPT_KEY_HANDLE_TRANSFER_PROP_ID 99
-#define CERT_HCRYPTPROV_TRANSFER_PROP_ID    100
-
-#define CERT_FIRST_RESERVED_PROP_ID            128
 
 #define CERT_CRL_ISSUER_PROP_ID		    32000
 #define CERT_KEY_PROV_INFO_PROP_ID_BLOB	    32001
@@ -6327,6 +6309,7 @@ typedef struct _CERT_SYSTEM_STORE_INFO {
 //  When the system store is opened, its physical stores are ordered
 //  according to the dwPriority. A larger dwPriority indicates higher priority.
 //--------------------------------------------------------------------------
+#if defined WIN32
 typedef struct _CERT_PHYSICAL_STORE_INFO {
     DWORD               cbSize;
     LPSTR               pszOpenStoreProvider;   // REG_SZ
@@ -6336,6 +6319,7 @@ typedef struct _CERT_PHYSICAL_STORE_INFO {
     DWORD               dwFlags;                // REG_DWORD
     DWORD               dwPriority;             // REG_DWORD
 } CERT_PHYSICAL_STORE_INFO, *PCERT_PHYSICAL_STORE_INFO;
+#endif /* WIN32 */
 
 //+-------------------------------------------------------------------------
 //  Physical Store Information dwFlags
@@ -6496,6 +6480,7 @@ typedef CSP_BOOL (WINAPI *PFN_CERT_ENUM_SYSTEM_STORE)(
     IN OPTIONAL void *pvArg
     );
 
+#if defined WIN32
 typedef CSP_BOOL (WINAPI *PFN_CERT_ENUM_PHYSICAL_STORE)(
     IN const void *pvSystemStore,
     IN DWORD dwFlags,
@@ -6504,6 +6489,7 @@ typedef CSP_BOOL (WINAPI *PFN_CERT_ENUM_PHYSICAL_STORE)(
     IN OPTIONAL void *pvReserved,
     IN OPTIONAL void *pvArg
     );
+#endif /* WIN32 */
 
 // In the PFN_CERT_ENUM_PHYSICAL_STORE callback the following flag is
 // set if the physical store wasn't registered and is an implicitly created
@@ -6589,6 +6575,7 @@ CertEnumSystemStore(
 //  If the system store location only supports system stores and doesn't
 //  support physical stores, LastError is set to ERROR_CALL_NOT_IMPLEMENTED.
 //--------------------------------------------------------------------------
+#ifdef WIN32
 WINCRYPT32API
 CSP_BOOL
 WINAPI
@@ -6598,6 +6585,7 @@ CertEnumPhysicalStore(
     IN void *pvArg,
     IN PFN_CERT_ENUM_PHYSICAL_STORE pfnEnum
     );
+#endif /* WIN32 */
 
 //+-------------------------------------------------------------------------
 //  Certificate System Store Installable Functions
@@ -8312,8 +8300,6 @@ CryptVerifyCertificateSignatureEx(
     // pvIssuer :: PCCERT_CHAIN_CONTEXT
 #define CRYPT_VERIFY_CERT_SIGN_ISSUER_NULL          4
     // pvIssuer :: NULL
-
-#define CRYPT_VERIFY_CERT_SIGN_DISABLE_MD2_MD4_FLAG     0x00000001
 
 //+-------------------------------------------------------------------------
 //  Compute the hash of the "to be signed" information in the encoded
@@ -11750,37 +11736,6 @@ PFXImportCertStore(
 #define CRYPT_USER_KEYSET           0x00001000
 #define PKCS12_ALLOW_OVERWRITE_KEY  0x00004000  // allow overwrite existing key
 #define PKCS12_NO_PERSIST_KEY       0x00008000  // key will not be persisted
-
-//+-------------------------------------------------------------------------
-//      PFXIsPFXBlob
-//
-//  This function will try to decode the outer layer of the blob as a pfx 
-//  blob, and if that works it will return TRUE, it will return FALSE otherwise
-//
-//--------------------------------------------------------------------------
-WINCRYPT32API
-CSP_BOOL
-WINAPI
-PFXIsPFXBlob(
-    IN CRYPT_DATA_BLOB *pPFX);
-
-//+-------------------------------------------------------------------------
-//      PFXVerifyPassword
-//
-//  This function will attempt to decode the outer layer of the blob as a pfx 
-//  blob and decrypt with the given password. No data from the blob will be
-//  imported.
-//
-//  Return value is TRUE if password appears correct, FALSE otherwise.
-//
-//--------------------------------------------------------------------------
-WINCRYPT32API
-CSP_BOOL
-WINAPI
-PFXVerifyPassword(
-    IN CRYPT_DATA_BLOB *pPFX,
-    IN LPCWSTR szPassword,
-    IN DWORD dwFlags);
 
 //+-------------------------------------------------------------------------
 //      PFXExportCertStoreEx

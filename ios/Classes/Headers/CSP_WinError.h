@@ -18738,15 +18738,6 @@
 #define SEC_E_SECURITY_QOS_FAILED        _HRESULT_TYPEDEF_(0x80090332L)
 
 //
-// MessageId: SEC_E_INVALID_PARAMETER
-//
-// MessageText:
-//
-// One or more of the parameters passed to the function was invalid.
-//
-#define SEC_E_INVALID_PARAMETER          _HRESULT_TYPEDEF_(0x8009035DL)
-
-//
 // MessageId: SEC_I_NO_RENEGOTIATION
 //
 // MessageText:

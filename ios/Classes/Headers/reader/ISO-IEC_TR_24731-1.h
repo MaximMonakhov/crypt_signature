@@ -24,7 +24,7 @@
 #ifndef ISO_IEC_TR_24731_1_H_
 #define ISO_IEC_TR_24731_1_H_
 
-#include<strnlen_def.h>
+#include"strnlen_def.h"
 
 #ifndef _len_of
     #define _len_of(a)    (sizeof(a)/sizeof(*(a)))

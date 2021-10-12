@@ -1,7 +1,7 @@
 #ifndef DPRINT_H_INCLUDED
 #define DPRINT_H_INCLUDED 1
 
-#include<support.h>
+#include"support.h"
 
 /* Before including this file one can set something like this: */
 
@@ -96,7 +96,6 @@
 #define SUPPORT_DBFMT_ERR 0x40
 
 #define SUPPORT_DBFMT_ALL 0x7F
-#define SUPPORT_DBFMT_DEFAULT (SUPPORT_DBFMT_ALL)
 #define SUPPORT_DBFMT_CLEAN 0x38
 #define SUPPORT_DBLEVEL_ALL 0xffffffffU
 

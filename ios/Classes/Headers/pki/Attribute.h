@@ -14,9 +14,9 @@
 
 /*!
  * \file $RCSfile$
- * \version $Revision: 204239 $
- * \date $Date:: 2019-12-23 16:40:35 +0400#$
- * \author $Author: cross $
+ * \version $Revision: 194763 $
+ * \date $Date:: 2019-06-17 17:39:27 +0400#$
+ * \author $Author: sdenis $
  *
  * \brief Классы аттрибутов.
  */
@@ -998,32 +998,6 @@ public:
     void decode( const CBlob& encoded);
 };
 
-/**
-* \class CCertificateValue Attribute.h <asn1/Attribute.h>
-* \brief Объект CCertificateValue
-*/
-class CPASN1_CLASS CCertificateValue : public CBlob
-{
-public:
-	CCertificateValue()
-	{ }
-
-	CCertificateValue(CBlob& blob) :
-		CBlob(blob)
-	{ }
-
-	/**
-	* \brief Кодирует объект в формате ASN.1 DER и возвращает
-	* получившуюся двоичную последовательность
-	* \sa decode()
-	*/
-	CBlob encode() const;
-	/**
-	* \brief Инициализирует объект из заданной закодированной двоичной последовательности
-	* \sa encode()
-	*/
-	void decode(const CBlob& encoded);
-};
 
 } // namespace ASN1
 

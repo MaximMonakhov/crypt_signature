@@ -15,8 +15,7 @@
 #if !defined( _READER_SUPPORT_SUPPORT_H )
 #define _READER_SUPPORT_SUPPORT_H
 
-#include"support_base_defs.h"
-#include"support_registry.h"
+#include<reader/support_base_defs.h>
 
 #if !defined( _SUPPORT_CALLBACK_CONV )
 #   if defined( UNIX )
@@ -227,6 +226,11 @@
     #endif
 #endif
 
+#ifdef UNIX
+# define SUP_INLINE inline
+#else
+# define SUP_INLINE __inline
+#endif
 
 #ifdef __cplusplus
 # if defined(__xlC__) || defined(_AIX)
@@ -744,7 +748,7 @@ typedef struct timeval support_timeval;
 extern "C" {
 #endif /* defined( __cplusplus ) */
 
-#include"altreg.h"
+#include<reader/altreg.h>
 DWORD usenewreg(void); /* ������������ �� ����� ��������. 0 -- �������, ��-0 -- ������ */
 DWORD rlsnewreg(void); /* ��������� ������ � �����, ������������� �� ������. ������ ������� */
 DWORD isnewreg(void);   /* 0 -- ������, ��-0 -- ����� */
@@ -755,12 +759,6 @@ DWORD write_random_seed(void);
 
 unsigned long       support_get_last_error (void);
 void                support_set_last_error (unsigned long);
-
-#ifdef _WIN32
-void support_set_library(TSupModuleInstance support_ext_module);
-#else //_WIN32
-#define support_set_library(x) 
-#endif //_WIN32
 
 DWORD support_set_impersonate (int delayed, int hsmmode, int kb2mode);
 
@@ -1151,11 +1149,6 @@ DWORD support_registry_get_app_path(
 
 DWORD support_registry_get_app_path_ex(
     const TCHAR *path, size_t *length, TCHAR *dest, int do_not_use_this_file_path);
-
-#ifdef WIN32
-/* ��������� ���� �� ����������� ������ ��� ��������� �������� ��������� */
-CSP_BOOL support_init_module_path(void);
-#endif 
 
 /* ��������� ����������. */
 DWORD support_load_library( void );
@@ -1835,8 +1828,6 @@ void support_init_locale(void);
 }
 #endif
 
-#ifndef CSP_LITE
 #include"support_util.h"
-#endif //CSP_LITE
 
 #endif /* !_READER_SUPPORT_SUPPORT_H */

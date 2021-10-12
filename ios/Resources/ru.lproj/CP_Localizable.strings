@@ -201,5 +201,3 @@ ID маркера: %s
 "Error deleting passwords" = "Удаление паролей завершилось ошибкой";
 "Delete saved passwords" = "Удалить сохраненные пароли";
 "Remember" = "Запомнить";
-"<password>" = "<пароль>";
-"<confirmation>" = "<подтверждение>";
