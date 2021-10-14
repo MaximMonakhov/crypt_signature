@@ -36,8 +36,10 @@ class Native {
       String certificateInfo = await _channel.invokeMethod("installCertificate",
           {"pathToCert": file.path, "password": password});
 
+      Map data = json.decode(certificateInfo);
+
       Certificate certificate =
-          Certificate.fromJson(json.decode(certificateInfo));
+          Platform.isIOS ? Certificate.fromBase64(data) : Certificate.fromJson(data);
 
       Directory directory = await getApplicationDocumentsDirectory();
       String filePath =
@@ -58,7 +60,7 @@ class Native {
       Certificate certificate, String password) async {
     try {
       String result = await _channel.invokeMethod("sign",
-          {"uuid": certificate.uuid, "password": password, "data": data});
+          {"id": Platform.isIOS ? certificate.alias : certificate.uuid, "password": password, "data": data});
 
       return ApiResponse.completed(data: result);
     } catch (exception) {

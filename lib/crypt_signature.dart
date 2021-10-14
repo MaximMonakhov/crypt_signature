@@ -8,16 +8,28 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'bloc/native.dart';
+import 'models/certificate.dart';
+import 'models/sign_result.dart';
 
 class CryptSignature {
   static SharedPreferences sharedPreferences;
   static BuildContext rootContext;
-  String data;
 
   /// Подписать данные
-  static Future<String> signData(BuildContext context, String base64Data,
-      {String title = "Подпись", String hint = "Выберите сертификат"}) async {
-    Native.data = base64Data;
+  /// Возможны два сценария работы метода:
+  /// 
+  /// * Если данные известны сразу. 
+  ///   Требуется передать данные в формате Base64 в параметр [data] для подписи
+  /// 
+  /// * Если для формирования данных нужен сертификат пользователя. 
+  ///   Требуется передать сallback [onCertificateSelected], который отдает вам сертификат, 
+  ///   выбранный пользователем, и ожидает данные в формате Base64 для подписи
+  static Future<SignResult> sign(BuildContext context,
+      {String data,
+      Future<String> Function(Certificate certificate) onCertificateSelected,
+      String title = "Подпись",
+      String hint = "Выберите сертификат"}) async {
+    Native.data = data;
     CryptSignature.rootContext = context;
 
     sharedPreferences = await SharedPreferences.getInstance();
@@ -25,34 +37,18 @@ class CryptSignature {
     Directory directory = await getApplicationDocumentsDirectory();
     await Directory(directory.path + '/certificates').create();
 
-    String result = await Navigator.of(context).push(
-        FadePageRoute(builder: (context) => Home(title: title, hint: hint)));
-
-    return result;
-  }
-
-  /// Подписать отложенные данные
-  static Future<String> sign(BuildContext context,
-      Future<String> Function(String rawCertificate) onCertificateSelected,
-      {String title = "Подпись", String hint = "Выберите сертификат"}) async {
-    CryptSignature.rootContext = context;
-
-    sharedPreferences = await SharedPreferences.getInstance();
-
-    Directory directory = await getApplicationDocumentsDirectory();
-    await Directory(directory.path + '/certificates').create();
-
-    String result = await Navigator.of(context).push(FadePageRoute(
+    SignResult signResult = await Navigator.of(context).push(FadePageRoute(
         builder: (context) => Home(
               title: title,
               hint: hint,
               onCertificateSelected: onCertificateSelected,
             )));
 
-    return result;
+    return signResult;
   }
 
-  static void clear() {
-    CryptSignature.sharedPreferences.clear();
+  static Future clear() async {
+    if (CryptSignature.sharedPreferences != null)
+      await CryptSignature.sharedPreferences.clear();
   }
 }

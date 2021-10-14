@@ -16,8 +16,14 @@ extern bool USE_CACHE_DIR;
 bool USE_CACHE_DIR = false;
 
 /// Инициализация провайдера и получение списка контейнеров
-bool initCSP()
+int initCSP()
 {
+    int INIT_CSP_OK = 0;
+    //int INIT_CSP_LICENSE_ERROR = 1;
+    int INIT_CSP_ERROR = -1;
+    
+    printf("\nИнициализация провайдера и получение списка контейнеров\n\n");
+    
     DisableIntegrityCheck();
     
     /// Инициализация контекста
@@ -26,40 +32,68 @@ bool initCSP()
     if (!CryptAcquireContextA(&phProv, NULL, NULL, PROV_GOST_2012_256, CRYPT_SILENT | CRYPT_VERIFYCONTEXT)) {
         printf("Не удалось инициализировать context\n");
         printf("%d\n", CSP_GetLastError());
-        return false;
+        return INIT_CSP_ERROR;
     }
     
-    printf("\nContext = %d\n", (LONG)phProv);
+    printf("\nКонтекст инициализирован\n");
+    printf("Context HCRYPTPROV = %d\n", (LONG)phProv);
     
     /// Получение списка контейнеров
     DWORD pdwDataLen = 0;
     DWORD flag = 1;
     
+    printf("\nПолучение списка контейнеров\n\n");
     if (!CryptGetProvParam(phProv, PP_ENUMCONTAINERS, NULL, &pdwDataLen, flag)) {
-        printf("Не удалось получить список контейнеров закрытого ключа\n");
-        return false;
+        DWORD error = CSP_GetLastError();
+        if (error == ERROR_NO_MORE_ITEMS) {
+            printf("Список контейнеров пуст\n");
+            CryptReleaseContext(phProv, 0);
+            return INIT_CSP_OK;
+        }
+        
+        printf("Не удалось получить список контейнеров\n");
+        printf("%d\n", error);
+        CryptReleaseContext(phProv, 0);
+        return INIT_CSP_ERROR;
     }
     
     BYTE* data = (BYTE*)malloc(pdwDataLen);
     
+    int i = 1;
+    
     while (CryptGetProvParam(phProv, PP_ENUMCONTAINERS, data, &pdwDataLen, flag)) {
-        printf("\n Container = %s\n", data);
+        printf("\nКонтейнер #%d\n", i);
+        printf("%s\n", data);
         flag = 2;
+        i++;
     };
     
+    free(data);
     CryptReleaseContext(phProv, 0);
     
-    free(data);
-    
-    return true;
+    return INIT_CSP_OK;
 }
 
-bool addCert() {
+wchar_t *convertCharArrayToLPCWSTR(const char* charArray)
+{
+    /// TODO: освободить память после new
+    wchar_t* wString=new wchar_t[4096];
+    MultiByteToWideChar(CP_ACP, 0, charArray, -1, wString, 4096);
+    return wString;
+}
+
+NSString* addCert(NSString* pathtoCertFile, NSString* password) {
+    const char *pathToCertFileChar = [pathtoCertFile UTF8String];
+    const char *passwordChar = [password UTF8String];
+    
+    NSString* result;
+    NSString* containerName;
+    
+    printf("\nУстановка контейнера\n\n");
+    
     CRYPT_DATA_BLOB certBlob;
     
-    NSString* pathToCertFileString = [[NSBundle mainBundle] pathForResource:@"test256" ofType:@"pfx"];
-    const char* pathtoCertFile = [pathToCertFileString UTF8String];
-    FILE *file = fopen(pathtoCertFile, "rb");
+    FILE *file = fopen(pathToCertFileChar, "rb");
     fseek(file, 0, SEEK_END);
     certBlob.cbData = (DWORD)ftell(file);
     fseek(file, 0, SEEK_SET);
@@ -67,18 +101,22 @@ bool addCert() {
     fread(certBlob.pbData, 1, certBlob.cbData, file);
     fclose(file);
     
+    LPCWSTR passwordL = convertCharArrayToLPCWSTR(passwordChar);
+    
     /// Добавление контейнера
-    HCERTSTORE certStore = PFXImportCertStore(&certBlob, L"123", CRYPT_SILENT);
+    HCERTSTORE certStore = PFXImportCertStore(&certBlob, passwordL, CRYPT_SILENT | CRYPT_EXPORTABLE);
     
     if (!certStore) {
         printf("Не удалось добавить контейнер закрытого ключа");
-        return false;
+        printf("%d\n", CSP_GetLastError());
+        return NULL;
     } else {
-        printf("Контейнер успешно добавлен\n");
+        printf("\nКонтейнер успешно добавлен\n\n");
     }
     
     /// Вывод информации о сертификате
     PCCERT_CONTEXT pPrevCertContext = NULL;
+    printf("Информация о сертификатах в конейнере\n");
     
     do {
         pPrevCertContext = CertEnumCertificatesInStore(certStore, pPrevCertContext);
@@ -88,35 +126,61 @@ bool addCert() {
             
             CertNameToStrA(X509_ASN_ENCODING, &pPrevCertContext->pCertInfo->Subject, CERT_SIMPLE_NAME_STR, psz, csz);
             
-            printf("cert - %s\n", psz);
+            printf("Сертификат: %s\n", psz);
+            
+            HCRYPTPROV hProv = 0;
+            if (CryptAcquireCertificatePrivateKey(pPrevCertContext, CRYPT_ACQUIRE_SILENT_FLAG, NULL, &hProv, NULL, NULL)) {
+                printf("Сертификат связанный с приватным ключем: %s\n", psz);
+                
+                NSData *certificateEncodedData = [NSData dataWithBytes:pPrevCertContext->pbCertEncoded length:pPrevCertContext->cbCertEncoded];
+                NSString *base64Certificate = [certificateEncodedData base64EncodedStringWithOptions:0];
+                
+                DWORD pdwDataLen = 0;
+                CryptGetProvParam(hProv, PP_CONTAINER, NULL, &pdwDataLen, NULL);
+                BYTE* data = (BYTE*)malloc(pdwDataLen);
+                CryptGetProvParam(hProv, PP_CONTAINER, data, &pdwDataLen, NULL);
+                const char *ch = reinterpret_cast<const char*>(data);
+                containerName = [NSString stringWithFormat:@"%s", ch];
+                NSDictionary *map = [[NSDictionary alloc] initWithObjectsAndKeys:base64Certificate, @"certificate", containerName, @"alias", nil];
+                NSData *jsonData = [NSJSONSerialization dataWithJSONObject:map
+                                                                   options:NSJSONWritingPrettyPrinted
+                                                                     error:NULL];
+                
+                result = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+            }
             
             free(psz);
+            CryptReleaseContext(hProv, 0);
         }
     } while (pPrevCertContext != NULL);
     
-    /// Закрытие certStore
+    /// Закрытие certStore и дескриптора сертификата
     if (certStore) CertCloseStore(certStore, CERT_CLOSE_STORE_FORCE_FLAG);
+    if (pPrevCertContext) CertFreeCertificateContext(pPrevCertContext);
     
     HCRYPTPROV hProv = 0;
-
+    NSString *pathString = [@"\\\\.\\HDIMAGE\\" stringByAppendingString:containerName];
+    const char *path = [pathString UTF8String];
     if(!CryptAcquireContext(
                             &hProv,
-                            _TEXT("\\\\.\\HDIMAGE\\test"),
+                            _TEXT(path),
                             NULL,
                             PROV_GOST_2012_256,
                             CRYPT_SILENT))
     {
         printf("CryptAcquireContext error\n");
-        return false;
+        return NULL;
     }
-
+    
     //--------------------------------------------------------------------
     // Установка параметров в соответствии с паролем.
-
+    
+    printf("\nУстановка пароля на ключевой контейнер\n\n");
+    
     CRYPT_PIN_PARAM param;
     param.type = CRYPT_PIN_PASSWD;
-    param.dest.passwd = (char*)"123";
-
+    param.dest.passwd = (char*)passwordChar;
+    
     if(!CryptSetProvParam(
                           hProv,
                           PP_CHANGE_PIN,
@@ -126,20 +190,17 @@ bool addCert() {
         printf("Set pin error\n");
         wchar_t buf[256];
         CSP_FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-                       NULL, CSP_GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                       buf, (sizeof(buf) / sizeof(wchar_t)), NULL);
+                           NULL, CSP_GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                           buf, (sizeof(buf) / sizeof(wchar_t)), NULL);
         printf("%ls\n", buf);
-        return false;
+        return NULL;
     }
     
-    return true;
+    return result;
 }
 
-bool removeCert() {
-    return false;
-}
-
-void sign() {
+NSString* sign(NSString* alias, NSString* password, NSString* data) {
+    printf("\nПодписание\n");
     HCRYPTPROV hProv = 0;            // Дескриптор CSP
     HCRYPTKEY hKey = 0;              // Дескриптор ключа
     HCRYPTHASH hHash = 0;
@@ -148,58 +209,60 @@ void sign() {
     BYTE *pbKeyBlob = NULL;
     BYTE *pbSignature = NULL;
     
-    BYTE *pbBuffer = (BYTE *)malloc(1024);
-    memset(pbBuffer, 0, 1024);
-    DWORD dwBufferLen = 1024;//(DWORD)(strlen((char *)pbBuffer)+1);
+    const char *dataChar = [data UTF8String];
+    BYTE *pbBuffer = (BYTE *)dataChar;
+    DWORD dwBufferLen = strlen(dataChar);
     DWORD cbHash;
     DWORD dwSigLen;
     
-    // Получение дескриптора провайдера.
+    printf("Получение дескриптора провайдера\n");
+    NSString *pathString = [@"\\\\.\\HDIMAGE\\" stringByAppendingString:alias];
+    const char *path = [pathString UTF8String];
     if(!CryptAcquireContext(
                             &hProv,
-                            _TEXT("\\\\.\\HDIMAGE\\test"),
+                            _TEXT(path),
                             NULL,
                             PROV_GOST_2012_256,
                             CRYPT_SILENT))
     {
         printf("CryptAcquireContext error\n");
-        return;
+        return NULL;
     }
     
-    //--------------------------------------------------------------------
-    // Установка параметров в соответствии с паролем.
+    printf("Установка параметров в соответствии с паролем\n");
+    const char *passwordChar = [password UTF8String];
     
     if(!CryptSetProvParam(
                           hProv,
                           PP_KEYEXCHANGE_PIN,
-                          (BYTE*)"123",
+                          (BYTE*)passwordChar,
                           0))
     {
         printf("Set pin error\n");
         wchar_t buf[256];
         CSP_FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-                       NULL, CSP_GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                       buf, (sizeof(buf) / sizeof(wchar_t)), NULL);
+                           NULL, CSP_GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                           buf, (sizeof(buf) / sizeof(wchar_t)), NULL);
         printf("%ls\n", buf);
-        return;
+        return NULL;
     }
     
+    printf("Получение ключа обмена\n");
     if(!CryptGetUserKey(
-       hProv,
-       AT_KEYEXCHANGE,
-       &hKey))
+                        hProv,
+                        AT_KEYEXCHANGE,
+                        &hKey))
     {
         printf("CryptGetUserKey\n");
         wchar_t buf[256];
         CSP_FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-                       NULL, CSP_GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                       buf, (sizeof(buf) / sizeof(wchar_t)), NULL);
+                           NULL, CSP_GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                           buf, (sizeof(buf) / sizeof(wchar_t)), NULL);
         printf("%ls\n", buf);
-        return;
+        return NULL;
     }
     
-    //--------------------------------------------------------------------
-    // Создание объекта функции хэширования.
+    printf("Создание объекта функции хэширования\n");
     if(!CryptCreateHash(
                         hProv,
                         CALG_GR3411_2012_256,
@@ -208,7 +271,7 @@ void sign() {
                         &hHash))
     {
         printf("CryptCreateHash error\n");
-        return;
+        return NULL;
     }
     
     //--------------------------------------------------------------------
@@ -225,13 +288,13 @@ void sign() {
                           0))
     {
         printf("CryptGetHashParam error \n");
-        return;
+        return NULL;
     }
     
     pbHash = (BYTE*)malloc(cbHash);
     if(!pbHash) {
         printf("Out of memmory \n");
-        return;
+        return NULL;
     }
     
     // Копирование параметра HP_OID в pbHash.
@@ -243,7 +306,7 @@ void sign() {
                           0))
     {
         printf("CryptGetHashParam error \n");
-        return;
+        return NULL;
     }
     
     //--------------------------------------------------------------------
@@ -256,53 +319,53 @@ void sign() {
                       0))
     {
         printf("CryptHashData error\n");
-        return;
+        return NULL;
     }
     
-//    BYTE rgbHash[64];
-//    CHAR rgbDigits[] = "0123456789abcdef";
-//    if(!CryptGetHashParam(hHash, HP_HASHVAL, rgbHash, &cbHash, 0))
-//    {
-//        printf("CryptGetHashParam error \n");
-//        wchar_t buf[256];
-//        CSP_FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-//                       NULL, CSP_GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-//                       buf, (sizeof(buf) / sizeof(wchar_t)), NULL);
-//        printf("%ls\n", buf);
-//        return;
-//    }
-//
-//    for(int i = 0; i < cbHash; i++)
-//    {
-//        printf("%c%c", rgbDigits[rgbHash[i] >> 4],
-//            rgbDigits[rgbHash[i] & 0xf]);
-//    }
-//    printf("\n");
+    //    BYTE rgbHash[64];
+    //    CHAR rgbDigits[] = "0123456789abcdef";
+    //    if(!CryptGetHashParam(hHash, HP_HASHVAL, rgbHash, &cbHash, 0))
+    //    {
+    //        printf("CryptGetHashParam error \n");
+    //        wchar_t buf[256];
+    //        CSP_FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+    //                       NULL, CSP_GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+    //                       buf, (sizeof(buf) / sizeof(wchar_t)), NULL);
+    //        printf("%ls\n", buf);
+    //        return;
+    //    }
+    //
+    //    for(int i = 0; i < cbHash; i++)
+    //    {
+    //        printf("%c%c", rgbDigits[rgbHash[i] >> 4],
+    //            rgbDigits[rgbHash[i] & 0xf]);
+    //    }
+    //    printf("\n");
     
     //--------------------------------------------------------------------
     // Определение размера подписи и распределение памяти.
     
     if(!CryptSignHash(
-                     hHash,
-                     AT_KEYEXCHANGE,
-                     NULL,
-                     0,
-                     NULL,
-                     &dwSigLen))
+                      hHash,
+                      AT_KEYEXCHANGE,
+                      NULL,
+                      0,
+                      NULL,
+                      &dwSigLen))
     {
         printf("CryptSignHash error\n");
         wchar_t buf[256];
         CSP_FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-                       NULL, CSP_GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                       buf, (sizeof(buf) / sizeof(wchar_t)), NULL);
+                           NULL, CSP_GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                           buf, (sizeof(buf) / sizeof(wchar_t)), NULL);
         printf("%ls\n", buf);
-        return;
+        return NULL;
     }
     
     wchar_t buf[256];
     CSP_FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-                   NULL, CSP_GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                   buf, (sizeof(buf) / sizeof(wchar_t)), NULL);
+                       NULL, CSP_GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                       buf, (sizeof(buf) / sizeof(wchar_t)), NULL);
     printf("%ls\n", buf);
     
     //--------------------------------------------------------------------
@@ -313,31 +376,34 @@ void sign() {
     if(!pbSignature)
     {
         printf("Out of memmory \n");
-        return;
+        return NULL;
     }
     
     // Подпись объекта функции хэширования.
+    printf("Подпись объекта функции хэширования\n");
     if(!CryptSignHash(
-                     hHash,
-                     AT_KEYEXCHANGE,
-                     NULL,
-                     0,
-                     pbSignature,
-                     &dwSigLen))
+                      hHash,
+                      AT_KEYEXCHANGE,
+                      NULL,
+                      0,
+                      pbSignature,
+                      &dwSigLen))
     {
         printf("CryptSignHash error\n");
         wchar_t buf[256];
         CSP_FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-                       NULL, CSP_GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                       buf, (sizeof(buf) / sizeof(wchar_t)), NULL);
+                           NULL, CSP_GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                           buf, (sizeof(buf) / sizeof(wchar_t)), NULL);
         printf("%ls\n", buf);
-        return;
+        return NULL;
     }
     
     DWORD base64Len;
     CryptBinaryToStringA(pbSignature, dwSigLen, CRYPT_STRING_BASE64, NULL, &base64Len);
     LPSTR base64String = (char*)malloc(base64Len);
     CryptBinaryToStringA(pbSignature, dwSigLen, CRYPT_STRING_BASE64, base64String, &base64Len);
+    
+    printf("Сигнатура: ");
     printf("%s", base64String);
     
     if(pbHash)
@@ -351,19 +417,29 @@ void sign() {
     if(hHash)
         CryptDestroyHash(hHash);
     
-    printf("The hash object has been destroyed.\n");
-    printf("The signature is created.\n\n");
-    
     // Уничтожение дескриптора ключа пользователя.
-    
     if(hKey)
         CryptDestroyKey(hKey);
     
     // Освобождение дескриптора провайдера.
-    
     if(hProv)
         CryptReleaseContext(hProv, 0);
     
-    printf("The program ran to completion without error. \n");
-    return;
+    return [NSString stringWithUTF8String:base64String];
 }
+
+
+enum MethodResponseCode {
+    SUCCESS, ERROR
+};
+
+
+class MethodResponse {
+public:
+    MethodResponseCode code;
+    char* content;
+    MethodResponse(char* content, MethodResponseCode code) {
+        this->code = code;
+        this->content = content;
+    };
+};

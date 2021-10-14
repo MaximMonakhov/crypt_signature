@@ -99,7 +99,7 @@ public class CryptSignaturePlugin implements FlutterPlugin, MethodCallHandler {
                 break;
             }
             case "sign": {
-                String uuid = call.argument("uuid");
+                String uuid = call.argument("id");
                 String password = call.argument("password");
                 String data = call.argument("data");
 
@@ -191,47 +191,11 @@ public class CryptSignaturePlugin implements FlutterPlugin, MethodCallHandler {
 
     private String getCertificateInfo(X509Certificate certificate, String alias) throws CertificateEncodingException, IOException {
         JSONObject obj = new JSONObject();
+
         obj.put("certificate", Base64.encodeToString(certificate.getEncoded(), Base64.NO_WRAP));
         obj.put("alias", alias);
-        obj.put("issuerDN", certificate.getSubjectDN().toString());
-        obj.put("notAfterDate", certificate.getNotAfter().toString());
-        obj.put("serialNumber", new String(Hex.encodeHex(certificate.getSerialNumber().toByteArray())));
-        obj.put("algorithm", certificate.getPublicKey().getAlgorithm());
-        obj.put("parameterMap", getParameterMap(certificate));
-        obj.put("certificateDescription", getCertificateDescription(certificate));
 
         return obj.toJSONString();
-    }
-
-    private String getParameterMap(X509Certificate certificate) throws IOException {
-        StringBuilder stringBuilder = new StringBuilder();
-
-        stringBuilder.append("validFromDate=").append(certificate.getNotBefore().toString()).append("&");
-        stringBuilder.append("validToDate=").append(certificate.getNotAfter().toString()).append("&");
-        stringBuilder.append("issuer=").append(certificate.getIssuerX500Principal().getName()).append("&");
-        stringBuilder.append("subject=").append(certificate.getSubjectX500Principal().getName()).append("&");
-        stringBuilder.append("subjectInfo=").append(certificate.getSubjectDN().getName()).append("&");
-        stringBuilder.append("issuerInfo=").append(certificate.getIssuerDN().getName()).append("&");
-        stringBuilder.append("serialNumber=").append(new String(Hex.encodeHex(certificate.getSerialNumber().toByteArray()))).append("&");
-        stringBuilder.append("signAlgoritm[name]=").append(certificate.getSigAlgName()).append("&");
-        stringBuilder.append("signAlgoritm[oid]=").append(certificate.getSigAlgOID()).append("&");
-        stringBuilder.append("hashAlgoritm[alias]=").append(getDigestAlgorithm(certificate.getPublicKey()));
-
-        return stringBuilder.toString();
-    }
-
-    private String getCertificateDescription(X509Certificate certificate) {
-        StringBuilder stringBuilder = new StringBuilder();
-
-        stringBuilder.append("Владелец: ").append(certificate.getSubjectX500Principal().getName()).append("\n");
-        stringBuilder.append("Серийный номер: ").append(new String(Hex.encodeHex(certificate.getSerialNumber().toByteArray()))).append("\n");
-        stringBuilder.append("Издатель: ").append(certificate.getIssuerX500Principal().getName()).append("\n");
-        stringBuilder.append("Алгоритм подписи: ").append(certificate.getSigAlgName()).append("\n");
-        stringBuilder.append("     oid: ").append(certificate.getSigAlgOID()).append("\n");
-        stringBuilder.append("Действует с: ").append(certificate.getNotBefore().toString()).append("\n");
-        stringBuilder.append("Действует по: ").append(certificate.getNotAfter().toString()).append("\n");
-
-        return stringBuilder.toString();
     }
 
     private String getDigestAlgorithm(PublicKey publicKey) throws IOException {
@@ -326,13 +290,7 @@ public class CryptSignaturePlugin implements FlutterPlugin, MethodCallHandler {
                 signature.update(digest);
                 byte[] sign = signature.sign();
 
-                JSONObject contentJson = new JSONObject();
-                contentJson.put("sign-data", base64Data);
-                contentJson.put("serialNumber", certificate.getSerialNumber().toString());
-                contentJson.put("certificate", Base64.encodeToString(certificate.getEncoded(), Base64.NO_WRAP));
-                contentJson.put("signature", Base64.encodeToString(sign, Base64.NO_WRAP));
-
-                return new MethodResponse<String>(contentJson.toString(), MethodResponseCode.SUCCESS);
+                return new MethodResponse<String>(Base64.encodeToString(sign, Base64.NO_WRAP), MethodResponseCode.SUCCESS);
             } else {
                 log.info("Сертификат не распакован");
                 throw new Exception("Ошибка при импорте *.pfx сертификата");

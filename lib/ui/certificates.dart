@@ -4,7 +4,7 @@ import 'package:crypt_signature/bloc/native.dart';
 import 'package:crypt_signature/bloc/ui.dart';
 import 'package:crypt_signature/models/certificate.dart';
 import 'package:crypt_signature/ui/certificate.dart';
-import 'package:crypt_signature/ui/error.dart';
+import 'package:crypt_signature/ui/dialogs.dart';
 import 'package:crypt_signature/ui/lock.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +13,7 @@ import 'package:path_provider/path_provider.dart';
 
 class Certificates extends StatefulWidget {
   final String hint;
-  final Future<String> Function(String rawCertificate) onCertificateSelected;
+  final Future<String> Function(Certificate certificate) onCertificateSelected;
 
   const Certificates({Key key, this.onCertificateSelected, this.hint})
       : super(key: key);
@@ -31,12 +31,12 @@ class _CertificatesState extends State<Certificates> {
     super.initState();
   }
 
-  _getCertificates() {
+  void _getCertificates() {
     List<Certificate> list = Certificate.storage.get();
     certificates.publish(list);
   }
 
-  installCertificate() async {
+  void installCertificate() async {
     FilePickerResult filePickerResult = await FilePicker.platform
         .pickFiles(type: FileType.custom, allowedExtensions: ["pfx"]);
 
@@ -65,7 +65,7 @@ class _CertificatesState extends State<Certificates> {
     }
   }
 
-  removeCertificate(Certificate certificate) async {
+  void removeCertificate(Certificate certificate) async {
     Directory directory = await getApplicationDocumentsDirectory();
     String filePath =
         directory.path + "/certificates/" + certificate.uuid + ".pfx";

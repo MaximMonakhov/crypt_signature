@@ -1,88 +1,88 @@
-import 'dart:convert';
-
 import 'package:api_event/models/api_response.dart';
 import 'package:crypt_signature/bloc/native.dart';
 import 'package:crypt_signature/bloc/ui.dart';
 import 'package:crypt_signature/crypt_signature.dart';
 import 'package:crypt_signature/models/certificate.dart';
-import 'package:crypt_signature/ui/error.dart';
+import 'package:crypt_signature/models/sign_result.dart';
+import 'package:crypt_signature/ui/dialogs.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class CertificateWidget extends StatelessWidget {
   final Certificate certificate;
-  final Future<String> Function(String rawCertificate) onCertificateSelected;
+  final Future<String> Function(Certificate certificate) onCertificateSelected;
   final void Function(Certificate) removeCallback;
 
   const CertificateWidget(this.certificate, this.removeCallback,
       {Key key, this.onCertificateSelected})
       : super(key: key);
 
-  @override
-  Widget build(BuildContext context) {
-    List<String> dateSplit = certificate.notAfterDate.split(" ");
-    String date = dateSplit[2] + " " + dateSplit[1] + " " + dateSplit[5];
+  void signData(Certificate certificate, BuildContext context) async {
+    String password = await showInputDialog(
+        context,
+        "Введите пароль для\n доступа к контейнеру приватного ключа",
+        "Пароль",
+        true,
+        TextInputType.visiblePassword);
 
-    signData(Certificate certificate) async {
-      String password = await showInputDialog(
-          context,
-          "Введите пароль для\n доступа к контейнеру приватного ключа",
-          "Пароль",
-          true,
-          TextInputType.visiblePassword);
-
-      if (password != null && password.isNotEmpty) {
-        UI.lockScreen();
-        ApiResponse response = await Native.sign(certificate, password);
-        await Future.delayed(Duration(seconds: 1));
-        UI.unlockScreen();
-
-        if (response.status == Status.COMPLETED) {
-          Navigator.of(CryptSignature.rootContext).pop(response.data);
-        } else
-          showError(context,
-              "Возникла ошибка во время подписи.\nПроверьте правильность введенного пароля",
-              details: response.message);
-      }
-    }
-
-    sign(Certificate certificate) async {
+    if (password != null && password.isNotEmpty) {
       UI.lockScreen();
-      Native.data = await onCertificateSelected(json.encode(certificate));
+      ApiResponse response = await Native.sign(certificate, password);
+      await Future.delayed(Duration(seconds: 1));
       UI.unlockScreen();
 
-      if (Native.data == null) {
-        showError(context, "Возникла ошибка во время подписи");
-        return;
-      }
+      if (response.status == Status.COMPLETED) {
+        SignResult signResult =
+            SignResult(certificate, Native.data, response.data);
+        Navigator.of(CryptSignature.rootContext).pop(signResult);
+      } else
+        showError(context,
+            "Возникла ошибка во время подписи.\nПроверьте правильность введенного пароля",
+            details: response.message);
+    }
+  }
 
-      String password = await showInputDialog(
-          context,
-          "Введите пароль для\n доступа к контейнеру приватного ключа",
-          "Пароль",
-          true,
-          TextInputType.visiblePassword);
+  void sign(Certificate certificate, BuildContext context) async {
+    UI.lockScreen();
+    Native.data = await onCertificateSelected(certificate);
+    UI.unlockScreen();
 
-      if (password != null && password.isNotEmpty) {
-        UI.lockScreen();
-        ApiResponse response = await Native.sign(certificate, password);
-        await Future.delayed(Duration(seconds: 1));
-        UI.unlockScreen();
-        if (response.status == Status.COMPLETED) {
-          Navigator.of(CryptSignature.rootContext).pop(response.data);
-        } else
-          showError(context,
-              "Возникла ошибка во время подписи.\nПроверьте правильность введенного пароля",
-              details: response.message);
-      }
+    if (Native.data == null) {
+      showError(context, "Возникла ошибка во время подписи");
+      return;
     }
 
+    String password = await showInputDialog(
+        context,
+        "Введите пароль для\n доступа к контейнеру приватного ключа",
+        "Пароль",
+        true,
+        TextInputType.visiblePassword);
+
+    if (password != null && password.isNotEmpty) {
+      UI.lockScreen();
+      ApiResponse response = await Native.sign(certificate, password);
+      await Future.delayed(Duration(seconds: 1));
+      UI.unlockScreen();
+      if (response.status == Status.COMPLETED) {
+        SignResult signResult =
+            SignResult(certificate, Native.data, response.data);
+        Navigator.of(CryptSignature.rootContext).pop(signResult);
+      } else
+        showError(context,
+            "Возникла ошибка во время подписи.\nПроверьте правильность введенного пароля",
+            details: response.message);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
         if (onCertificateSelected == null)
-          signData(certificate);
+          signData(certificate, context);
         else
-          sign(certificate);
+          sign(certificate, context);
       },
       child: Container(
         margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5.0),
@@ -133,12 +133,12 @@ class CertificateWidget extends StatelessWidget {
               "Алиас: " + certificate.alias,
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
-            Text("Дата окончания: " + date,
+            Text("Дата окончания: " + certificate.notAfterDate,
                 style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
             Text("Алгоритм публичного ключа: " + certificate.algorithm,
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
             Text(
-              "Информация: " + certificate.issuerDN,
+              "Информация: " + certificate.subjectDN,
               style: TextStyle(fontSize: 12),
             ),
           ],

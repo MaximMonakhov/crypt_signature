@@ -13,10 +13,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-bool initCSP();
-bool addCert();
-bool removeCert();
-void sign();
+int initCSP();
+NSString* addCert(NSString* pathtoCertFile, NSString* password);
+NSString* sign(NSString* alias, NSString* password, NSString* data);
 
 #ifdef __cplusplus
 }
