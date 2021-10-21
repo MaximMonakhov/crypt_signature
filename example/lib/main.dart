@@ -59,7 +59,8 @@ class _MyHomePageState extends State<MyHomePage> {
               children: [
                 TextButton(
                   onPressed: () async {
-                    SignResult result = await CryptSignature.sign(context, data: data,
+                    SignResult result = await CryptSignature.sign(context,
+                        data: data,
                         title: "Войти по сертификату",
                         hint: "Выберите сертификат");
 
@@ -75,9 +76,10 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             TextButton(
               onPressed: () async {
-                SignResult result = await CryptSignature.sign(
-                    context, onCertificateSelected: onCertificateSelected,
-                    title: "Войти по сертификату", hint: "Выберите сертификат");
+                SignResult result = await CryptSignature.sign(context,
+                    onCertificateSelected: onCertificateSelected,
+                    title: "Войти по сертификату",
+                    hint: "Выберите сертификат");
 
                 print(result.signature);
               },

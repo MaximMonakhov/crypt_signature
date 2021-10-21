@@ -47,9 +47,7 @@ android {
         exclude 'META-INF/NOTICE.txt'
         exclude 'META-INF/LICENSE.txt'
         doNotStrip "*/arm64-v8a/*.so"
-        doNotStrip "*/armeabi/*.so"
-        doNotStrip "*/x86_64/*.so"
-        doNotStrip "*/x86/*.so"        
+        doNotStrip "*/armeabi/*.so"     
     }
 
     lintOptions {
@@ -66,8 +64,6 @@ dependencies {
     implementation group: 'commons-codec', name: 'commons-codec', version: '1.15'
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-//    implementation fileTree(dir: 'libs', include: ['*.aar'])
     compileOnly fileTree(dir: 'libs', include: ['*.aar'])
-//    implementation project(':JInitCSP')
 
 }

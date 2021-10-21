@@ -17,12 +17,12 @@ class CryptSignature {
 
   /// Подписать данные
   /// Возможны два сценария работы метода:
-  /// 
-  /// * Если данные известны сразу. 
+  ///
+  /// * Если данные известны сразу.
   ///   Требуется передать данные в формате Base64 в параметр [data] для подписи
-  /// 
-  /// * Если для формирования данных нужен сертификат пользователя. 
-  ///   Требуется передать сallback [onCertificateSelected], который отдает вам сертификат, 
+  ///
+  /// * Если для формирования данных нужен сертификат пользователя.
+  ///   Требуется передать сallback [onCertificateSelected], который отдает вам сертификат,
   ///   выбранный пользователем, и ожидает данные в формате Base64 для подписи
   static Future<SignResult> sign(BuildContext context,
       {String data,
@@ -47,8 +47,19 @@ class CryptSignature {
     return signResult;
   }
 
-  static Future clear() async {
-    if (CryptSignature.sharedPreferences != null)
-      await CryptSignature.sharedPreferences.clear();
+  /// Получить список сертификатов, добавленных пользователем
+  static Future<List<Certificate>> getCertificates() async {
+    if (sharedPreferences == null)
+      sharedPreferences = await SharedPreferences.getInstance();
+
+    return Certificate.storage.get();
+  }
+
+  /// Очистить список сертификатов
+  static Future<bool> clear() async {
+    if (sharedPreferences == null)
+      sharedPreferences = await SharedPreferences.getInstance();
+
+    return CryptSignature.sharedPreferences.clear();
   }
 }
