@@ -64,9 +64,11 @@ class _MyHomePageState extends State<MyHomePage> {
                         title: "Войти по сертификату",
                         hint: "Выберите сертификат");
 
-                    setState(() {
-                      this.result = result.signature;
-                    });
+                    if (result != null)
+                      setState(() {
+                        this.result = result.signature;
+                      });
+
                     print(result);
                   },
                   child: Text("Подписать: " + data),

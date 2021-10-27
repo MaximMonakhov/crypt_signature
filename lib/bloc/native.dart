@@ -38,8 +38,7 @@ class Native {
 
       Map data = json.decode(certificateInfo);
 
-      Certificate certificate =
-          Platform.isIOS ? Certificate.fromBase64(data) : Certificate.fromJson(data);
+      Certificate certificate = Certificate.fromBase64(data);
 
       Directory directory = await getApplicationDocumentsDirectory();
       String filePath =

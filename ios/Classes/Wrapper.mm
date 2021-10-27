@@ -202,18 +202,19 @@ NSString* addCert(NSString* pathtoCertFile, NSString* password) {
 NSString* sign(NSString* alias, NSString* password, NSString* data) {
     printf("\nПодписание\n");
     HCRYPTPROV hProv = 0;            // Дескриптор CSP
-    HCRYPTKEY hKey = 0;              // Дескриптор ключа
     HCRYPTHASH hHash = 0;
     
     BYTE *pbHash = NULL;
-    BYTE *pbKeyBlob = NULL;
+    DWORD cbHash;
+    
     BYTE *pbSignature = NULL;
+    DWORD cbSignature;
     
     const char *dataChar = [data UTF8String];
-    BYTE *pbBuffer = (BYTE *)dataChar;
-    DWORD dwBufferLen = strlen(dataChar);
-    DWORD cbHash;
-    DWORD dwSigLen;
+    DWORD cbBuffer;
+    CryptStringToBinaryA(dataChar, strlen(dataChar), CRYPT_STRING_BASE64, NULL, &cbBuffer, 0, NULL);
+    BYTE* pbBuffer = (BYTE*)malloc(cbBuffer);
+    CryptStringToBinaryA(dataChar, strlen(dataChar), CRYPT_STRING_BASE64, pbBuffer, &cbBuffer, 0, NULL);
     
     printf("Получение дескриптора провайдера\n");
     NSString *pathString = [@"\\\\.\\HDIMAGE\\" stringByAppendingString:alias];
@@ -239,21 +240,6 @@ NSString* sign(NSString* alias, NSString* password, NSString* data) {
                           0))
     {
         printf("Set pin error\n");
-        wchar_t buf[256];
-        CSP_FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-                           NULL, CSP_GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                           buf, (sizeof(buf) / sizeof(wchar_t)), NULL);
-        printf("%ls\n", buf);
-        return NULL;
-    }
-    
-    printf("Получение ключа обмена\n");
-    if(!CryptGetUserKey(
-                        hProv,
-                        AT_KEYEXCHANGE,
-                        &hKey))
-    {
-        printf("CryptGetUserKey\n");
         wchar_t buf[256];
         CSP_FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
                            NULL, CSP_GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
@@ -315,33 +301,21 @@ NSString* sign(NSString* alias, NSString* password, NSString* data) {
     if(!CryptHashData(
                       hHash,
                       pbBuffer,
-                      dwBufferLen,
+                      cbBuffer,
                       0))
     {
         printf("CryptHashData error\n");
         return NULL;
     }
     
-    //    BYTE rgbHash[64];
-    //    CHAR rgbDigits[] = "0123456789abcdef";
-    //    if(!CryptGetHashParam(hHash, HP_HASHVAL, rgbHash, &cbHash, 0))
-    //    {
-    //        printf("CryptGetHashParam error \n");
-    //        wchar_t buf[256];
-    //        CSP_FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-    //                       NULL, CSP_GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-    //                       buf, (sizeof(buf) / sizeof(wchar_t)), NULL);
-    //        printf("%ls\n", buf);
-    //        return;
-    //    }
-    //
-    //    for(int i = 0; i < cbHash; i++)
-    //    {
-    //        printf("%c%c", rgbDigits[rgbHash[i] >> 4],
-    //            rgbDigits[rgbHash[i] & 0xf]);
-    //    }
-    //    printf("\n");
+    DWORD hashBase64Len;
+    CryptBinaryToStringA(pbHash, cbHash, CRYPT_STRING_BASE64, NULL, &hashBase64Len);
+    LPSTR hashBase64String = (char*)malloc(hashBase64Len);
+    CryptBinaryToStringA(pbHash, cbHash, CRYPT_STRING_BASE64, hashBase64String, &hashBase64Len);
     
+    printf("Хэш: ");
+    printf("%s", hashBase64String);
+
     //--------------------------------------------------------------------
     // Определение размера подписи и распределение памяти.
     
@@ -351,7 +325,7 @@ NSString* sign(NSString* alias, NSString* password, NSString* data) {
                       NULL,
                       0,
                       NULL,
-                      &dwSigLen))
+                      &cbSignature))
     {
         printf("CryptSignHash error\n");
         wchar_t buf[256];
@@ -371,7 +345,7 @@ NSString* sign(NSString* alias, NSString* password, NSString* data) {
     //--------------------------------------------------------------------
     // Распределение памяти под буфер подписи.
     
-    pbSignature = (BYTE *)malloc(dwSigLen);
+    pbSignature = (BYTE *)malloc(cbSignature);
     
     if(!pbSignature)
     {
@@ -387,7 +361,7 @@ NSString* sign(NSString* alias, NSString* password, NSString* data) {
                       NULL,
                       0,
                       pbSignature,
-                      &dwSigLen))
+                      &cbSignature))
     {
         printf("CryptSignHash error\n");
         wchar_t buf[256];
@@ -398,18 +372,16 @@ NSString* sign(NSString* alias, NSString* password, NSString* data) {
         return NULL;
     }
     
-    DWORD base64Len;
-    CryptBinaryToStringA(pbSignature, dwSigLen, CRYPT_STRING_BASE64, NULL, &base64Len);
-    LPSTR base64String = (char*)malloc(base64Len);
-    CryptBinaryToStringA(pbSignature, dwSigLen, CRYPT_STRING_BASE64, base64String, &base64Len);
+    DWORD signatureBase64Len;
+    CryptBinaryToStringA(pbSignature, cbSignature, CRYPT_STRING_BASE64, NULL, &signatureBase64Len);
+    LPSTR signatureBase64String = (char*)malloc(signatureBase64Len);
+    CryptBinaryToStringA(pbSignature, cbSignature, CRYPT_STRING_BASE64, signatureBase64String, &signatureBase64Len);
     
     printf("Сигнатура: ");
-    printf("%s", base64String);
+    printf("%s", signatureBase64String);
     
     if(pbHash)
         free(pbHash);
-    if(pbKeyBlob)
-        free(pbKeyBlob);
     if(pbSignature)
         free(pbSignature);
     
@@ -417,15 +389,12 @@ NSString* sign(NSString* alias, NSString* password, NSString* data) {
     if(hHash)
         CryptDestroyHash(hHash);
     
-    // Уничтожение дескриптора ключа пользователя.
-    if(hKey)
-        CryptDestroyKey(hKey);
     
     // Освобождение дескриптора провайдера.
     if(hProv)
         CryptReleaseContext(hProv, 0);
     
-    return [NSString stringWithUTF8String:base64String];
+    return [NSString stringWithUTF8String:signatureBase64String];
 }
 
 
