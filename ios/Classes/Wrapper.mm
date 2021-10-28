@@ -15,6 +15,20 @@
 extern bool USE_CACHE_DIR;
 bool USE_CACHE_DIR = false;
 
+void handleError(NSString* message) {
+    DWORD error = CSP_GetLastError();
+    
+    printf("\nОшибка\n");
+    printf("%s ", [message UTF8String]);
+    printf("%d\n", error);
+    
+    wchar_t buf[256];
+    CSP_FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                       NULL, error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                       buf, (sizeof(buf) / sizeof(wchar_t)), NULL);
+    printf("%ls\n", buf);
+}
+
 /// Инициализация провайдера и получение списка контейнеров
 int initCSP()
 {
@@ -31,7 +45,7 @@ int initCSP()
     
     if (!CryptAcquireContextA(&phProv, NULL, NULL, PROV_GOST_2012_256, CRYPT_SILENT | CRYPT_VERIFYCONTEXT)) {
         printf("Не удалось инициализировать context\n");
-        printf("%d\n", CSP_GetLastError());
+        handleError(@"CryptAcquireContextA");
         return INIT_CSP_ERROR;
     }
     
@@ -51,8 +65,8 @@ int initCSP()
             return INIT_CSP_OK;
         }
         
-        printf("Не удалось получить список контейнеров\n");
-        printf("%d\n", error);
+        printf("Не удалось получить список контейнеров CryptGetProvParam (PP_ENUMCONTAINERS)\n");
+        handleError(@"CryptAcquireContextA");
         CryptReleaseContext(phProv, 0);
         return INIT_CSP_ERROR;
     }
@@ -106,9 +120,11 @@ NSString* addCert(NSString* pathtoCertFile, NSString* password) {
     /// Добавление контейнера
     HCERTSTORE certStore = PFXImportCertStore(&certBlob, passwordL, CRYPT_SILENT | CRYPT_EXPORTABLE);
     
+    free((void*)passwordL);
+    
     if (!certStore) {
         printf("Не удалось добавить контейнер закрытого ключа");
-        printf("%d\n", CSP_GetLastError());
+        handleError(@"PFXImportCertStore");
         return NULL;
     } else {
         printf("\nКонтейнер успешно добавлен\n\n");
@@ -168,7 +184,7 @@ NSString* addCert(NSString* pathtoCertFile, NSString* password) {
                             PROV_GOST_2012_256,
                             CRYPT_SILENT))
     {
-        printf("CryptAcquireContext error\n");
+        handleError(@"CryptAcquireContext");
         return NULL;
     }
     
@@ -188,11 +204,7 @@ NSString* addCert(NSString* pathtoCertFile, NSString* password) {
                           0))
     {
         printf("Set pin error\n");
-        wchar_t buf[256];
-        CSP_FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-                           NULL, CSP_GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                           buf, (sizeof(buf) / sizeof(wchar_t)), NULL);
-        printf("%ls\n", buf);
+        handleError(@"CryptSetProvParam (PP_CHANGE_PIN)");
         return NULL;
     }
     
@@ -226,7 +238,7 @@ NSString* sign(NSString* alias, NSString* password, NSString* data) {
                             PROV_GOST_2012_256,
                             CRYPT_SILENT))
     {
-        printf("CryptAcquireContext error\n");
+        handleError(@"CryptAcquireContext");
         return NULL;
     }
     
@@ -240,11 +252,7 @@ NSString* sign(NSString* alias, NSString* password, NSString* data) {
                           0))
     {
         printf("Set pin error\n");
-        wchar_t buf[256];
-        CSP_FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-                           NULL, CSP_GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                           buf, (sizeof(buf) / sizeof(wchar_t)), NULL);
-        printf("%ls\n", buf);
+        handleError(@"CryptSetProvParam (PP_KEYEXCHANGE_PIN)");
         return NULL;
     }
     
@@ -262,38 +270,21 @@ NSString* sign(NSString* alias, NSString* password, NSString* data) {
     
     //--------------------------------------------------------------------
     // Передача параметра HP_OID объекта функции хэширования.
+    // Из примера:
+    // По умолчанию драйвер работает на наборе параметров 1.2.643.2.2.30.1.
+    // Без установки параметра HP_OID программа будет неверно работать,
+    // если параметры хеширования не будут являться параметрами
+    // по умолчанию.
     //--------------------------------------------------------------------
     
-    //--------------------------------------------------------------------
-    // Определение размера BLOBа и распределение памяти.
-    
-    if(!CryptGetHashParam(hHash,
-                          HP_OID,
-                          NULL,
-                          &cbHash,
-                          0))
-    {
-        printf("CryptGetHashParam error \n");
-        return NULL;
-    }
-    
-    pbHash = (BYTE*)malloc(cbHash);
-    if(!pbHash) {
-        printf("Out of memmory \n");
-        return NULL;
-    }
-    
-    // Копирование параметра HP_OID в pbHash.
-    
-    if(!CryptGetHashParam(hHash,
-                          HP_OID,
-                          pbHash,
-                          &cbHash,
-                          0))
-    {
-        printf("CryptGetHashParam error \n");
-        return NULL;
-    }
+//    if(!CryptSetHashParam(hHash,
+//                          HP_OID,
+//                          NULL,
+//                          0))
+//    {
+//        printf("CryptSetHashParam error \n");
+//        return NULL;
+//    }
     
     //--------------------------------------------------------------------
     // Вычисление криптографического хэша буфера.
@@ -304,7 +295,33 @@ NSString* sign(NSString* alias, NSString* password, NSString* data) {
                       cbBuffer,
                       0))
     {
-        printf("CryptHashData error\n");
+        handleError(@"CryptHashData");
+        return NULL;
+    }
+    
+    if(!CryptGetHashParam(hHash,
+                          HP_HASHVAL,
+                          NULL,
+                          &cbHash,
+                          0))
+    {
+        printf("CryptGetHashParam error \n");
+        return NULL;
+    }
+
+    pbHash = (BYTE*)malloc(cbHash);
+    if(!pbHash) {
+        printf("Out of memmory \n");
+        return NULL;
+    }
+
+    if(!CryptGetHashParam(hHash,
+                          HP_HASHVAL,
+                          pbHash,
+                          &cbHash,
+                          0))
+    {
+        printf("CryptGetHashParam error \n");
         return NULL;
     }
     
@@ -328,19 +345,9 @@ NSString* sign(NSString* alias, NSString* password, NSString* data) {
                       &cbSignature))
     {
         printf("CryptSignHash error\n");
-        wchar_t buf[256];
-        CSP_FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-                           NULL, CSP_GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                           buf, (sizeof(buf) / sizeof(wchar_t)), NULL);
-        printf("%ls\n", buf);
+        handleError(@"CryptSignHash");
         return NULL;
     }
-    
-    wchar_t buf[256];
-    CSP_FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-                       NULL, CSP_GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                       buf, (sizeof(buf) / sizeof(wchar_t)), NULL);
-    printf("%ls\n", buf);
     
     //--------------------------------------------------------------------
     // Распределение памяти под буфер подписи.
@@ -363,12 +370,7 @@ NSString* sign(NSString* alias, NSString* password, NSString* data) {
                       pbSignature,
                       &cbSignature))
     {
-        printf("CryptSignHash error\n");
-        wchar_t buf[256];
-        CSP_FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-                           NULL, CSP_GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                           buf, (sizeof(buf) / sizeof(wchar_t)), NULL);
-        printf("%ls\n", buf);
+        handleError(@"CryptSignHash");
         return NULL;
     }
     
@@ -379,6 +381,8 @@ NSString* sign(NSString* alias, NSString* password, NSString* data) {
     
     printf("Сигнатура: ");
     printf("%s", signatureBase64String);
+    
+    // Освобождение памяти
     
     if(pbHash)
         free(pbHash);
@@ -396,19 +400,3 @@ NSString* sign(NSString* alias, NSString* password, NSString* data) {
     
     return [NSString stringWithUTF8String:signatureBase64String];
 }
-
-
-enum MethodResponseCode {
-    SUCCESS, ERROR
-};
-
-
-class MethodResponse {
-public:
-    MethodResponseCode code;
-    char* content;
-    MethodResponse(char* content, MethodResponseCode code) {
-        this->code = code;
-        this->content = content;
-    };
-};

@@ -17,7 +17,7 @@ Future<String> showInputDialog(BuildContext context, String message,
             borderRadius: BorderRadius.all(Radius.circular(10))),
         title: Text(
           message,
-          style: TextStyle(fontSize: 12),
+          style: TextStyle(fontSize: 12, color: Colors.black),
           textAlign: TextAlign.center,
           maxLines: 10,
         ),
