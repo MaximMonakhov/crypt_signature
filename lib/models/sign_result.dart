@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'certificate.dart';
 
 /// Результат подписи
@@ -11,5 +14,14 @@ class SignResult {
   /// Сигнатура
   final String signature;
 
-  SignResult(this.certificate, this.data, this.signature);
+  SignResult._(this.certificate, this.data, this.signature);
+
+  factory SignResult(Certificate certificate, String data, String signature) {
+    /// Нативные функции win32 возвращают развернутую сигнатуру
+    if (Platform.isIOS) signature = reverseSignature(signature);
+    return SignResult._(certificate, data, signature);
+  }
+
+  static String reverseSignature(String signature) =>
+      base64.encode(base64.decode(signature.replaceAll("\n", "")).reversed.toList());
 }

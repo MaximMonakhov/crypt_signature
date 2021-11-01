@@ -21,6 +21,7 @@ class Certificate {
   final String algorithm;
   final String parameterMap;
   final String certificateDescription;
+  final x509_certificate.X509Certificate x509certificate;
 
   Certificate(
       {this.uuid,
@@ -31,7 +32,8 @@ class Certificate {
       this.serialNumber,
       this.algorithm,
       this.parameterMap,
-      this.certificateDescription});
+      this.certificateDescription,
+      this.x509certificate});
 
   Map<String, dynamic> toJson() => {
         'uuid': uuid,
@@ -71,6 +73,7 @@ class Certificate {
           cert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.name,
       parameterMap: getParameterMap(cert),
       certificateDescription: getCertificateDescription(cert),
+      x509certificate: cert
     );
   }
 
@@ -79,8 +82,7 @@ class Certificate {
   bool operator ==(other) {
     return (other is Certificate) &&
         other.certificate == certificate &&
-        other.serialNumber == serialNumber &&
-        other.subjectDN == subjectDN;
+        other.serialNumber == serialNumber;
   }
 
   static String getParameterMap(x509_certificate.X509Certificate certificate) {

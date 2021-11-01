@@ -269,24 +269,6 @@ NSString* sign(NSString* alias, NSString* password, NSString* data) {
     }
     
     //--------------------------------------------------------------------
-    // Передача параметра HP_OID объекта функции хэширования.
-    // Из примера:
-    // По умолчанию драйвер работает на наборе параметров 1.2.643.2.2.30.1.
-    // Без установки параметра HP_OID программа будет неверно работать,
-    // если параметры хеширования не будут являться параметрами
-    // по умолчанию.
-    //--------------------------------------------------------------------
-    
-//    if(!CryptSetHashParam(hHash,
-//                          HP_OID,
-//                          NULL,
-//                          0))
-//    {
-//        printf("CryptSetHashParam error \n");
-//        return NULL;
-//    }
-    
-    //--------------------------------------------------------------------
     // Вычисление криптографического хэша буфера.
     
     if(!CryptHashData(
@@ -308,13 +290,13 @@ NSString* sign(NSString* alias, NSString* password, NSString* data) {
         printf("CryptGetHashParam error \n");
         return NULL;
     }
-
+    
     pbHash = (BYTE*)malloc(cbHash);
     if(!pbHash) {
         printf("Out of memmory \n");
         return NULL;
     }
-
+    
     if(!CryptGetHashParam(hHash,
                           HP_HASHVAL,
                           pbHash,
@@ -332,7 +314,7 @@ NSString* sign(NSString* alias, NSString* password, NSString* data) {
     
     printf("Хэш: ");
     printf("%s", hashBase64String);
-
+    
     //--------------------------------------------------------------------
     // Определение размера подписи и распределение памяти.
     
@@ -392,7 +374,6 @@ NSString* sign(NSString* alias, NSString* password, NSString* data) {
     // Уничтожение объекта функции хэширования.
     if(hHash)
         CryptDestroyHash(hHash);
-    
     
     // Освобождение дескриптора провайдера.
     if(hProv)
