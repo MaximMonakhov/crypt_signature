@@ -1,3 +1,4 @@
+import 'package:crypt_signature/models/algorithm.dart';
 import 'package:crypt_signature/models/storage.dart';
 import 'package:uuid/uuid.dart';
 import 'package:crypt_signature/utils/X509Certificate/x509_base.dart'
@@ -18,10 +19,11 @@ class Certificate {
   final String subjectDN;
   final String notAfterDate;
   final String serialNumber;
-  final String algorithm;
-  final String parameterMap;
-  final String certificateDescription;
+  final Algorithm algorithm;
   final x509_certificate.X509Certificate x509certificate;
+
+    String parameterMap;
+  String certificateDescription;
 
   Certificate(
       {this.uuid,
@@ -47,6 +49,11 @@ class Certificate {
         'certificateDescription': certificateDescription
       };
 
+  void setParams() {
+    this.parameterMap = getParameterMap();
+    this.certificateDescription = getCertificateDescription();
+  }
+
   static Certificate fromJson(Map<String, dynamic> json) => Certificate(
       uuid: json["uuid"] ?? Uuid().v4(),
       certificate: json["certificate"] as String,
@@ -54,7 +61,7 @@ class Certificate {
       subjectDN: json['subjectDN'] as String,
       notAfterDate: json['notAfterDate'] as String,
       serialNumber: json['serialNumber'] as String,
-      algorithm: json['algorithm'] as String,
+      algorithm: Algorithm.fromJson(json['algorithm']),
       parameterMap: json['parameterMap'] as String,
       certificateDescription: json['certificateDescription'] as String);
 
@@ -62,18 +69,23 @@ class Certificate {
     String pem = PEM_START_STRING + data["certificate"] + PEM_END_STRING;
     x509_certificate.X509Certificate cert = x509_base.parsePem(pem).first;
 
-    return Certificate(
+    String publicKeyOID =
+        cert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.name;
+    Algorithm algorithm = Algorithm.findAlgorithmByPublicKeyOID(publicKeyOID);
+
+    Certificate certificate = Certificate(
         uuid: Uuid().v4(),
         certificate: data["certificate"],
         alias: data["alias"],
         subjectDN: cert.tbsCertificate.subject.toString(),
         notAfterDate: cert.tbsCertificate.validity.notAfter.toString(),
         serialNumber: cert.tbsCertificate.serialNumber.toRadixString(16),
-        algorithm: formatOID(
-            cert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.name),
-        parameterMap: getParameterMap(cert),
-        certificateDescription: getCertificateDescription(cert),
+        algorithm: algorithm,
         x509certificate: cert);
+
+    certificate.setParams();
+
+    return certificate;
   }
 
   @override
@@ -84,73 +96,64 @@ class Certificate {
         other.serialNumber == serialNumber;
   }
 
-  static String getParameterMap(x509_certificate.X509Certificate certificate) {
+  String getParameterMap() {
     const String PARAMETER_SEPARATOR = "&";
     StringBuffer stringBuffer = StringBuffer();
 
     stringBuffer.write("validFromDate=" +
-        certificate.tbsCertificate.validity.notBefore.toString() +
+        this.x509certificate.tbsCertificate.validity.notBefore.toString() +
         PARAMETER_SEPARATOR);
     stringBuffer.write("validToDate=" +
-        certificate.tbsCertificate.validity.notAfter.toString() +
+        this.x509certificate.tbsCertificate.validity.notAfter.toString() +
         PARAMETER_SEPARATOR);
     stringBuffer.write("issuer=" +
-        certificate.tbsCertificate.issuer.toString() +
+        this.x509certificate.tbsCertificate.issuer.toString() +
         PARAMETER_SEPARATOR);
     stringBuffer.write("subject=" +
-        certificate.tbsCertificate.subject.toString() +
+        this.x509certificate.tbsCertificate.subject.toString() +
         PARAMETER_SEPARATOR);
     stringBuffer.write("subjectInfo=" +
-        certificate.tbsCertificate.subject.toString() +
+        this.x509certificate.tbsCertificate.subject.toString() +
         PARAMETER_SEPARATOR);
     stringBuffer.write("issuerInfo=" +
-        certificate.tbsCertificate.issuer.toString() +
+        this.x509certificate.tbsCertificate.issuer.toString() +
         PARAMETER_SEPARATOR);
     stringBuffer.write("serialNumber=" +
-        certificate.tbsCertificate.serialNumber.toRadixString(16) +
+        this.x509certificate.tbsCertificate.serialNumber.toRadixString(16) +
         PARAMETER_SEPARATOR);
     stringBuffer.write("signAlgoritm[name]=" +
-        formatOID(certificate.signatureAlgorithm.algorithm.name) +
+        this.algorithm.name +
         PARAMETER_SEPARATOR);
     stringBuffer.write("signAlgoritm[oid]=" +
-        formatOID(certificate.signatureAlgorithm.algorithm.name) +
+        this.algorithm.signatureOID +
         PARAMETER_SEPARATOR);
-    stringBuffer.write("hashAlgoritm[alias]=" +
-        formatOID(certificate
-            .tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.name));
+    stringBuffer.write("hashAlgoritm[alias]=" + this.algorithm.hashOID);
 
     return stringBuffer.toString();
   }
 
-  static String getCertificateDescription(
-      x509_certificate.X509Certificate certificate) {
+  String getCertificateDescription() {
     const String DESCRIPTION_SEPARATOR = "\n";
     StringBuffer stringBuffer = StringBuffer();
 
     stringBuffer.write("Владелец: " +
-        certificate.tbsCertificate.subject.toString() +
+        this.x509certificate.tbsCertificate.subject.toString() +
         DESCRIPTION_SEPARATOR);
     stringBuffer.write("Серийный номер: " +
-        certificate.tbsCertificate.serialNumber.toRadixString(16) +
+        this.x509certificate.tbsCertificate.serialNumber.toRadixString(16) +
         DESCRIPTION_SEPARATOR);
     stringBuffer.write("Издатель: " +
-        certificate.tbsCertificate.issuer.toString() +
+        this.x509certificate.tbsCertificate.issuer.toString() +
         DESCRIPTION_SEPARATOR);
     stringBuffer.write("Алгоритм подписи: " +
-        formatOID(certificate.signatureAlgorithm.algorithm.name) +
+        this.algorithm.name +
         DESCRIPTION_SEPARATOR);
     stringBuffer.write("Действует с: " +
-        certificate.tbsCertificate.validity.notBefore.toString() +
+        this.x509certificate.tbsCertificate.validity.notBefore.toString() +
         DESCRIPTION_SEPARATOR);
     stringBuffer.write("Действует по: " +
-        certificate.tbsCertificate.validity.notAfter.toString());
+        this.x509certificate.tbsCertificate.validity.notAfter.toString());
 
     return stringBuffer.toString();
   }
-
-  static String formatOID(String rawOID) => rawOID
-      .replaceAll("[", "")
-      .replaceAll("]", "")
-      .replaceAll(" ", "")
-      .replaceAll(",", ".");
 }

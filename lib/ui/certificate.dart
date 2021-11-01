@@ -135,7 +135,7 @@ class CertificateWidget extends StatelessWidget {
             ),
             Text("Дата окончания: " + certificate.notAfterDate,
                 style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
-            Text("Алгоритм публичного ключа: " + certificate.algorithm,
+            Text("Алгоритм публичного ключа: " + certificate.algorithm.name,
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
             Text(
               "Информация: " + certificate.subjectDN,
