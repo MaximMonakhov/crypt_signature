@@ -59,22 +59,21 @@ class Certificate {
       certificateDescription: json['certificateDescription'] as String);
 
   static Certificate fromBase64(Map data) {
-   String pem = PEM_START_STRING + data["certificate"] + PEM_END_STRING;
+    String pem = PEM_START_STRING + data["certificate"] + PEM_END_STRING;
     x509_certificate.X509Certificate cert = x509_base.parsePem(pem).first;
 
     return Certificate(
-      uuid: Uuid().v4(),
-      certificate: data["certificate"],
-      alias: data["alias"],
-      subjectDN: cert.tbsCertificate.subject.toString(),
-      notAfterDate: cert.tbsCertificate.validity.notAfter.toString(),
-      serialNumber: cert.tbsCertificate.serialNumber.toRadixString(16),
-      algorithm:
-          cert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.name.replaceAll("[", "").replaceAll("]", "").replaceAll(" ", "").replaceAll(",", "."),
-      parameterMap: getParameterMap(cert),
-      certificateDescription: getCertificateDescription(cert),
-      x509certificate: cert
-    );
+        uuid: Uuid().v4(),
+        certificate: data["certificate"],
+        alias: data["alias"],
+        subjectDN: cert.tbsCertificate.subject.toString(),
+        notAfterDate: cert.tbsCertificate.validity.notAfter.toString(),
+        serialNumber: cert.tbsCertificate.serialNumber.toRadixString(16),
+        algorithm: formatOID(
+            cert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.name),
+        parameterMap: getParameterMap(cert),
+        certificateDescription: getCertificateDescription(cert),
+        x509certificate: cert);
   }
 
   @override
@@ -111,11 +110,14 @@ class Certificate {
         certificate.tbsCertificate.serialNumber.toRadixString(16) +
         PARAMETER_SEPARATOR);
     stringBuffer.write("signAlgoritm[name]=" +
-        certificate.signatureAlgorithm.toString() +
+        formatOID(certificate.signatureAlgorithm.algorithm.name) +
         PARAMETER_SEPARATOR);
     stringBuffer.write("signAlgoritm[oid]=" +
-        certificate.signatureAlgorithm.toString());
-    stringBuffer.write("hashAlgoritm[alias]=" + certificate.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.name.replaceAll("[", "").replaceAll("]", "").replaceAll(" ", "").replaceAll(",", ".") + PARAMETER_SEPARATOR);
+        formatOID(certificate.signatureAlgorithm.algorithm.name) +
+        PARAMETER_SEPARATOR);
+    stringBuffer.write("hashAlgoritm[alias]=" +
+        formatOID(certificate
+            .tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.name));
 
     return stringBuffer.toString();
   }
@@ -135,15 +137,20 @@ class Certificate {
         certificate.tbsCertificate.issuer.toString() +
         DESCRIPTION_SEPARATOR);
     stringBuffer.write("Алгоритм подписи: " +
-        certificate.signatureAlgorithm.toString() +
+        formatOID(certificate.signatureAlgorithm.algorithm.name) +
         DESCRIPTION_SEPARATOR);
     stringBuffer.write("Действует с: " +
         certificate.tbsCertificate.validity.notBefore.toString() +
         DESCRIPTION_SEPARATOR);
     stringBuffer.write("Действует по: " +
-        certificate.tbsCertificate.validity.notAfter.toString() +
-        DESCRIPTION_SEPARATOR);
+        certificate.tbsCertificate.validity.notAfter.toString());
 
     return stringBuffer.toString();
   }
+
+  static String formatOID(String rawOID) => rawOID
+      .replaceAll("[", "")
+      .replaceAll("]", "")
+      .replaceAll(" ", "")
+      .replaceAll(",", ".");
 }
