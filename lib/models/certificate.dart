@@ -70,7 +70,7 @@ class Certificate {
       notAfterDate: cert.tbsCertificate.validity.notAfter.toString(),
       serialNumber: cert.tbsCertificate.serialNumber.toRadixString(16),
       algorithm:
-          cert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.name,
+          cert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.name.replaceAll("[", "").replaceAll("]", "").replaceAll(" ", "").replaceAll(",", "."),
       parameterMap: getParameterMap(cert),
       certificateDescription: getCertificateDescription(cert),
       x509certificate: cert
@@ -115,7 +115,7 @@ class Certificate {
         PARAMETER_SEPARATOR);
     stringBuffer.write("signAlgoritm[oid]=" +
         certificate.signatureAlgorithm.toString());
-    //stringBuffer.write("hashAlgoritm[alias]=" + certificate.tbsCertificate.subjectPublicKeyInfo.algorithm.toString() + PARAMETER_SEPARATOR);
+    stringBuffer.write("hashAlgoritm[alias]=" + certificate.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.name.replaceAll("[", "").replaceAll("]", "").replaceAll(" ", "").replaceAll(",", ".") + PARAMETER_SEPARATOR);
 
     return stringBuffer.toString();
   }
