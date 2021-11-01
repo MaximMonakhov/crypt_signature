@@ -280,7 +280,7 @@ public class CryptSignaturePlugin implements FlutterPlugin, MethodCallHandler {
                 md.update(data);
                 byte[] digest = md.digest();
 
-                log.info("Хэш " + Arrays.toString(digest));
+                log.info("Хэш: " + (Base64.encodeToString(digest, Base64.NO_WRAP)));
 
                 log.info("Сертификат распакован");
                 PrivateKey privateKey = (PrivateKey) keyStorePFX.getKey(alias, password.toCharArray());

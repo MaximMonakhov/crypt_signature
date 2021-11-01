@@ -15,7 +15,7 @@ class CryptSignature {
   static SharedPreferences sharedPreferences;
   static BuildContext rootContext;
 
-  /// Подписать данные
+  /// Подписать данные.
   /// Возможны два сценария работы метода:
   ///
   /// * Если данные известны сразу.
