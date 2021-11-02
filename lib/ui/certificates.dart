@@ -124,10 +124,13 @@ class _CertificatesState extends State<Certificates> {
                                     padding:
                                         EdgeInsets.symmetric(vertical: 5.0)),
                                 Text(widget.hint),
+                                Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(vertical: 5.0)),
                                 Expanded(
                                   child: ListView.builder(
-                                      padding:
-                                          EdgeInsets.symmetric(vertical: 10.0),
+                                      padding: EdgeInsets.only(
+                                          top: 10.0, bottom: 100),
                                       physics: BouncingScrollPhysics(),
                                       itemCount: snapshot.data.length,
                                       itemBuilder: (context, index) =>
