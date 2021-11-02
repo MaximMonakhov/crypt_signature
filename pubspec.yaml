@@ -1,6 +1,6 @@
 name: crypt_signature
 description: crypt
-version: 4.1.0
+version: 4.1.1
 author: monakhov
 homepage: https://github.com/MaximMonakhov/crypt_signature
 
@@ -14,6 +14,7 @@ dependencies:
   api_event: ^1.4.0
   shared_preferences: ^2.0.5
   uuid: ^3.0.2
+  intl: ^0.17.0
   path_provider: ^2.0.1
   file_picker: ^3.0.4
   mask_text_input_formatter: ^2.0.0

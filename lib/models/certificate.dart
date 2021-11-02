@@ -1,10 +1,11 @@
 import 'package:crypt_signature/models/algorithm.dart';
 import 'package:crypt_signature/models/storage.dart';
-import 'package:uuid/uuid.dart';
-import 'package:crypt_signature/utils/X509Certificate/x509_base.dart'
-    as x509_base;
 import 'package:crypt_signature/utils/X509Certificate/certificate.dart'
     as x509_certificate;
+import 'package:crypt_signature/utils/X509Certificate/x509_base.dart'
+    as x509_base;
+import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
 
 class Certificate {
   static const String PEM_START_STRING = "-----BEGIN CERTIFICATE-----\n";
@@ -22,7 +23,7 @@ class Certificate {
   final Algorithm algorithm;
   final x509_certificate.X509Certificate x509certificate;
 
-    String parameterMap;
+  String parameterMap;
   String certificateDescription;
 
   Certificate(
@@ -73,12 +74,15 @@ class Certificate {
         cert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.name;
     Algorithm algorithm = Algorithm.findAlgorithmByPublicKeyOID(publicKeyOID);
 
+    String notAfterDate = DateFormat('HH:mm dd-MM-yyyy')
+        .format(cert.tbsCertificate.validity.notAfter);
+
     Certificate certificate = Certificate(
         uuid: Uuid().v4(),
         certificate: data["certificate"],
         alias: data["alias"],
         subjectDN: cert.tbsCertificate.subject.toString(),
-        notAfterDate: cert.tbsCertificate.validity.notAfter.toString(),
+        notAfterDate: notAfterDate,
         serialNumber: cert.tbsCertificate.serialNumber.toRadixString(16),
         algorithm: algorithm,
         x509certificate: cert);
@@ -121,9 +125,8 @@ class Certificate {
     stringBuffer.write("serialNumber=" +
         this.x509certificate.tbsCertificate.serialNumber.toRadixString(16) +
         PARAMETER_SEPARATOR);
-    stringBuffer.write("signAlgoritm[name]=" +
-        this.algorithm.name +
-        PARAMETER_SEPARATOR);
+    stringBuffer.write(
+        "signAlgoritm[name]=" + this.algorithm.name + PARAMETER_SEPARATOR);
     stringBuffer.write("signAlgoritm[oid]=" +
         this.algorithm.signatureOID +
         PARAMETER_SEPARATOR);
@@ -145,9 +148,8 @@ class Certificate {
     stringBuffer.write("Издатель: " +
         this.x509certificate.tbsCertificate.issuer.toString() +
         DESCRIPTION_SEPARATOR);
-    stringBuffer.write("Алгоритм подписи: " +
-        this.algorithm.name +
-        DESCRIPTION_SEPARATOR);
+    stringBuffer.write(
+        "Алгоритм подписи: " + this.algorithm.name + DESCRIPTION_SEPARATOR);
     stringBuffer.write("Действует с: " +
         this.x509certificate.tbsCertificate.validity.notBefore.toString() +
         DESCRIPTION_SEPARATOR);

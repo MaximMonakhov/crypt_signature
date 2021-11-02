@@ -119,8 +119,11 @@ class CertificateWidget extends StatelessWidget {
                 GestureDetector(
                     behavior: HitTestBehavior.translucent,
                     onTap: () => removeCallback(certificate),
-                    child: Padding(
-                      padding: EdgeInsets.only(left: 10.0),
+                    child: Container(
+                      padding: EdgeInsets.only(
+                        bottom: 5,
+                        left: 10,
+                      ),
                       child: Icon(
                         Icons.clear,
                         size: 14,
@@ -129,18 +132,21 @@ class CertificateWidget extends StatelessWidget {
                     ))
               ],
             ),
-            Text(
-              "Алиас: " + certificate.alias,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            Text("Дата окончания: " + certificate.notAfterDate,
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
-            Text("Алгоритм публичного ключа: " + certificate.algorithm.name,
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-            Text(
-              "Информация: " + certificate.subjectDN,
-              style: TextStyle(fontSize: 12),
-            ),
+            Divider(),
+            Text("Алиас", style: TextStyle(fontSize: 12)),
+            Text(certificate.alias,
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+            Divider(),
+            Text("Действителен по", style: TextStyle(fontSize: 12)),
+            Text(certificate.notAfterDate,
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+            Divider(),
+            Text("Алгоритм публичного ключа", style: TextStyle(fontSize: 12)),
+            Text(certificate.algorithm.name,
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+            Divider(),
+            Text("Идентифицирующие сведения", style: TextStyle(fontSize: 12)),
+            Text(certificate.subjectDN, style: TextStyle(fontSize: 12)),
           ],
         ),
       ),
