@@ -13,36 +13,42 @@ class CertificateWidget extends StatelessWidget {
   final Future<String> Function(Certificate certificate) onCertificateSelected;
   final void Function(Certificate) removeCallback;
 
-  const CertificateWidget(this.certificate, this.removeCallback,
-      {Key key, this.onCertificateSelected})
-      : super(key: key);
+  const CertificateWidget(
+    this.certificate,
+    this.removeCallback, {
+    Key key,
+    this.onCertificateSelected,
+  }) : super(key: key);
 
-  void signData(Certificate certificate, BuildContext context) async {
+  Future<void> signData(Certificate certificate, BuildContext context) async {
     String password = await showInputDialog(
-        context,
-        "Введите пароль для\n доступа к контейнеру приватного ключа",
-        "Пароль",
-        true,
-        TextInputType.visiblePassword);
+      context,
+      "Введите пароль для\n доступа к контейнеру приватного ключа",
+      "Пароль",
+      TextInputType.visiblePassword,
+      obscureText: true,
+    );
 
     if (password != null && password.isNotEmpty) {
       UI.lockScreen();
       ApiResponse response = await Native.sign(certificate, password);
-      await Future.delayed(Duration(seconds: 1));
+      await Future.delayed(const Duration(seconds: 1));
       UI.unlockScreen();
 
       if (response.status == Status.COMPLETED) {
-        SignResult signResult =
-            SignResult(certificate, Native.data, response.data);
+        SignResult signResult = SignResult(certificate, Native.data, response.data as String);
         Navigator.of(CryptSignature.rootContext).pop(signResult);
-      } else
-        showError(context,
-            "Возникла ошибка во время подписи.\nПроверьте правильность введенного пароля",
-            details: response.message);
+      } else {
+        showError(
+          context,
+          "Возникла ошибка во время подписи.\nПроверьте правильность введенного пароля",
+          details: response.message,
+        );
+      }
     }
   }
 
-  void sign(Certificate certificate, BuildContext context) async {
+  Future<void> sign(Certificate certificate, BuildContext context) async {
     UI.lockScreen();
     Native.data = await onCertificateSelected(certificate);
     UI.unlockScreen();
@@ -53,25 +59,24 @@ class CertificateWidget extends StatelessWidget {
     }
 
     String password = await showInputDialog(
-        context,
-        "Введите пароль для\n доступа к контейнеру приватного ключа",
-        "Пароль",
-        true,
-        TextInputType.visiblePassword);
+      context,
+      "Введите пароль для\n доступа к контейнеру приватного ключа",
+      "Пароль",
+      TextInputType.visiblePassword,
+      obscureText: true,
+    );
 
     if (password != null && password.isNotEmpty) {
       UI.lockScreen();
       ApiResponse response = await Native.sign(certificate, password);
-      await Future.delayed(Duration(seconds: 1));
+      await Future.delayed(const Duration(seconds: 1));
       UI.unlockScreen();
       if (response.status == Status.COMPLETED) {
-        SignResult signResult =
-            SignResult(certificate, Native.data, response.data);
+        SignResult signResult = SignResult(certificate, Native.data, response.data as String);
         Navigator.of(CryptSignature.rootContext).pop(signResult);
-      } else
-        showError(context,
-            "Возникла ошибка во время подписи.\nПроверьте правильность введенного пароля",
-            details: response.message);
+      } else {
+        showError(context, "Возникла ошибка во время подписи.\nПроверьте правильность введенного пароля", details: response.message);
+      }
     }
   }
 
@@ -79,30 +84,22 @@ class CertificateWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        if (onCertificateSelected == null)
-          signData(certificate, context);
-        else
-          sign(certificate, context);
+        onCertificateSelected == null ? signData(certificate, context) : sign(certificate, context);
       },
       child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5.0),
-        padding:
-            EdgeInsets.only(left: 15.0, right: 15.0, top: 10.0, bottom: 10.0),
+        margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5.0),
+        padding: const EdgeInsets.only(left: 15.0, right: 15.0, top: 10.0, bottom: 10.0),
         decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10.0),
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  offset: Offset(0, 0),
-                  blurRadius: 0.5,
-                  spreadRadius: 0.05),
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                offset: Offset(0, 0),
-                blurRadius: 5.0,
-              ),
-            ]),
+          borderRadius: BorderRadius.circular(10.0),
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 0.5, spreadRadius: 0.05),
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 5.0,
+            ),
+          ],
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
@@ -111,42 +108,39 @@ class CertificateWidget extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    "№" + certificate.serialNumber,
-                    style: TextStyle(
-                        letterSpacing: -1, fontSize: 12, color: Colors.grey),
+                    "№${certificate.serialNumber}",
+                    style: const TextStyle(letterSpacing: -1, fontSize: 12, color: Colors.grey),
                   ),
                 ),
                 GestureDetector(
-                    behavior: HitTestBehavior.translucent,
-                    onTap: () => removeCallback(certificate),
-                    child: Container(
-                      padding: EdgeInsets.only(
-                        bottom: 5,
-                        left: 10,
-                      ),
-                      child: Icon(
-                        Icons.clear,
-                        size: 14,
-                        color: CupertinoColors.systemRed,
-                      ),
-                    ))
+                  behavior: HitTestBehavior.translucent,
+                  onTap: () => removeCallback(certificate),
+                  child: Container(
+                    padding: const EdgeInsets.only(
+                      bottom: 5,
+                      left: 10,
+                    ),
+                    child: const Icon(
+                      Icons.clear,
+                      size: 14,
+                      color: CupertinoColors.systemRed,
+                    ),
+                  ),
+                ),
               ],
             ),
-            Divider(),
-            Text("Алиас", style: TextStyle(fontSize: 12)),
-            Text(certificate.alias,
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-            Divider(),
-            Text("Действителен по", style: TextStyle(fontSize: 12)),
-            Text(certificate.notAfterDate,
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-            Divider(),
-            Text("Алгоритм публичного ключа", style: TextStyle(fontSize: 12)),
-            Text(certificate.algorithm.name,
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-            Divider(),
-            Text("Идентифицирующие сведения", style: TextStyle(fontSize: 12)),
-            Text(certificate.subjectDN, style: TextStyle(fontSize: 12)),
+            const Divider(),
+            const Text("Алиас", style: TextStyle(fontSize: 12)),
+            Text(certificate.alias, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+            const Divider(),
+            const Text("Действителен по", style: TextStyle(fontSize: 12)),
+            Text(certificate.notAfterDate, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+            const Divider(),
+            const Text("Алгоритм публичного ключа", style: TextStyle(fontSize: 12)),
+            Text(certificate.algorithm.name, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+            const Divider(),
+            const Text("Идентифицирующие сведения", style: TextStyle(fontSize: 12)),
+            Text(certificate.subjectDN, style: const TextStyle(fontSize: 12)),
           ],
         ),
       ),

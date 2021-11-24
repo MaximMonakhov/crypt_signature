@@ -13,14 +13,14 @@ class LockWidget extends StatelessWidget {
         child: Container(
           width: 50,
           height: 50,
-          padding: EdgeInsets.all(20),
-          child: CircularProgressIndicator(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: const Color.fromRGBO(106, 147, 245, 1),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: const CircularProgressIndicator(
             valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
             strokeWidth: 1,
-          ),
-          decoration: BoxDecoration(
-            color: Color.fromRGBO(106, 147, 245, 1),
-            borderRadius: BorderRadius.circular(10),
           ),
         ),
       ),

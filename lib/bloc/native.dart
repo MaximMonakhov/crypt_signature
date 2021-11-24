@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:api_event/models/api_response.dart';
 import 'package:crypt_signature/models/certificate.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -11,19 +12,18 @@ class Native {
   static const int INIT_CSP_LICENSE_ERROR = 1;
   static const int INIT_CSP_ERROR = -1;
 
-  static const MethodChannel _channel = const MethodChannel('crypt_signature');
+  static const MethodChannel _channel = MethodChannel('crypt_signature');
   static String data;
 
   static Future<int> initCSP(String license) async {
     try {
-      dynamic result =
-          await _channel.invokeMethod("initCSP", {"license": license});
+      int result = await _channel.invokeMethod("initCSP", {"license": license});
       return result;
     } catch (exception) {
-      print("Не удалось инициализировать провайдер: " + exception.toString());
+      debugPrint("Не удалось инициализировать провайдер: $exception");
 
       if (exception is PlatformException) {
-        return exception.details;
+        return exception.details as int;
       }
 
       return INIT_CSP_ERROR;
@@ -31,18 +31,18 @@ class Native {
   }
 
   static Future<ApiResponse<Certificate>> installCertificate(
-      File file, String password) async {
+    File file,
+    String password,
+  ) async {
     try {
-      String certificateInfo = await _channel.invokeMethod("installCertificate",
-          {"pathToCert": file.path, "password": password});
+      String certificateInfo = await _channel.invokeMethod("installCertificate", {"pathToCert": file.path, "password": password});
 
-      Map data = json.decode(certificateInfo);
+      Map data = json.decode(certificateInfo) as Map;
 
       Certificate certificate = Certificate.fromBase64(data);
 
       Directory directory = await getApplicationDocumentsDirectory();
-      String filePath =
-          directory.path + "/certificates/" + certificate.uuid + ".pfx";
+      String filePath = "${directory.path}/certificates/${certificate.uuid}.pfx";
 
       File(filePath);
       await file.copy(filePath);
@@ -55,11 +55,9 @@ class Native {
     }
   }
 
-  static Future<ApiResponse<String>> sign(
-      Certificate certificate, String password) async {
+  static Future<ApiResponse<String>> sign(Certificate certificate, String password) async {
     try {
-      String result = await _channel.invokeMethod("sign",
-          {"id": Platform.isIOS ? certificate.alias : certificate.uuid, "password": password, "data": data});
+      String result = await _channel.invokeMethod("sign", {"id": Platform.isIOS ? certificate.alias : certificate.uuid, "password": password, "data": data});
 
       return ApiResponse.completed(data: result);
     } catch (exception) {

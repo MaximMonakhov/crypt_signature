@@ -24,42 +24,43 @@ class CryptSignature {
   /// * Если для формирования данных нужен сертификат пользователя.
   ///   Требуется передать сallback [onCertificateSelected], который отдает вам сертификат,
   ///   выбранный пользователем, и ожидает данные в формате Base64 для подписи
-  static Future<SignResult> sign(BuildContext context,
-      {String data,
-      Future<String> Function(Certificate certificate) onCertificateSelected,
-      String title = "Подпись",
-      String hint = "Выберите сертификат"}) async {
+  static Future<SignResult> sign(
+    BuildContext context, {
+    String data,
+    Future<String> Function(Certificate certificate) onCertificateSelected,
+    String title = "Подпись",
+    String hint = "Выберите сертификат",
+  }) async {
     Native.data = data;
     CryptSignature.rootContext = context;
 
     sharedPreferences = await SharedPreferences.getInstance();
 
     Directory directory = await getApplicationDocumentsDirectory();
-    await Directory(directory.path + '/certificates').create();
+    await Directory('${directory.path}/certificates').create();
 
-    SignResult signResult = await Navigator.of(context).push(FadePageRoute(
+    SignResult signResult = await Navigator.of(context).push(
+      FadePageRoute(
         builder: (context) => Home(
-              title: title,
-              hint: hint,
-              onCertificateSelected: onCertificateSelected,
-            )));
+          title: title,
+          hint: hint,
+          onCertificateSelected: onCertificateSelected,
+        ),
+      ),
+    );
 
     return signResult;
   }
 
   /// Получить список сертификатов, добавленных пользователем
   static Future<List<Certificate>> getCertificates() async {
-    if (sharedPreferences == null)
-      sharedPreferences = await SharedPreferences.getInstance();
-
+    sharedPreferences ??= await SharedPreferences.getInstance();
     return Certificate.storage.get();
   }
 
   /// Очистить список сертификатов
   static Future<bool> clear() async {
-    if (sharedPreferences == null)
-      sharedPreferences = await SharedPreferences.getInstance();
-
+    sharedPreferences ??= await SharedPreferences.getInstance();
     return CryptSignature.sharedPreferences.clear();
   }
 }

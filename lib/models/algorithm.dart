@@ -36,7 +36,7 @@ class Algorithm {
   static Algorithm findAlgorithmByPublicKeyOID(String publicKeyOID) {
     if (publicKeyOID == null) return algorithms.last;
 
-    String formatedPublicKeyOID = formatOID(publicKeyOID);
+    final String formatedPublicKeyOID = formatOID(publicKeyOID);
     return algorithms.firstWhere((algorithm) => algorithm.publicKeyOID == formatedPublicKeyOID, orElse: () => algorithms.last);
   }
 
@@ -46,14 +46,14 @@ class Algorithm {
       .replaceAll(" ", "")
       .replaceAll(",", ".");
   
-  Map<String, dynamic> toJson() => {
+  Map<String, String> toJson() => {
         'name': name,
         'hashOID': hashOID,
         'publicKeyOID': publicKeyOID,
         'signatureOID': signatureOID,
       };
   
-  Algorithm.fromJson(Map<String, dynamic> json)
+  Algorithm.fromJson(Map<String, String> json)
       : name = json['name'],
         hashOID = json['hashOID'],
         publicKeyOID = json['publicKeyOID'],

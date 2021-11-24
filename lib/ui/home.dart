@@ -16,25 +16,23 @@ class Home extends StatefulWidget {
   final String title;
   final String hint;
   final Future<String> Function(Certificate certificate) onCertificateSelected;
-  const Home(
-      {Key key,
-      this.onCertificateSelected,
-      this.title = "Подпись",
-      this.hint = "Выберите сертификат"})
-      : super(key: key);
+  const Home({
+    Key key,
+    this.onCertificateSelected,
+    this.title = "Подпись",
+    this.hint = "Выберите сертификат",
+  }) : super(key: key);
 
   @override
   _HomeState createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
-  Event<int> csp = new Event<int>();
+  Event<int> csp = Event<int>();
 
   @override
   void initState() {
-    if (Platform.isIOS) 
-      _initCSP(null);
-    else checkLicense();
+    Platform.isIOS ? _initCSP(null) : checkLicense();
 
     super.initState();
   }
@@ -46,30 +44,33 @@ class _HomeState extends State<Home> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         setNewLicenseSheet();
       });
-    } else
+    } else {
       _initCSP(license);
+    }
   }
 
-  void setNewLicenseSheet() async {
-    var maskFormatter = new MaskTextInputFormatter(
-        mask: '#####-#####-#####-#####-#####',
-        filter: {"#": RegExp(r'[0-9+A-Z]')});
+  Future<void> setNewLicenseSheet() async {
+    var maskFormatter = MaskTextInputFormatter(
+      mask: '#####-#####-#####-#####-#####',
+      filter: {"#": RegExp('[0-9+A-Z]')},
+    );
     String newLicense = await showInputDialog(
-        context,
-        "Введите вашу лицензию Крипто ПРО",
-        "Номер лицензии",
-        false,
-        TextInputType.emailAddress,
-        inputFormatters: [maskFormatter]);
+      context,
+      "Введите вашу лицензию Крипто ПРО",
+      "Номер лицензии",
+      TextInputType.emailAddress,
+      inputFormatters: [maskFormatter],
+    );
 
     if (newLicense != null && newLicense.isNotEmpty) {
       CryptSignature.sharedPreferences.setString("license", newLicense);
       _initCSP(newLicense);
-    } else
+    } else {
       csp.publish(Native.INIT_CSP_LICENSE_ERROR);
+    }
   }
 
-  _initCSP(String license) async {
+  Future<void> _initCSP(String license) async {
     int result = await Native.initCSP(license);
     csp.publish(result);
   }
@@ -81,78 +82,78 @@ class _HomeState extends State<Home> {
       home: AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle.dark,
         child: Scaffold(
-          backgroundColor: Color.fromRGBO(250, 250, 250, 1),
+          backgroundColor: const Color.fromRGBO(250, 250, 250, 1),
           appBar: PreferredSize(
-            preferredSize: Size.fromHeight(40),
+            preferredSize: const Size.fromHeight(40),
             child: AppBar(
-              backgroundColor: Color.fromRGBO(250, 250, 250, 1),
+              backgroundColor: const Color.fromRGBO(250, 250, 250, 1),
               centerTitle: true,
               elevation: 0,
               title: Text(
                 widget.title,
-                style: TextStyle(color: Colors.black),
+                style: const TextStyle(color: Colors.black),
               ),
               leading: GestureDetector(
                 behavior: HitTestBehavior.translucent,
                 onTap: () => Navigator.of(CryptSignature.rootContext).pop(),
                 child: Container(
-                    alignment: Alignment.centerRight,
-                    child: Text(
-                      "Назад",
-                      maxLines: 1,
-                      style: TextStyle(color: Colors.redAccent),
-                    )),
+                  alignment: Alignment.centerRight,
+                  child: const Text(
+                    "Назад",
+                    maxLines: 1,
+                    style: TextStyle(color: Colors.redAccent),
+                  ),
+                ),
               ),
             ),
           ),
           body: StreamBuilder<int>(
-              stream: csp.stream,
-              builder: (context, snapshot) {
-                if (!snapshot.hasData)
-                  return Center(
-                    child: Container(
-                      width: 20.0,
-                      height: 20.0,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 1,
-                        backgroundColor: Colors.transparent,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
-                      ),
+            stream: csp.stream,
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return const Center(
+                  child: SizedBox(
+                    width: 20.0,
+                    height: 20.0,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 1,
+                      backgroundColor: Colors.transparent,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
                     ),
-                  );
+                  ),
+                );
+              }
 
-                return snapshot.data == Native.INIT_CSP_OK
-                    ? Certificates(
-                        hint: widget.hint,
-                        onCertificateSelected: widget.onCertificateSelected,
-                      )
-                    : snapshot.data == Native.INIT_CSP_LICENSE_ERROR
-                        ? Center(
-                            child: Column(
+              return snapshot.data == Native.INIT_CSP_OK
+                  ? Certificates(
+                      hint: widget.hint,
+                      onCertificateSelected: widget.onCertificateSelected,
+                    )
+                  : snapshot.data == Native.INIT_CSP_LICENSE_ERROR
+                      ? Center(
+                          child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text("Неверная лицензия"),
+                              const Text("Неверная лицензия"),
                               GestureDetector(
                                 behavior: HitTestBehavior.translucent,
                                 onTap: () {
                                   setNewLicenseSheet();
                                 },
-                                child: Padding(
-                                  padding: const EdgeInsets.all(20.0),
+                                child: const Padding(
+                                  padding: EdgeInsets.all(20.0),
                                   child: Text(
                                     "Ввести лицензию заново",
-                                    style: TextStyle(
-                                        color: Colors.blue,
-                                        fontWeight: FontWeight.bold),
+                                    style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
                                   ),
                                 ),
                               ),
                             ],
-                          ))
-                        : Center(
-                            child:
-                                Text("Не удалось инициализировать провайдер"));
-              }),
+                          ),
+                        )
+                      : const Center(child: Text("Не удалось инициализировать провайдер"));
+            },
+          ),
         ),
       ),
     );

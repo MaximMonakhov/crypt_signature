@@ -35,7 +35,7 @@ void main() {
 
     test('Сериализация и десериализация', () {
       Algorithm algorithm = Algorithm.algorithms[0];
-      Map json = algorithm.toJson();
+      Map<String, String> json = algorithm.toJson();
       Algorithm parsedAlgorithm = Algorithm.fromJson(json);
 
       expect(algorithm.name, parsedAlgorithm.name);

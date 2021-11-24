@@ -1,0 +1,15 @@
+include: package:lint/analysis_options_package.yaml
+
+analyzer:
+  exclude:
+    - lib/utils/X509Certificate/*
+    - example/*
+
+linter:
+  rules:
+    constant_identifier_names: false
+    prefer_constructors_over_static_methods: false
+    prefer_final_locals: false
+    avoid_classes_with_only_static_members: false
+    use_build_context_synchronously: false
+    sort_pub_dependencies: false

@@ -32,7 +32,7 @@ class FadePageRoute<T> extends PageRoute<T> {
 
   @override
   bool canTransitionTo(TransitionRoute<dynamic> nextRoute) {
-    return (nextRoute is FadePageRoute && !nextRoute.fullscreenDialog);
+    return nextRoute is FadePageRoute && !nextRoute.fullscreenDialog;
   }
 
   @override
@@ -50,8 +50,12 @@ class FadePageRoute<T> extends PageRoute<T> {
   }
 
   @override
-  Widget buildTransitions(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation, Widget child) {
+  Widget buildTransitions(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
     return _FadeInPageTransition(routeAnimation: animation, child: child);
   }
 
@@ -66,8 +70,7 @@ class _FadeInPageTransition extends StatelessWidget {
     @required this.child,
   })  : _opacityAnimation = routeAnimation.drive(_easeInTween),
         super(key: key);
-  static final Animatable<double> _easeInTween =
-      CurveTween(curve: Curves.easeIn);
+  static final Animatable<double> _easeInTween = CurveTween(curve: Curves.easeIn);
 
   final Animation<double> _opacityAnimation;
   final Widget child;

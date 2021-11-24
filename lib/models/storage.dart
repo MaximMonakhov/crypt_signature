@@ -17,14 +17,16 @@ class Storage<T> {
 
     if (data == null) return [];
 
-    List<dynamic> list = json.decode(data);
+    List<dynamic> list = json.decode(data) as List;
 
     if (list == null || list.isEmpty) return [];
 
     List<T> objects = [];
 
     /// TODO: переделать парсер в compute
-    for (Map object in list) objects.add(parser(object));
+    for (final Map<String, dynamic> object in list as List<Map<String, dynamic>>) {
+      objects.add(parser(object));
+    }
 
     return objects;
   }
@@ -34,25 +36,25 @@ class Storage<T> {
   }
 
   bool add(T object) {
-    List<T> objects = this.get();
+    List<T> objects = get();
 
     if (objects.contains(object)) return false;
 
     objects.add(object);
 
-    this.save(objects);
+    save(objects);
 
     return true;
   }
 
   bool remove(T object) {
-    List<T> objects = this.get();
+    List<T> objects = get();
 
     if (!objects.contains(object)) return false;
 
     objects.remove(object);
 
-    this.save(objects);
+    save(objects);
 
     return true;
   }
