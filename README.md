@@ -20,7 +20,7 @@
 <application android:extractNativeLibs="true"></application>
 ```
 
-3. Добавить в ```gradle.properties```
+3. Добавить в ```gradle.properties``` // Gradle <7
 ```properties
 android.bundle.enableUncompressedNativeLibs = false
 android.enableR8=false
@@ -34,7 +34,7 @@ minSdkVersion 24
         release {
             shrinkResources false
             minifyEnabled false
-            useProguard true
+            useProguard true // Gradle <7
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -46,6 +46,10 @@ packagingOptions {
     exclude 'META-INF/LICENSE.txt'
     doNotStrip "*/arm64-v8a/*.so"
     doNotStrip "*/armeabi/*.so"
+    // Gradle >7
+    jniLibs {
+        useLegacyPackaging = true
+    }
 }
 
 dependencies {
