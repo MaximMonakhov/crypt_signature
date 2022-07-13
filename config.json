@@ -1,0 +1,28 @@
+{
+  "name": "CryptSignatureIcons",
+  "css_prefix_text": "",
+  "css_use_suffix": false,
+  "hinting": true,
+  "units_per_em": 1000,
+  "ascent": 850,
+  "glyphs": [
+    {
+      "uid": "64bcd6ad71f61f13c4622c7506d583a2",
+      "css": "checkmark-cicle",
+      "code": 59519,
+      "src": "linearicons"
+    },
+    {
+      "uid": "c301fecc892bc4a149a50a640764b488",
+      "css": "cross-circle",
+      "code": 59520,
+      "src": "linearicons"
+    },
+    {
+      "uid": "2817f1c9cc0f97d800a2b55d3ff29982",
+      "css": "license",
+      "code": 59426,
+      "src": "linearicons"
+    }
+  ]
+}

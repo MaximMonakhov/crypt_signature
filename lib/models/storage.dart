@@ -1,61 +1,65 @@
 import 'dart:convert';
 
+import 'package:crypt_signature/crypt_signature.dart';
+import 'package:crypt_signature/utils/extensions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../crypt_signature.dart';
-
+/// Локальное хранилище для моделей
 class Storage<T> {
+  String key;
   SharedPreferences sharedPreferences;
-  T Function(Map<String, dynamic>) parser;
+  T Function(Map map) parser;
 
-  Storage(this.parser) {
+  Storage({this.parser, String key}) : this.key = key ?? T.toString() {
     sharedPreferences = CryptSignature.sharedPreferences;
   }
 
   List<T> get() {
-    String data = sharedPreferences.getString(T.toString());
+    String data = sharedPreferences.getString(key);
 
-    if (data == null) return [];
+    if (data == null) return <T>[];
 
-    List<dynamic> list = json.decode(data) as List;
+    List list = json.decode(data) as List;
 
-    if (list == null || list.isEmpty) return [];
+    if (list == null || list.isEmpty) return <T>[];
 
     List<T> objects = [];
 
     /// TODO: переделать парсер в compute
-    for (final Map<String, dynamic> object in list as List<Map<String, dynamic>>) {
-      objects.add(parser(object));
-    }
+    for (final object in list) objects.addNonNull(parser != null ? parser(object as Map) : object as T);
 
     return objects;
   }
 
   void save(List<T> objects) {
-    sharedPreferences.setString(T.toString(), json.encode(objects));
+    sharedPreferences.setString(key, json.encode(objects));
   }
 
   bool add(T object) {
-    List<T> objects = get();
+    List<T> objects = this.get();
 
     if (objects.contains(object)) return false;
 
-    objects.add(object);
+    objects.addNonNull(object);
 
-    save(objects);
+    this.save(objects);
 
     return true;
   }
 
   bool remove(T object) {
-    List<T> objects = get();
+    List<T> objects = this.get();
 
     if (!objects.contains(object)) return false;
 
     objects.remove(object);
 
-    save(objects);
+    this.save(objects);
 
     return true;
+  }
+
+  void setDefaultKey() {
+    key = T.toString();
   }
 }

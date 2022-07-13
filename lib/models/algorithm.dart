@@ -40,22 +40,18 @@ class Algorithm {
     return algorithms.firstWhere((algorithm) => algorithm.publicKeyOID == formatedPublicKeyOID, orElse: () => algorithms.last);
   }
 
-  static String formatOID(String rawOID) => rawOID
-      .replaceAll("[", "")
-      .replaceAll("]", "")
-      .replaceAll(" ", "")
-      .replaceAll(",", ".");
-  
+  static String formatOID(String rawOID) => rawOID.replaceAll("[", "").replaceAll("]", "").replaceAll(" ", "").replaceAll(",", ".");
+
   Map<String, String> toJson() => {
         'name': name,
         'hashOID': hashOID,
         'publicKeyOID': publicKeyOID,
         'signatureOID': signatureOID,
       };
-  
-  Algorithm.fromJson(Map<String, String> json)
-      : name = json['name'],
-        hashOID = json['hashOID'],
-        publicKeyOID = json['publicKeyOID'],
-        signatureOID = json['signatureOID'];
+
+  Algorithm.fromJson(Map json)
+      : name = json['name'] as String,
+        hashOID = json['hashOID'] as String,
+        publicKeyOID = json['publicKeyOID'] as String,
+        signatureOID = json['signatureOID'] as String;
 }

@@ -72,7 +72,7 @@ void showError(BuildContext context, String message, {String details}) {
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
-        titlePadding: const EdgeInsets.symmetric(vertical: 20.0),
+        titlePadding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 10.0),
         contentPadding: const EdgeInsets.only(left: 20, right: 20.0, bottom: 5.0),
         shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10))),
         title: Text(

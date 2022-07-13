@@ -10,7 +10,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  api_event: ^1.4.0
   shared_preferences: ^2.0.5
   uuid: ^3.0.2
   intl: ^0.17.0
@@ -27,6 +26,13 @@ dev_dependencies:
   lint: ^1.0.0
 
 flutter:
+  uses-material-design: true
+  assets:
+    - assets/error.png
+  fonts:
+    - family: CryptSignatureIcons
+      fonts:
+        - asset: assets/fonts/CryptSignatureIcons.ttf
   plugin:
     platforms:
       android:

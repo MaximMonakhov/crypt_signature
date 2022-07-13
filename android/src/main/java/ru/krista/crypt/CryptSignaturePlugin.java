@@ -6,7 +6,7 @@ import android.util.Base64;
 import androidx.annotation.NonNull;
 
 import org.apache.commons.codec.binary.Hex;
-import org.json.simple.JSONObject;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -54,12 +54,7 @@ import ru.krista.io.asn1.x509.PublicKeyInfo;
  * CryptSignaturePlugin
  */
 public class CryptSignaturePlugin implements FlutterPlugin, MethodCallHandler {
-    public static final int INIT_CSP_OK = 0;
-    public static final int INIT_CSP_LICENSE_ERROR = 1;
-    public static final int INIT_CSP_ERROR = -1;
-
     private Context context;
-    private final Logger log = Logger.getLogger(this.getClass().getName());
     private MethodChannel channel;
 
     @Override
@@ -73,41 +68,89 @@ public class CryptSignaturePlugin implements FlutterPlugin, MethodCallHandler {
     public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
         switch (call.method) {
             case "initCSP": {
-                int resulty;
-
                 try {
-                    String license = call.argument("license");
-                    resulty = initCSP(license);
-                    if (resulty == INIT_CSP_OK)
-                        result.success(resulty);
-                    else result.error("ERROR", "Ошибка при инициализации провайдера", resulty);
+                    boolean response = CryptSignature.getInstance().initCSP(context);
+                    result.success(response);
                 } catch (Exception e) {
-                    result.error("ERROR", "Ошибка при инициализации провайдера: " + e.getMessage(), INIT_CSP_ERROR);
+                    result.error("initCSP", "Ошибка при инициализации провайдера", e);
                 }
-
                 break;
             }
-            case "installCertificate": {
-                String path = call.argument("pathToCert");
-                String password = call.argument("password");
-
-                MethodResponse<String> resulty = installCertificate(path, password);
-
-                if (resulty.code == MethodResponseCode.SUCCESS)
-                    result.success(resulty.content);
-                else result.error("ERROR", resulty.content, null);
+            case "addCertificate": {
+                try {
+                    String path = call.argument("path");
+                    String password = call.argument("password");
+                    JSONObject response = CryptSignature.getInstance().addCertificate(path, password);
+                    result.success(response.toString());
+                } catch (Exception e) {
+                    result.error("addCertificate", "Ошибка при добавлении сертификата", e);
+                }
+                break;
+            }
+            case "setLicense": {
+                try {
+                    String license = call.argument("license");
+                    JSONObject response = CryptSignature.getInstance().setLicense(license);
+                    result.success(response.toString());
+                } catch (Exception e) {
+                    result.error("setLicense", "Ошибка при установке лицезнии", e);
+                }
+                break;
+            }
+            case "getLicense": {
+                try {
+                    JSONObject response = CryptSignature.getInstance().getLicense();
+                    result.success(response.toString());
+                } catch (Exception e) {
+                    result.error("getLicense", "Ошибка при получении лицезнии", e);
+                }
+                break;
+            }
+            case "digest": {
+                try {
+                    String certificateUUID = call.argument("certificateUUID");
+                    String password = call.argument("password");
+                    String message = call.argument("message");
+                    JSONObject response = CryptSignature.getInstance().digest(certificateUUID, password, message, context);
+                    result.success(response.toString());
+                } catch (Exception e) {
+                    result.error("digest", "Ошибка при расчете хэша", e);
+                }
                 break;
             }
             case "sign": {
-                String uuid = call.argument("id");
-                String password = call.argument("password");
-                String data = call.argument("data");
-
-                MethodResponse<String> resulty = sign(uuid, password, data);
-
-                if (resulty.code == MethodResponseCode.SUCCESS)
-                    result.success(resulty.content);
-                else result.error("ERROR", new String(resulty.content), null);
+                try {
+                    String certificateUUID = call.argument("certificateUUID");
+                    String password = call.argument("password");
+                    String digest = call.argument("digest");
+                    JSONObject response = CryptSignature.getInstance().sign(certificateUUID, password, digest, context);
+                    result.success(response.toString());
+                } catch (Exception e) {
+                    result.error("sign", "Ошибка при выполнении подписи", e);
+                }
+                break;
+            }
+            case "createPKCS7": {
+                try {
+                    String certificateUUID = call.argument("certificateUUID");
+                    String password = call.argument("password");
+                    String digest = call.argument("digest");
+                    JSONObject response = CryptSignature.getInstance().createPKCS7(certificateUUID, password, digest, context);
+                    result.success(response.toString());
+                } catch (Exception e) {
+                    result.error("createPKCS7", "Ошибка при создании PKCS7", e);
+                }
+                break;
+            }
+            case "addSignatureToPKCS7": {
+                try {
+                    String pkcs7 = call.argument("pkcs7");
+                    String signature = call.argument("signature");
+                    JSONObject response = CryptSignature.getInstance().addSignatureToPKCS7(pkcs7, signature);
+                    result.success(response.toString());
+                } catch (Exception e) {
+                    result.error("addSignatureToPKCS7", "Ошибка при добавлении атрибутов подписи к PKCS7", e);
+                }
                 break;
             }
             default:
@@ -119,207 +162,4 @@ public class CryptSignaturePlugin implements FlutterPlugin, MethodCallHandler {
     public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
         channel.setMethodCallHandler(null);
     }
-
-    private int initCSP(String license) throws Exception {
-        log.info("Инициализация провайдера CSP");
-        log.info("Лицензия: " + license);
-
-        int initCode = CSPConfig.init(context);
-        log.info("Код инициализации провайдера: " + initCode);
-
-        if (initCode == CSPConfig.CSP_INIT_OK) {
-            log.info("Провайдер инициализирован");
-
-            if (Security.getProvider("JCSP") == null)
-                Security.addProvider(new JCSP());
-
-            int licenseStatus = setLicense(license);
-
-            if (licenseStatus != CSPConfig.LICENSE_STATUS_OK) return INIT_CSP_LICENSE_ERROR;
-
-            return INIT_CSP_OK;
-        }
-
-        log.info("Провайдер не инициализирован");
-        return INIT_CSP_ERROR;
-    }
-
-    private int setLicense(String license) {
-        CSPProviderInterface providerInfo = CSPConfig.INSTANCE.getCSPProviderInfo();
-        LicenseInterface licenseInterface = providerInfo.getLicense();
-        return licenseInterface.checkAndSave(license, false);
-    }
-
-    private MethodResponse<String> installCertificate(String path, String password) {
-        log.info("Установка сертификата: path - " + path);
-
-        try {
-            KeyStore keyStorePFX = KeyStore.getInstance(JCSP.PFX_STORE_NAME, JCSP.PROVIDER_NAME);
-            InputStream fileInputStream = new FileInputStream(path);
-
-            keyStorePFX.load(fileInputStream, password.toCharArray());
-
-            String alias = null;
-            Enumeration<String> aliasesPFX = keyStorePFX.aliases();
-
-            log.info("Получение списка сертификатов");
-
-            while (aliasesPFX.hasMoreElements()) {
-                String aliasPFX = aliasesPFX.nextElement();
-                log.info("Сертификат: " + aliasPFX);
-                if (keyStorePFX.isKeyEntry(aliasPFX)) {
-                    log.info("Сертификат связанный с приватным ключем: " + aliasPFX);
-                    alias = aliasPFX;
-                }
-            }
-
-            if (alias != null) {
-                log.info("Сертификат распакован");
-                X509Certificate certificate = (X509Certificate) keyStorePFX.getCertificate(alias);
-                String certificateInfo = getCertificateInfo(certificate, alias);
-
-                return new MethodResponse<String>(certificateInfo, MethodResponseCode.SUCCESS);
-            } else {
-                log.info("Сертификат не распакован");
-                throw new Exception("Ошибка при импорте *.pfx сертификата");
-            }
-        } catch (Exception exception) {
-            log.info("Ошибка при чтении сертификата");
-            return new MethodResponse<String>("Ошибка: " + exception.toString(), MethodResponseCode.ERROR);
-        }
-    }
-
-    private String getCertificateInfo(X509Certificate certificate, String alias) throws CertificateEncodingException, IOException {
-        JSONObject obj = new JSONObject();
-
-        obj.put("certificate", Base64.encodeToString(certificate.getEncoded(), Base64.NO_WRAP));
-        obj.put("alias", alias);
-
-        return obj.toJSONString();
-    }
-
-    private String getDigestAlgorithm(PublicKey publicKey) throws IOException {
-        PublicKeyInfo publicKeyInfo = new PublicKeyInfo();
-        publicKeyInfo.decode(publicKey.getEncoded());
-
-        String algorithm = OID.DERToOID(publicKeyInfo.algorithmIdentifier.algorithm.getContent());
-
-        String digestAlgorithm;
-
-        switch (algorithm) {
-            case "1.2.643.2.2.19":
-                digestAlgorithm = "1.2.643.2.2.9";
-                break;
-            case "1.2.643.7.1.1.1.1":
-                digestAlgorithm = "1.2.643.7.1.1.2.2";
-                break;
-            case "1.2.643.7.1.1.1.2":
-                digestAlgorithm = "1.2.643.7.1.1.2.3";
-                break;
-            default:
-                throw new FatalError();
-        }
-
-        return digestAlgorithm;
-    }
-
-    private String getSignatureAlgorithm(PublicKey publicKey) throws IOException {
-        PublicKeyInfo publicKeyInfo = new PublicKeyInfo();
-        publicKeyInfo.decode(publicKey.getEncoded());
-
-        String algorithm = OID.DERToOID(publicKeyInfo.algorithmIdentifier.algorithm.getContent());
-
-        String signatureAlgorithm;
-
-        switch (algorithm) {
-            case "1.2.643.2.2.19":
-                signatureAlgorithm = JCP.RAW_GOST_EL_SIGN_NAME;
-                break;
-            case "1.2.643.7.1.1.1.1":
-                signatureAlgorithm = JCP.RAW_GOST_SIGN_2012_256_NAME;
-                break;
-            case "1.2.643.7.1.1.1.2":
-                signatureAlgorithm = JCP.RAW_GOST_SIGN_2012_512_NAME;
-                break;
-            default:
-                throw new FatalError();
-        }
-
-        return signatureAlgorithm;
-    }
-
-    private MethodResponse<String> sign(String uuid, String password, String base64Data) {
-        try {
-            KeyStore keyStorePFX = KeyStore.getInstance(JCSP.PFX_STORE_NAME, JCSP.PROVIDER_NAME);
-            InputStream fileInputStream = new FileInputStream(context.getFilesDir().getParent() + "/app_flutter/certificates/" + uuid + ".pfx");
-
-            keyStorePFX.load(fileInputStream, password.toCharArray());
-
-            String alias = null;
-            Enumeration<String> aliasesPFX = keyStorePFX.aliases();
-
-            while (aliasesPFX.hasMoreElements()) {
-                String aliasPFX = aliasesPFX.nextElement();
-                log.info(aliasPFX);
-                if (keyStorePFX.isKeyEntry(aliasPFX))
-                    alias = aliasPFX;
-            }
-
-            if (alias != null) {
-                X509Certificate certificate = (X509Certificate) keyStorePFX.getCertificate(alias);
-
-                log.info("Данные " + base64Data);
-                byte[] data = Base64.decode(base64Data, Base64.DEFAULT);
-
-                log.info(certificate.getPublicKey().getAlgorithm());
-
-                MessageDigest md = MessageDigest.getInstance(
-                        getDigestAlgorithm(certificate.getPublicKey()),
-                        JCSP.PROVIDER_NAME
-                );
-                md.update(data);
-                byte[] digest = md.digest();
-
-                log.info("Хэш: " + (Base64.encodeToString(digest, Base64.NO_WRAP)));
-
-                log.info("Сертификат распакован");
-                PrivateKey privateKey = (PrivateKey) keyStorePFX.getKey(alias, password.toCharArray());
-
-                Signature signature = Signature.getInstance(getSignatureAlgorithm(certificate.getPublicKey()), JCSP.PROVIDER_NAME);
-                signature.initSign(privateKey);
-                signature.update(digest);
-                byte[] sign = signature.sign();
-
-                return new MethodResponse<String>(Base64.encodeToString(sign, Base64.NO_WRAP), MethodResponseCode.SUCCESS);
-            } else {
-                log.info("Сертификат не распакован");
-                throw new Exception("Ошибка при импорте *.pfx сертификата");
-            }
-        } catch (Exception exception) {
-            log.info("Ошибка при чтении сертификата");
-            StringWriter writer = new StringWriter();
-            PrintWriter printWriter = new PrintWriter(writer);
-            exception.printStackTrace(printWriter);
-            printWriter.flush();
-
-            String stackTrace = writer.toString();
-            log.info(stackTrace);
-            return new MethodResponse<String>("Ошибка: " + exception.toString(), MethodResponseCode.ERROR);
-        }
-    }
-}
-
-class MethodResponse<T> {
-    T content;
-    MethodResponseCode code;
-
-    public MethodResponse(T content, MethodResponseCode code) {
-        this.content = content;
-        this.code = code;
-    }
-}
-
-enum MethodResponseCode {
-    SUCCESS,
-    ERROR
 }

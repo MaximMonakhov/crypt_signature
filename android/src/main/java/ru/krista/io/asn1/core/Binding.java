@@ -13,11 +13,7 @@ import java.util.TreeSet;
  * Created by shubin on 02.10.18.
  */
 public class Binding implements Comparable<Binding> {
-    private static ThreadLocal<Map<Class<?>, Binding[]>> classBinding = new ThreadLocal<>();
-
-    static {
-        classBinding.set(new HashMap<Class<?>, Binding[]>());
-    }
+    private static ThreadLocal<Map<Class<?>, Binding[]>> classBinding = ThreadLocal.withInitial(HashMap::new);
 
     private Field field;
     private Asn1Binding binding;
@@ -37,46 +33,38 @@ public class Binding implements Comparable<Binding> {
     }
 
     public static Binding[] getBinds(Class<? extends Item> forClass) {
-        Map<Class<?>, Binding[]> map = classBinding.get();
-        Binding[] res=map.get(forClass);
-        if (res==null) {
-            res = getBinding(forClass);
-            map.put(forClass, res);
-        }
-        return res;
-    }
+        return classBinding.get().computeIfAbsent(forClass, cls -> {
+            SortedSet<Binding> bindingSet = new TreeSet<>();
+            int deep = 0;
+            while (Constructable.class.isAssignableFrom(cls)) {
+                for (Field field : cls.getDeclaredFields()) {
+                    Asn1Binding binding = field.getAnnotation(Asn1Binding.class);
+                    if (binding != null) {
+                        if (!Item.class.isAssignableFrom(field.getType()))
+                            throw new BindingException("Биндинг допустим только для полей класса [%s] [%s.%s]", Item.class.getName(), field.getDeclaringClass().getName(), field.getName());
 
-    private static Binding[] getBinding(Class<?> cls) {
-        SortedSet<Binding> bindingSet = new TreeSet<>();
-        int deep = 0;
-        while (Constructable.class.isAssignableFrom(cls)) {
-            for (Field field : cls.getDeclaredFields()) {
-                Asn1Binding binding = field.getAnnotation(Asn1Binding.class);
-                if (binding != null) {
-                    if (!Item.class.isAssignableFrom(field.getType()))
-                        throw new BindingException("Биндинг допустим только для полей класса [%s] [%s.%s]", Item.class.getName(), field.getDeclaringClass().getName(), field.getName());
+                        Polymorphics polymorphics = field.getAnnotation(Polymorphics.class);
+                        Asn1Tag aTag = field.getAnnotation(Asn1Tag.class);
+                        if (binding.explicit() && (aTag == null))
+                            throw new BindingException(
+                                    "Для EXPLICIT биндинга должена быть задана явно аннотация @Asn1Tag [%s.%s]",
+                                    field.getDeclaringClass().getName(),
+                                    field.getName()
+                            );
 
-                    Polymorphics polymorphics = field.getAnnotation(Polymorphics.class);
-                    Asn1Tag aTag = field.getAnnotation(Asn1Tag.class);
-                    if (binding.explicit() && (aTag == null))
-                        throw new BindingException(
-                                "Для EXPLICIT биндинга должена быть задана явно аннотация @Asn1Tag [%s.%s]",
-                                field.getDeclaringClass().getName(),
-                                field.getName()
-                        );
-
-                    if (aTag == null) {
-                        aTag = findAsn1Tag(field.getType());
-                        if (aTag == null)
-                            throw new BindingException("Для класса [%s] не задана аннотация @Asn1Tag", field.getType().getName());
+                        if (aTag == null) {
+                            aTag = findAsn1Tag(field.getType());
+                            if (aTag == null)
+                                throw new BindingException("Для класса [%s] не задана аннотация @Asn1Tag", field.getType().getName());
+                        }
+                        bindingSet.add(new Binding(field, aTag, polymorphics, binding, deep));
                     }
-                    bindingSet.add(new Binding(field, aTag, polymorphics, binding, deep));
                 }
+                cls = cls.getSuperclass();
+                deep++;
             }
-            cls = cls.getSuperclass();
-            deep++;
-        }
-        return bindingSet.toArray(new Binding[bindingSet.size()]);
+            return bindingSet.toArray(new Binding[bindingSet.size()]);
+        });
     }
 
     public static Asn1Tag findAsn1Tag(Class<?> cls) {

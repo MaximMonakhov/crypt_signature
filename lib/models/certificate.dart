@@ -1,9 +1,7 @@
 import 'package:crypt_signature/models/algorithm.dart';
 import 'package:crypt_signature/models/storage.dart';
-import 'package:crypt_signature/utils/X509Certificate/certificate.dart'
-    as x509_certificate;
-import 'package:crypt_signature/utils/X509Certificate/x509_base.dart'
-    as x509_base;
+import 'package:crypt_signature/utils/X509Certificate/certificate.dart' as x509_certificate;
+import 'package:crypt_signature/utils/X509Certificate/x509_base.dart' as x509_base;
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
@@ -11,8 +9,7 @@ class Certificate {
   static const String PEM_START_STRING = "-----BEGIN CERTIFICATE-----\n";
   static const String PEM_END_STRING = "\n-----END CERTIFICATE-----\n";
 
-  static final Storage<Certificate> storage =
-      Storage<Certificate>(Certificate.fromJson);
+  static final Storage<Certificate> storage = Storage<Certificate>(parser: Certificate.fromJson);
 
   final String uuid;
   final String certificate;
@@ -56,30 +53,26 @@ class Certificate {
     certificateDescription = getCertificateDescription();
   }
 
-  static Certificate fromJson(Map<String, dynamic> json) => Certificate(
+  static Certificate fromJson(Map json) => Certificate(
         uuid: json["uuid"] as String ?? const Uuid().v4(),
         certificate: json["certificate"] as String,
         alias: json['alias'] as String,
         subjectDN: json['subjectDN'] as String,
         notAfterDate: json['notAfterDate'] as String,
         serialNumber: json['serialNumber'] as String,
-        algorithm: Algorithm.fromJson(json['algorithm'] as Map<String, String>),
+        algorithm: Algorithm.fromJson(json['algorithm'] as Map),
         parameterMap: json['parameterMap'] as String,
         certificateDescription: json['certificateDescription'] as String,
       );
 
   static Certificate fromBase64(Map data) {
-    final String pem =
-        PEM_START_STRING + (data["certificate"] as String) + PEM_END_STRING;
-    final x509_certificate.X509Certificate cert =
-        x509_base.parsePem(pem).first as x509_certificate.X509Certificate;
+    final String pem = PEM_START_STRING + (data["certificate"] as String) + PEM_END_STRING;
+    final x509_certificate.X509Certificate cert = x509_base.parsePem(pem).first as x509_certificate.X509Certificate;
 
-    String publicKeyOID =
-        cert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.name;
+    String publicKeyOID = cert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm.name;
     Algorithm algorithm = Algorithm.findAlgorithmByPublicKeyOID(publicKeyOID);
 
-    String notAfterDate = DateFormat('HH:mm dd-MM-yyyy')
-        .format(cert.tbsCertificate.validity.notAfter);
+    String notAfterDate = DateFormat('HH:mm dd-MM-yyyy').format(cert.tbsCertificate.validity.notAfter);
 
     Certificate certificate = Certificate(
       uuid: const Uuid().v4(),
@@ -100,9 +93,7 @@ class Certificate {
   @override
   // ignore: hash_and_equals
   bool operator ==(dynamic other) {
-    return (other is Certificate) &&
-        other.certificate == certificate &&
-        other.serialNumber == serialNumber;
+    return (other is Certificate) && other.certificate == certificate && other.serialNumber == serialNumber;
   }
 
   String getParameterMap() {
