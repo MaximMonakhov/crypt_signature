@@ -1,54 +1,16 @@
 package ru.krista.crypt;
 
 import android.content.Context;
-import android.util.Base64;
 
 import androidx.annotation.NonNull;
 
-import org.apache.commons.codec.binary.Hex;
 import org.json.JSONObject;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.math.BigInteger;
-import java.security.KeyStore;
-import java.security.MessageDigest;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.Security;
-import java.security.Signature;
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.X509Certificate;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.logging.Logger;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
-import io.flutter.plugin.common.PluginRegistry.Registrar;
-
-import ru.CryptoPro.JCP.JCP;
-import ru.CryptoPro.JCP.tools.JCPLogger;
-import ru.CryptoPro.JCSP.CSPConfig;
-import ru.CryptoPro.JCSP.CSPProviderInterface;
-import ru.CryptoPro.JCSP.JCSP;
-import ru.CryptoPro.JCSP.support.License;
-import ru.cprocsp.ACSP.tools.common.CSPLicenseConstants;
-import ru.cprocsp.ACSP.tools.common.CSPTool;
-import ru.cprocsp.ACSP.tools.common.Infrastructure;
-import ru.cprocsp.ACSP.tools.license.ACSPLicense;
-import ru.cprocsp.ACSP.tools.license.CSPLicense;
-import ru.cprocsp.ACSP.tools.license.LicenseInterface;
-import ru.krista.exceptions.FatalError;
-import ru.krista.io.asn1.core.OID;
-import ru.krista.io.asn1.x509.PublicKeyInfo;
 
 /**
  * CryptSignaturePlugin

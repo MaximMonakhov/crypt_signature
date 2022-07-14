@@ -8,6 +8,7 @@ import 'package:crypt_signature/models/pkcs7.dart';
 import 'package:crypt_signature/models/sign_result.dart';
 import 'package:crypt_signature/native/native.dart';
 import 'package:crypt_signature/ui/dialogs.dart';
+import 'package:crypt_signature/ui/license/inherited_license.dart';
 import 'package:crypt_signature/ui/locker/inherited_locker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +32,17 @@ class CertificateWidget extends StatelessWidget {
         obscureText: true,
       );
 
+  bool getLicenseStatus(BuildContext context) => InheritedLicense.of(context).license?.status;
+
   Future<void> _sign(BuildContext context) async {
+    // Проверка, если лицензия не установлена, то дальше не пускаем
+    // bool licenseStatus = getLicenseStatus(context);
+    // if (licenseStatus == null || !licenseStatus) {
+    //   await showError(context, "Лицензия не установлена");
+    //   InheritedLicense.of(context).setNewLicenseSheet();
+    //   return;
+    // }
+
     String password = await _askPassword(context);
 
     if (password != null && password.isNotEmpty) {
@@ -62,7 +73,7 @@ class CertificateWidget extends StatelessWidget {
     } on ApiResponseException catch (e) {
       showError(context, e.message, details: e.details);
     } finally {
-      InheritedLocker.of(context).lockScreen();
+      InheritedLocker.of(context).unlockScreen();
     }
   }
 
@@ -79,7 +90,7 @@ class CertificateWidget extends StatelessWidget {
     } on ApiResponseException catch (e) {
       showError(context, e.message, details: e.details);
     } finally {
-      InheritedLocker.of(context).lockScreen();
+      InheritedLocker.of(context).unlockScreen();
     }
   }
 
@@ -95,7 +106,7 @@ class CertificateWidget extends StatelessWidget {
     } on ApiResponseException catch (e) {
       showError(context, e.message, details: e.details);
     } finally {
-      InheritedLocker.of(context).lockScreen();
+      InheritedLocker.of(context).unlockScreen();
     }
   }
 
@@ -210,13 +221,13 @@ class CertificateWidget extends StatelessWidget {
                         shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10))),
                         title: const Text(
                           "Идентифицирующие сведения",
-                          style: TextStyle(fontSize: 12, color: Colors.black87),
+                          style: TextStyle(fontSize: 14, color: Colors.black87),
                           textAlign: TextAlign.center,
                           maxLines: 10,
                         ),
                         content: Text(
                           certificate.subjectDN,
-                          style: const TextStyle(fontSize: 10, color: Colors.black87),
+                          style: const TextStyle(fontSize: 12, color: Colors.black87),
                         ),
                       );
                     },
@@ -225,7 +236,7 @@ class CertificateWidget extends StatelessWidget {
                 child: const Text(
                   "Просмотреть идентифицирующие сведения",
                   style: TextStyle(
-                    fontSize: 10,
+                    fontSize: 12,
                     color: Color.fromRGBO(106, 147, 245, 1),
                   ),
                 ),

@@ -5,6 +5,7 @@ import 'package:crypt_signature/ui/dialogs.dart';
 import 'package:crypt_signature/ui/license/inherited_license.dart';
 import 'package:crypt_signature/ui/locker/inherited_locker.dart';
 import 'package:flutter/material.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 class LicenseWrapper extends StatefulWidget {
   final Widget child;
@@ -55,12 +56,28 @@ class _LicenseWrapperState extends State<LicenseWrapper> {
     }
   }
 
+  Future<void> setNewLicenseSheet() async {
+    var maskFormatter = MaskTextInputFormatter(
+      mask: '#####-#####-#####-#####-#####',
+      filter: {"#": RegExp('[0-9+A-Z]')},
+    );
+    String newLicense = await showInputDialog(
+      context,
+      "Введите вашу лицензию Крипто ПРО",
+      "Номер лицензии",
+      TextInputType.emailAddress,
+      inputFormatters: [maskFormatter],
+    );
+    if (newLicense != null && newLicense.isNotEmpty) setLicense(newLicense);
+  }
+
   @override
   Widget build(BuildContext context) {
     return InheritedLicense(
       license: license,
       getLicense: getLicense,
       setLicense: setLicense,
+      setNewLicenseSheet: setNewLicenseSheet,
       child: widget.child,
     );
   }

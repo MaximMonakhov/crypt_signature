@@ -51,17 +51,14 @@ KeyPair ecKeyPairFromAsn1(ASN1Sequence sequence) {
 
   var publicKey;
   if (sequence.elements.length > i && sequence.elements[i].tag == 0xa1) {
-    var e = ASN1Parser(sequence.elements[i].contentBytes()).nextObject()
-        as ASN1BitString;
+    var e = ASN1Parser(sequence.elements[i].contentBytes()).nextObject() as ASN1BitString;
     // https://tools.ietf.org/html/rfc5480#section-2.2
     // ECPoint ::= OCTET STRING
 
     publicKey = ecPublicKeyFromAsn1(e, curve: curve);
   }
 
-  return KeyPair(
-      privateKey: EcPrivateKey(eccPrivateKey: privateKey, curve: curve),
-      publicKey: publicKey);
+  return KeyPair(privateKey: EcPrivateKey(eccPrivateKey: privateKey, curve: curve), publicKey: publicKey);
 }
 
 Identifier _curveObjectIdentifierToIdentifier(ObjectIdentifier id) {
@@ -87,11 +84,7 @@ KeyPair rsaKeyPairFromAsn1(ASN1Sequence sequence) {
   // var exponent1 = _toDart(sequence.elements[6]);
   // var exponent2 = _toDart(sequence.elements[7]);
   // var coefficient = _toDart(sequence.elements[8]);
-  var privateKey = RsaPrivateKey(
-      modulus: modulus,
-      privateExponent: privateExponent,
-      firstPrimeFactor: prime1,
-      secondPrimeFactor: prime2);
+  var privateKey = RsaPrivateKey(modulus: modulus, privateExponent: privateExponent, firstPrimeFactor: prime1, secondPrimeFactor: prime2);
   var publicKey = RsaPublicKey(modulus: modulus, exponent: publicExponent);
   return KeyPair(publicKey: publicKey, privateKey: privateKey);
 }
@@ -123,8 +116,7 @@ EcPublicKey ecPublicKeyFromAsn1(ASN1BitString bitString, {Identifier curve}) {
       var l = (bytes.length - 1) ~/ 2;
       var x = toBigInt(bytes.sublist(1, l + 1));
       var y = toBigInt(bytes.sublist(l + 1));
-      return EcPublicKey(
-          xCoordinate: x, yCoordinate: y, curve: curve ?? _lengthToCurve(l));
+      return EcPublicKey(xCoordinate: x, yCoordinate: y, curve: curve ?? _lengthToCurve(l));
     case 2:
     case 3:
       throw UnsupportedError('Compressed key not supported');
@@ -136,16 +128,15 @@ EcPublicKey ecPublicKeyFromAsn1(ASN1BitString bitString, {Identifier curve}) {
 KeyPair keyPairFromAsn1(ASN1BitString data, ObjectIdentifier algorithm) {
   switch (algorithm.name) {
     case 'rsaEncryption':
-      var sequence =
-          ASN1Parser(data.contentBytes()).nextObject() as ASN1Sequence;
+      var sequence = ASN1Parser(data.contentBytes()).nextObject() as ASN1Sequence;
       return rsaKeyPairFromAsn1(sequence);
     case 'ecPublicKey':
-      var sequence =
-          ASN1Parser(data.contentBytes()).nextObject() as ASN1Sequence;
+      var sequence = ASN1Parser(data.contentBytes()).nextObject() as ASN1Sequence;
       return ecKeyPairFromAsn1(sequence);
     case 'sha1WithRSAEncryption':
   }
-  throw UnimplementedError('Unknown algoritmh $algorithm');
+  return null;
+  //throw UnimplementedError('Unknown algoritmh $algorithm');
 }
 
 PublicKey publicKeyFromAsn1(ASN1BitString data, AlgorithmIdentifier algorithm) {
@@ -154,11 +145,10 @@ PublicKey publicKeyFromAsn1(ASN1BitString data, AlgorithmIdentifier algorithm) {
       var s = ASN1Parser(data.contentBytes()).nextObject() as ASN1Sequence;
       return rsaPublicKeyFromAsn1(s);
     case 'ecPublicKey':
-      return ecPublicKeyFromAsn1(data,
-          curve: _curveObjectIdentifierToIdentifier(algorithm.parameters));
+      return ecPublicKeyFromAsn1(data, curve: _curveObjectIdentifierToIdentifier(algorithm.parameters));
     case 'sha1WithRSAEncryption':
   }
-  return null;//throw UnimplementedError('Unknown algoritmh $algorithm');
+  return null; //throw UnimplementedError('Unknown algoritmh $algorithm');
 }
 
 String keyToString(Key key, [String prefix = '']) {
@@ -176,7 +166,9 @@ String keyToString(Key key, [String prefix = '']) {
 ASN1BitString keyToAsn1(Key key) {
   var s = ASN1Sequence();
   if (key is RsaPublicKey) {
-    s..add(ASN1Integer(key.modulus))..add(ASN1Integer(key.exponent));
+    s
+      ..add(ASN1Integer(key.modulus))
+      ..add(ASN1Integer(key.exponent));
   }
   return ASN1BitString(s.encodedBytes);
 }
@@ -242,14 +234,14 @@ dynamic toDart(ASN1Object obj) {
   if (obj is ASN1UtcTime) return obj.dateTimeValue;
   if (obj is ASN1IA5String) return obj.stringValue;
   if (obj is ASN1UTF8String) return obj.utf8StringValue;
+  if (obj is ASN1NumericString) return obj.stringValue;
   switch (obj.tag) {
     case 0xa0:
       return toDart(ASN1Parser(obj.valueBytes()).nextObject());
     case 0x86:
       return utf8.decode(obj.valueBytes());
   }
-  throw ArgumentError(
-      'Cannot convert $obj (${obj.runtimeType}) to dart object.');
+  return null;
 }
 
 String toHexString(BigInt v, [String prefix = '', int bytesPerLine = 15]) {
@@ -259,16 +251,11 @@ String toHexString(BigInt v, [String prefix = '', int bytesPerLine = 15]) {
   }
   var buffer = StringBuffer();
   for (var i = 0; i < str.length; i += bytesPerLine * 2) {
-    var l = Iterable.generate(
-        str.length - i < bytesPerLine * 2
-            ? (str.length - i) ~/ 2
-            : bytesPerLine,
-        (j) => str.substring(i + j * 2, i + j * 2 + 2));
+    var l = Iterable.generate(str.length - i < bytesPerLine * 2 ? (str.length - i) ~/ 2 : bytesPerLine, (j) => str.substring(i + j * 2, i + j * 2 + 2));
     var s = l.join(':');
     buffer.writeln('$prefix$s${str.length - i <= bytesPerLine * 2 ? '' : ':'}');
   }
   return buffer.toString();
 }
 
-BigInt toBigInt(List<int> bytes) =>
-    bytes.fold(BigInt.zero, (a, b) => a * BigInt.from(256) + BigInt.from(b));
+BigInt toBigInt(List<int> bytes) => bytes.fold(BigInt.zero, (a, b) => a * BigInt.from(256) + BigInt.from(b));

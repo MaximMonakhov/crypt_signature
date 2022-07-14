@@ -17,7 +17,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.security.Security;
 import java.security.Signature;
 import java.security.SignatureException;
@@ -30,7 +29,7 @@ import java.util.Enumeration;
 import ru.CryptoPro.JCSP.CSPConfig;
 import ru.CryptoPro.JCSP.CSPProviderInterface;
 import ru.CryptoPro.JCSP.JCSP;
-import ru.cprocsp.ACSP.tools.common.CSPLicenseConstants;
+import ru.cprocsp.ACSP.tools.license.CSPLicenseConstants;
 import ru.cprocsp.ACSP.tools.license.LicenseInterface;
 import ru.krista.crypt.jca.pkcs7.PKCS7;
 import ru.krista.crypt.jca.pkcs7.SignerInfoBuilder;
@@ -66,6 +65,8 @@ public class CryptSignature {
             if (Security.getProvider("JCSP") == null)
                 Security.addProvider(new JCSP());
 
+            CSPConfig.INSTANCE.getCSPProviderInfo().getLicense().checkAndSave();
+
             return true;
         }
 
@@ -82,15 +83,15 @@ public class CryptSignature {
     public JSONObject getLicense() throws JSONException {
         CSPProviderInterface providerInfo = CSPConfig.INSTANCE.getCSPProviderInfo();
         LicenseInterface licenseInterface = providerInfo.getLicense();
+        String serialNumber = licenseInterface.getSerialNumber();
+        if (serialNumber == null || serialNumber.equals("") || serialNumber.equals(CSPLicenseConstants.CSP_50_LICENSE_DEFAULT))
+            return getLicenseResponse(false, "Лицензия не установлена", licenseInterface);
         return checkLicenseStatus(licenseInterface.getExistingLicenseStatus(), licenseInterface);
     }
 
     private JSONObject checkLicenseStatus(int licenseStatusCode, LicenseInterface licenseInterface) throws JSONException {
-        int expiredThroughDays = licenseInterface.getExpiredThroughDays();
         switch (licenseStatusCode) {
             case CSPLicenseConstants.LICENSE_STATUS_OK:
-            if (licenseInterface.getSerialNumber() == null || licenseInterface.getSerialNumber().equals(""))
-                return getLicenseResponse(false, "Лицензия не установлена", licenseInterface);
             return getLicenseResponse(true, "Лицензия активна", licenseInterface);
             case CSPLicenseConstants.LICENSE_STATUS_INVALID:
                 return getLicenseResponse(false, "Лицензия недействительна", licenseInterface);

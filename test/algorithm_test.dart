@@ -3,9 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('Тестирование класса Algorithm', () {
-    test(
-        'Поиск алгоритма ГОСТ Р 34.10-2012 по алгоритму публичного ключа 1.2.643.7.1.1.1.1',
-        () {
+    test('Поиск алгоритма ГОСТ Р 34.10-2012 по алгоритму публичного ключа 1.2.643.7.1.1.1.1', () {
       String publicKeyOID = "1.2.643.7.1.1.1.1";
       Algorithm algorithm = Algorithm.findAlgorithmByPublicKeyOID(publicKeyOID);
 

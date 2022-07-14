@@ -1,30 +1,11 @@
-import 'dart:async';
-
 import 'package:crypt_signature/crypt_signature_icons_icons.dart';
 import 'package:crypt_signature/models/license.dart';
-import 'package:crypt_signature/ui/dialogs.dart';
 import 'package:crypt_signature/ui/license/inherited_license.dart';
 import 'package:crypt_signature/ui/loading_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 class LicenseWidget extends StatelessWidget {
   const LicenseWidget({Key key}) : super(key: key);
-
-  Future<void> setNewLicenseSheet(BuildContext context) async {
-    var maskFormatter = MaskTextInputFormatter(
-      mask: '#####-#####-#####-#####-#####',
-      filter: {"#": RegExp('[0-9+A-Z]')},
-    );
-    String newLicense = await showInputDialog(
-      context,
-      "Введите вашу лицензию Крипто ПРО",
-      "Номер лицензии",
-      TextInputType.emailAddress,
-      inputFormatters: [maskFormatter],
-    );
-    if (newLicense != null && newLicense.isNotEmpty) InheritedLicense.of(context).setLicense(newLicense);
-  }
 
   static const Map<String, String> types = {"0": "день", "1": "дня", "2": "дней"};
 
@@ -72,7 +53,7 @@ class LicenseWidget extends StatelessWidget {
                     const Padding(padding: EdgeInsets.symmetric(horizontal: 5.0)),
                     TextButton(
                       onPressed: () {
-                        setNewLicenseSheet(context);
+                        InheritedLicense.of(context).setNewLicenseSheet();
                       },
                       child: const Text(
                         "Изменить",
@@ -95,7 +76,7 @@ class LicenseWidget extends StatelessWidget {
                         alignment: Alignment.centerLeft,
                         child: Text(
                           successMessage,
-                          style: const TextStyle(fontSize: 12, color: Colors.black87),
+                          style: const TextStyle(fontSize: 14, color: Colors.black87),
                         ),
                       ),
                     ),
@@ -117,14 +98,14 @@ class LicenseWidget extends StatelessWidget {
                     alignment: Alignment.centerLeft,
                     child: Text(
                       license.message,
-                      style: const TextStyle(fontSize: 12, color: Colors.black87),
+                      style: const TextStyle(fontSize: 14, color: Colors.black87),
                     ),
                   ),
                 ),
                 const Padding(padding: EdgeInsets.symmetric(horizontal: 5.0)),
                 TextButton(
                   onPressed: () {
-                    setNewLicenseSheet(context);
+                    InheritedLicense.of(context).setNewLicenseSheet();
                   },
                   child: const Text(
                     "Изменить",

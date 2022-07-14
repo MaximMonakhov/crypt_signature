@@ -67,8 +67,8 @@ Future<String> showInputDialog(
   return value;
 }
 
-void showError(BuildContext context, String message, {String details}) {
-  showDialog(
+Future showError(BuildContext context, String message, {String details}) {
+  return showDialog(
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(

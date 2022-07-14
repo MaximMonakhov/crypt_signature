@@ -54,7 +54,7 @@ class _ErrorDetailsViewState extends State<ErrorDetailsView> {
                       ],
                     ),
                     child: CupertinoScrollbar(
-                      isAlwaysShown: true,
+                      thumbVisibility: true,
                       child: ListView(
                         shrinkWrap: true,
                         padding: const EdgeInsets.symmetric(horizontal: 20.0),
