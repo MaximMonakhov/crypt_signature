@@ -58,6 +58,8 @@ CryptSignature.interface
 ```
 При вызове данного метода открывается экран с возможностью добавления/выбора/хранения сертификатов.
 
+<br><img src="crypt_signature.jpg" alt="MarineGEO circle logo" style="height: 532px; width:400px;"/><br>
+
 Описание режимов работы:
 * ```MessageInterfaceRequest```
     * Высчитывает хэш от сообщения, подписывает его и возвращает сигнатуру в формате Base64.
