@@ -1,8 +1,9 @@
 // ignore_for_file: use_key_in_widget_constructors, prefer_const_constructors_in_immutables, library_private_types_in_public_api
 
+import 'dart:convert';
+
 import 'package:crypt_signature/crypt_signature.dart';
 import 'package:crypt_signature/models/interface_request.dart';
-import 'package:crypt_signature/models/pkcs7.dart';
 import 'package:crypt_signature/models/sign_result.dart';
 import 'package:crypt_signature/models/certificate.dart';
 import 'package:flutter/material.dart';
@@ -37,23 +38,20 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  String data = "0J/Rg9GC0LjQvSDQstC+0YA=";
-
   Future<String> getMessage(Certificate certificate) async {
     await Future.delayed(const Duration(seconds: 1));
-    return data;
+    return base64.encode(utf8.encode("Данные на подпись"));
   }
 
   Future<String> getDigest(Certificate certificate) async {
     await Future.delayed(const Duration(seconds: 1));
-    return data;
+    return base64.encode(utf8.encode("Хэш"));
   }
 
-  // Future<String> getSignedAttributes(Certificate certificate, String digest) async {
-  //   await Future.delayed(Duration(seconds: 1));
-  //   ApiResponse<PKCS7> response = await CryptSignature.createPKCS7(certificate, "123", digest);
-  //   return response.data.signedAttributes;
-  // }
+  Future<String> getSignedAttributes(Certificate certificate, String digest) async {
+    await Future.delayed(const Duration(seconds: 1));
+    return base64.encode(utf8.encode("Аттрибуты подписи"));
+  }
 
   void showResultDialog(String data) {
     if (data == null) return;
@@ -89,25 +87,25 @@ class _MyHomePageState extends State<MyHomePage> {
             OutlinedButton(
               onPressed: () async {
                 SignResult result =
-                    await CryptSignature.interface(context, MessageInterfaceRequest(data), title: "Войти по сертификату", hint: "Выберите сертификат");
+                    await CryptSignature.interface(context, MessageInterfaceRequest(base64.encode(utf8.encode("Данные на подпись"))), title: "Войти по сертификату", hint: "Выберите сертификат");
 
-                showResultDialog(result?.signature);
+                showResultDialog(result?.toString());
               },
               child: const Text("MessageInterfaceRequest"),
             ),
             OutlinedButton(
               onPressed: () async {
-                PKCS7 result = await CryptSignature.interface(context, PKCS7InterfaceRequest(getMessage));
+                Object result = await CryptSignature.interface(context, PKCS7InterfaceRequest(getMessage,getSignedAttributes: getSignedAttributes));
 
-                showResultDialog(result?.content);
+                showResultDialog(result?.toString());
               },
               child: const Text("PKCS7InterfaceRequest"),
             ),
             OutlinedButton(
               onPressed: () async {
-                PKCS7 result = await CryptSignature.interface(context, PKCS7HASHInterfaceRequest(getDigest));
+                Object result = await CryptSignature.interface(context, PKCS7HASHInterfaceRequest(getDigest, getSignedAttributes: getSignedAttributes));
 
-                showResultDialog(result?.content);
+                showResultDialog(result?.toString());
               },
               child: const Text("PKCS7HASHInterfaceRequest"),
             ),

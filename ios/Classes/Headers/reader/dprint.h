@@ -96,6 +96,7 @@
 #define SUPPORT_DBFMT_ERR 0x40
 
 #define SUPPORT_DBFMT_ALL 0x7F
+#define SUPPORT_DBFMT_DEFAULT (SUPPORT_DBFMT_ALL)
 #define SUPPORT_DBFMT_CLEAN 0x38
 #define SUPPORT_DBLEVEL_ALL 0xffffffffU
 
@@ -112,6 +113,8 @@
 # else
 #   define SFUNC __FUNCTION__
 # endif
+#elif defined(ANDROID)
+#   define SFUNC __FUNCTION__ //CPCSP-12575
 #elif defined(__GNUC__)
 #   define SFUNC __func__
 #else /*defined( _MSC_VER ) */
@@ -288,6 +291,13 @@ support_print_is(TSupportDbContext* ctx, unsigned when);
 #define support_print_qis_N_DB_WARN(ctx, ...) (ctx && (*(unsigned*)(ctx)&N_DB_WARN))
 #endif /*defined _DEBUG*/
 
+#if defined __GNUC__ && !(defined PROCESSOR_TYPE && PROCESSOR_TYPE == PROC_TYPE_E2K64)
+#define PRINTF_LIKE_FORMAT(string_index, first_to_check) \
+    __attribute__ ((format (printf, (string_index), (first_to_check))))
+#else // __GNUC__ && !PROC_TYPE_E2K64
+#define PRINTF_LIKE_FORMAT(string_index, first_to_check)
+#endif // __GNUC__ && !PROC_TYPE_E2K64
+
 DWORD
 support_cprint_print(TSupportDbContext* ctx, const DCHAR *str,
 		     const DCHAR *file, int line, const DCHAR *func,
@@ -307,19 +317,19 @@ support_elprint_print(TSupportDbContext* ctx, const DCHAR *str,
 //+V576, function:support_cprint_print_, format_arg:2, ellipsis_arg:6
 void
 support_cprint_print_(TSupportDbContext* ctx, const DCHAR *str,
-		      const DCHAR *file, int line, const DCHAR *func, ...);
+		      const DCHAR *file, int line, const DCHAR *func, ...) /*TODO: PRINTF_LIKE_FORMAT(2, 6)*/;
 //+V576, function:support_dprint_print_, format_arg:2, ellipsis_arg:6
 void
 support_dprint_print_(TSupportDbContext* ctx, const DCHAR *str, 
-		      const DCHAR *file, int line, const DCHAR *func, ...);
+		      const DCHAR *file, int line, const DCHAR *func, ...) /*TODO: PRINTF_LIKE_FORMAT(2, 6)*/;
 //+V576, function:support_eprint_print_, format_arg:2, ellipsis_arg:6
 void
 support_eprint_print_(TSupportDbContext* ctx, const DCHAR *str,
-		      const DCHAR *file, int line, const DCHAR *func, ...);
+		      const DCHAR *file, int line, const DCHAR *func, ...) /*TODO: PRINTF_LIKE_FORMAT(2, 6)*/;
 //+V576, function:support_elprint_print_, format_arg:2, ellipsis_arg:6
 void
 support_elprint_print_(TSupportDbContext* ctx, const DCHAR *str,
-		       const DCHAR *file, int line, const DCHAR *func, ...);
+		       const DCHAR *file, int line, const DCHAR *func, ...) /*TODO: PRINTF_LIKE_FORMAT(2, 6)*/;
 DWORD
 _SUPPORT_CALLBACK_CONV
 support_dprint_hex(TSupportDbContext *ctx, const DCHAR *file, int line,

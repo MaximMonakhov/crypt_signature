@@ -35,13 +35,14 @@ class ErrorView extends StatelessWidget {
               ),
             ),
             ErrorDetailsView(state.details),
-            TextButton(
-              onPressed: onRepeat,
-              child: Text(
-                "Повторить попытку",
-                style: TextStyle(color: Colors.blue[700], fontSize: 14.0),
+            if (onRepeat != null)
+              TextButton(
+                onPressed: onRepeat,
+                child: Text(
+                  "Повторить попытку",
+                  style: TextStyle(color: Colors.blue[700], fontSize: 14.0),
+                ),
               ),
-            ),
           ],
         ),
       ),

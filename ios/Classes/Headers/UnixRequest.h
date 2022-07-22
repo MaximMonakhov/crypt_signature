@@ -102,6 +102,8 @@
 #define	CR_DISP_ISSUED_OUT_OF_BAND	( 0x4 )
 #define	CR_DISP_UNDER_SUBMISSION	( 0x5 )
 #define	CR_DISP_REVOKED	( 0x6 )
+#define	CR_DISP_REJECTED	( 0x7 )
+#define	CR_DISP_CONN_ERR	( 0x8 )
 
 #define	CR_OUT_BASE64HEADER	( 0 )
 #define	CR_OUT_BASE64	( 0x1 )
@@ -622,8 +624,8 @@ public:	    ///// ICertRequest
      *
      *  \b �� �������������� � ������� ������
      *
-     *  ������������ ��� ��������� �������� �������, ���� � �������� 
-     *  ��� ��� �������� �������, ���� CR_DISP_INCOMPLETE, ���� 
+     *  ������������ ��� ��������� �������� �������, ���� � ���������� 
+     *  ��� ���� �������� �������, ���� CR_DISP_INCOMPLETE, ���� 
      *  CR_DISP_UNDER_SUBMISSION.
      *
      *  \param RequestId    [in]  ������������� �������

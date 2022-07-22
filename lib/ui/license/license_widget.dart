@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:crypt_signature/crypt_signature_icons_icons.dart';
 import 'package:crypt_signature/models/license.dart';
 import 'package:crypt_signature/ui/license/inherited_license.dart';
@@ -20,6 +22,7 @@ class LicenseWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (Platform.isIOS) return Container();
     License license = InheritedLicense.of(context).license;
 
     if (license == null) return const LoadingWidget();

@@ -15,7 +15,7 @@
 /*!
  * \file $RCSfile$
  * \version $Revision: 187153 $
- * \date $Date:: 2019-01-11 16:56:17 +0400#$
+ * \date $Date:: 2019-01-11 04:56:17 -0800#$
  * \author $Author: maxdm $
  *
  * \brief Интерфейс модуля выделения памяти.

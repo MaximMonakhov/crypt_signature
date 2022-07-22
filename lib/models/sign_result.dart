@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:crypt_signature/models/certificate.dart';
+import 'package:crypt_signature/utils/extensions.dart';
 
 /// Результат подписи
 class SignResult {
@@ -24,6 +25,9 @@ class SignResult {
   }
 
   SignResult._({this.certificate, this.digest, this.signature, this.signatureAlgorithm});
+
+  @override
+  String toString() => "Сертификат из контейнера с приватным ключем: ${certificate?.certificate?.truncate()}\nDigest: ${digest?.truncate()}\nSignature: ${signature?.truncate()}\nАлгоритм сигнатуры: $signatureAlgorithm";
 
   static String reverseSignature(String signature) => base64.encode(base64.decode(signature.replaceAll("\n", "")).reversed.toList());
 }

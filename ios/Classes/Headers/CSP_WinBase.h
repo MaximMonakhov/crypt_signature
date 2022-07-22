@@ -75,7 +75,7 @@ GetSystemTime(
 WINBASEAPI
 CSP_BOOL 
 WINAPI
-SystemTimeToFileTime(
+CSP_SystemTimeToFileTime(
     CONST SYSTEMTIME *lpSystemTime,  // system time
     LPFILETIME lpFileTime            // file time
     );
@@ -90,7 +90,7 @@ GetSystemTimeAsFileTime(
 WINBASEAPI
 LONG
 WINAPI
-CompareFileTime(
+CSP_CompareFileTime(
     CONST FILETIME *lpFileTime1,
     CONST FILETIME *lpFileTime2
     );
@@ -98,7 +98,7 @@ CompareFileTime(
 WINBASEAPI
 CSP_BOOL
 WINAPI
-FileTimeToSystemTime(
+CSP_FileTimeToSystemTime(
     IN CONST FILETIME *lpFileTime,
     OUT LPSYSTEMTIME lpSystemTime
     );

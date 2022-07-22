@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:crypt_signature/exceptions/api_response_exception.dart';
 import 'package:crypt_signature/models/license.dart';
 import 'package:crypt_signature/native/native.dart';
@@ -20,9 +22,10 @@ class _LicenseWrapperState extends State<LicenseWrapper> {
 
   @override
   void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      getLicense();
-    });
+    if (Platform.isAndroid)
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        getLicense();
+      });
     super.initState();
   }
 

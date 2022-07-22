@@ -22,8 +22,11 @@
 #include <linux/types.h>
 #endif
 #endif
+
+#ifndef _CSP_WINCRYPT_USE_EXTERNAL_TYPES
 #include"CSP_WinDef.h"
 #include"CSP_WinError.h"
+#endif /*_CSP_WINCRYPT_USE_EXTERNAL_TYPES*/
 
 #ifdef __cplusplus
 extern "C" {
@@ -274,6 +277,11 @@ typedef ULONG_PTR NCRYPT_PROV_HANDLE;
                                             /* CryptEncrypt and CryptDecrypt*/
 
 #define CRYPT_BLOB_VER3         0x00000080  /* export version 3 of a blob type*/
+
+// dwFlags definitions for CryptDecrypt
+//  See also CRYPT_OAEP, above.
+//  Note, the following flag is not supported for CryptEncrypt
+#define CRYPT_DECRYPT_RSA_NO_PADDING_CHECK      0x00000020
 
 /* dwFlags definitions for CryptCreateHash*/
 #define CRYPT_SECRETDIGEST      0x00000001
@@ -634,6 +642,11 @@ typedef ULONG_PTR NCRYPT_PROV_HANDLE;
 #define szOID_ANY_CERT_POLICY           "2.5.29.32.0"
 
 #define szOID_AUTHORITY_KEY_IDENTIFIER2 "2.5.29.35"
+
+// Note on 1/1/2000 szOID_POLICY_MAPPINGS was changed from "2.5.29.5"
+#define szOID_POLICY_MAPPINGS           "2.5.29.33"
+#define szOID_LEGACY_POLICY_MAPPINGS    "2.5.29.5"
+
 #define szOID_POLICY_CONSTRAINTS        "2.5.29.36"
 #define szOID_SUBJECT_KEY_IDENTIFIER    "2.5.29.14"
 #define szOID_SUBJECT_ALT_NAME2         "2.5.29.17"
@@ -661,6 +674,10 @@ typedef ULONG_PTR NCRYPT_PROV_HANDLE;
 // extension that holds URLs to fetch the delta CRL.
 #define szOID_FRESHEST_CRL              "2.5.29.46"
 #define szOID_NAME_CONSTRAINTS          "2.5.29.30"
+
+// Microsoft PKCS10 Attributes
+#define szOID_ENROLLMENT_NAME_VALUE_PAIR    "1.3.6.1.4.1.311.13.2.1"
+#define szOID_ENROLLMENT_CSP_PROVIDER       "1.3.6.1.4.1.311.13.2.2"
 
 #ifndef szOID_CERTSRV_CA_VERSION
 #define szOID_CERTSRV_CA_VERSION        "1.3.6.1.4.1.311.21.1"
@@ -993,10 +1010,20 @@ CryptDecodeObject(
 #define CMC_ADD_ATTRIBUTES                  ((LPCSTR) 63)
 
 //+-------------------------------------------------------------------------
+//  Online Certificate Status Protocol (OCSP) Data Structures
+//--------------------------------------------------------------------------
+#define OCSP_SIGNED_REQUEST                 ((LPCSTR) 65)
+#define OCSP_REQUEST                        ((LPCSTR) 66)
+#define OCSP_RESPONSE                       ((LPCSTR) 67)
+#define OCSP_BASIC_SIGNED_RESPONSE          ((LPCSTR) 68)
+#define OCSP_BASIC_RESPONSE                 ((LPCSTR) 69)
+
+//+-------------------------------------------------------------------------
 //  Certificate Template
 //--------------------------------------------------------------------------
 #define X509_CERTIFICATE_TEMPLATE           ((LPCSTR) 64)
 #define szOID_CERTIFICATE_TEMPLATE      "1.3.6.1.4.1.311.21.7"
+#define X509_OBJECT_IDENTIFIER              ((LPCSTR) 73)
 #define X509_ALGORITHM_IDENTIFIER           ((LPCSTR) 74)
 
 //+-------------------------------------------------------------------------
@@ -1067,7 +1094,6 @@ typedef struct _RSAPUBKEY {
  * ��������� ��� ��������� ����� � �������� �����, ������������ � ���.
  * ��������� ���� ��������� ��������� � ������ ���� \b pbData ������� ��������� �����.
  *
- * \req_std
  * \req_include Windows �������� ������ � ����� Wincrypt.h, Unix - 
  *  CSP_Wincrypt.h
  *
@@ -1193,6 +1219,10 @@ typedef struct _CRYPT_ALGORITHM_IDENTIFIER {
 #define szOID_RSA_MD5RSA        "1.2.840.113549.1.1.4"
 #define szOID_RSA_SHA1RSA       "1.2.840.113549.1.1.5"
 #define szOID_RSA_SETOAEP_RSA   "1.2.840.113549.1.1.6"
+
+#define szOID_RSAES_OAEP        "1.2.840.113549.1.1.7"
+#define szOID_RSA_MGF1          "1.2.840.113549.1.1.8"
+#define szOID_RSA_SSA_PSS       "1.2.840.113549.1.1.10"
 
 #define szOID_RSA_SHA256RSA     "1.2.840.113549.1.1.11"
 #define szOID_RSA_SHA384RSA     "1.2.840.113549.1.1.12"
@@ -1323,6 +1353,11 @@ typedef struct _CRYPT_ALGORITHM_IDENTIFIER {
 #define szOID_NIST_AES192_CBC		    "2.16.840.1.101.3.4.1.22"
 #define szOID_NIST_AES256_CBC		    "2.16.840.1.101.3.4.1.42"
 
+// ECDH single pass ephemeral-static KeyAgreement KeyEncryptionAlgorithm
+#define szOID_DH_SINGLE_PASS_STDDH_SHA1_KDF   "1.3.133.16.840.63.0.2"
+#define szOID_DH_SINGLE_PASS_STDDH_SHA256_KDF "1.3.132.1.11.1"
+#define szOID_DH_SINGLE_PASS_STDDH_SHA384_KDF "1.3.132.1.11.2"
+
 // NIST Hash Algorithms
 // joint-iso-itu-t(2) country(16) us(840) organization(1) gov(101) csor(3) nistalgorithm(4) hashalgs(2)
 
@@ -1332,6 +1367,7 @@ typedef struct _CRYPT_ALGORITHM_IDENTIFIER {
 
 // iso(1) member-body(2) us(840) 10045 signatures(4) sha1(1)
 #define szOID_ECDSA_SHA1        "1.2.840.10045.4.1"
+#define szOID_ECDSA_SPECIFIED   "1.2.840.10045.4.3"
 
 //+-------------------------------------------------------------------------
 //  Object Identifiers for use with Auto Enrollment
@@ -1497,10 +1533,6 @@ typedef struct _CERT_RDN_ATTR {
 #define szOID_PKIX_PE                   "1.3.6.1.5.5.7.1"
 #define szOID_AUTHORITY_INFO_ACCESS     "1.3.6.1.5.5.7.1.1"
 
-// Contains the minimum base CRL Number that can be used with a delta CRL.
-#define szOID_DELTA_CRL_INDICATOR       "2.5.29.27"
-#define szOID_ISSUING_DIST_POINT        "2.5.29.28"
-
 // UPN principal name in SubjectAltName
 #ifndef szOID_NT_PRINCIPAL_NAME
 #define szOID_NT_PRINCIPAL_NAME         "1.3.6.1.4.1.311.20.2.3"
@@ -1563,6 +1595,11 @@ typedef struct _CERT_RDN_ATTR {
 // For encoding: when set, CERT_RDN_UTF8_STRING is selected instead of
 // CERT_RDN_UNICODE_STRING.
 #define CERT_RDN_ENABLE_UTF8_UNICODE_FLAG   0x20000000
+
+// For encoding: when set, CERT_RDN_UTF8_STRING is selected instead of
+// CERT_RDN_PRINTABLE_STRING for DirectoryString types. Also,
+// enables CERT_RDN_ENABLE_UTF8_UNICODE_FLAG.
+#define CERT_RDN_FORCE_UTF8_UNICODE_FLAG    0x10000000
 
 // For encoding: when set, the characters aren't checked to see if they
 // are valid for the Value Type.
@@ -1695,6 +1732,23 @@ typedef struct _CERT_POLICY_QUALIFIER_USER_NOTICE {
     CERT_POLICY_QUALIFIER_NOTICE_REFERENCE  *pNoticeReference;  // optional
     LPWSTR                                  pszDisplayText;     // optional
 } CERT_POLICY_QUALIFIER_USER_NOTICE, *PCERT_POLICY_QUALIFIER_USER_NOTICE;
+
+//+-------------------------------------------------------------------------
+//  X509_POLICY_MAPPINGS
+//  szOID_POLICY_MAPPINGS
+//  szOID_LEGACY_POLICY_MAPPINGS
+//
+//  pvStructInfo points to following CERT_POLICY_MAPPINGS_INFO.
+//--------------------------------------------------------------------------
+typedef struct _CERT_POLICY_MAPPING {
+    LPSTR                       pszIssuerDomainPolicy;      // pszObjId
+    LPSTR                       pszSubjectDomainPolicy;     // pszObjId
+} CERT_POLICY_MAPPING, *PCERT_POLICY_MAPPING;
+
+typedef struct _CERT_POLICY_MAPPINGS_INFO {
+    DWORD                       cPolicyMapping;
+    PCERT_POLICY_MAPPING        rgPolicyMapping;
+} CERT_POLICY_MAPPINGS_INFO, *PCERT_POLICY_MAPPINGS_INFO;
 
 // See CERT_KEY_ATTRIBUTES_INFO for definition of the RestrictedKeyUsage bits
 
@@ -1844,6 +1898,24 @@ typedef struct _CERT_ECC_SIGNATURE {
 } CERT_ECC_SIGNATURE, *PCERT_ECC_SIGNATURE;
 
 //+-------------------------------------------------------------------------
+//  PKCS_CONTENT_INFO_SEQUENCE_OF_ANY data structure
+//
+//  pvStructInfo points to following CRYPT_CONTENT_INFO_SEQUENCE_OF_ANY.
+//
+//  For X509_ASN_ENCODING: encoded as a PKCS#7 ContentInfo structure wrapping
+//  a sequence of ANY. The value of the contentType field is pszObjId,
+//  while the content field is the following structure:
+//      SequenceOfAny ::= SEQUENCE OF ANY
+//
+//  The CRYPT_DER_BLOBs point to the already encoded ANY content.
+//--------------------------------------------------------------------------
+typedef struct _CRYPT_CONTENT_INFO_SEQUENCE_OF_ANY {
+    LPSTR               pszObjId;
+    DWORD               cValue;
+    PCRYPT_DER_BLOB     rgValue;
+} CRYPT_CONTENT_INFO_SEQUENCE_OF_ANY, *PCRYPT_CONTENT_INFO_SEQUENCE_OF_ANY;
+
+//+-------------------------------------------------------------------------
 //  X509_SEQUENCE_OF_ANY data structure
 //
 //  pvStructInfo points to following CRYPT_SEQUENCE_OF_ANY.
@@ -1868,6 +1940,155 @@ typedef struct _CERT_TEMPLATE_EXT {
     CSP_BOOL                fMinorVersion;      // TRUE for a minor version
     DWORD               dwMinorVersion;
 } CERT_TEMPLATE_EXT, *PCERT_TEMPLATE_EXT;
+
+
+
+//+=========================================================================
+//  Online Certificate Status Protocol (OCSP) Data Structures
+//==========================================================================
+
+//+-------------------------------------------------------------------------
+//  OCSP_SIGNED_REQUEST
+//
+//  OCSP signed request.
+//
+//  Note, in most instances, pOptionalSignatureInfo will be NULL indicating
+//  no signature is present.
+//--------------------------------------------------------------------------
+
+typedef struct _OCSP_SIGNATURE_INFO {
+    CRYPT_ALGORITHM_IDENTIFIER  SignatureAlgorithm;
+    CRYPT_BIT_BLOB              Signature;
+    DWORD                       cCertEncoded;
+    PCERT_BLOB                  rgCertEncoded;
+} OCSP_SIGNATURE_INFO, *POCSP_SIGNATURE_INFO;
+
+typedef struct _OCSP_SIGNED_REQUEST_INFO {
+    CRYPT_DER_BLOB              ToBeSigned;             // Encoded OCSP_REQUEST
+    POCSP_SIGNATURE_INFO        pOptionalSignatureInfo; // NULL, no signature
+} OCSP_SIGNED_REQUEST_INFO, *POCSP_SIGNED_REQUEST_INFO;
+
+//+-------------------------------------------------------------------------
+//  OCSP_REQUEST
+//
+//  ToBeSigned OCSP request.
+//--------------------------------------------------------------------------
+
+typedef struct _OCSP_CERT_ID {
+    CRYPT_ALGORITHM_IDENTIFIER  HashAlgorithm;  // Normally SHA1
+    CRYPT_HASH_BLOB             IssuerNameHash; // Hash of encoded name
+    CRYPT_HASH_BLOB             IssuerKeyHash;  // Hash of PublicKey bits
+    CRYPT_INTEGER_BLOB          SerialNumber;
+} OCSP_CERT_ID, *POCSP_CERT_ID;
+
+typedef struct _OCSP_REQUEST_ENTRY {
+    OCSP_CERT_ID                CertId;
+    DWORD                       cExtension;
+    PCERT_EXTENSION             rgExtension;
+} OCSP_REQUEST_ENTRY, *POCSP_REQUEST_ENTRY;
+
+typedef struct _OCSP_REQUEST_INFO {
+    DWORD                       dwVersion;
+    PCERT_ALT_NAME_ENTRY        pRequestorName;     // OPTIONAL
+    DWORD                       cRequestEntry;
+    POCSP_REQUEST_ENTRY         rgRequestEntry;
+    DWORD                       cExtension;
+    PCERT_EXTENSION             rgExtension;
+} OCSP_REQUEST_INFO, *POCSP_REQUEST_INFO;
+
+#define OCSP_REQUEST_V1     0
+
+//+-------------------------------------------------------------------------
+//  OCSP_RESPONSE
+//
+//  OCSP outer, unsigned response wrapper.
+//--------------------------------------------------------------------------
+typedef struct _OCSP_RESPONSE_INFO {
+    DWORD                       dwStatus;
+    LPSTR                       pszObjId;   // OPTIONAL, may be NULL
+    CRYPT_OBJID_BLOB            Value;      // OPTIONAL
+} OCSP_RESPONSE_INFO, *POCSP_RESPONSE_INFO;
+
+#define OCSP_SUCCESSFUL_RESPONSE            0
+#define OCSP_MALFORMED_REQUEST_RESPONSE     1
+#define OCSP_INTERNAL_ERROR_RESPONSE        2
+#define OCSP_TRY_LATER_RESPONSE             3
+// 4 is not used
+#define OCSP_SIG_REQUIRED_RESPONSE          5
+#define OCSP_UNAUTHORIZED_RESPONSE          6
+
+
+#define szOID_PKIX_OCSP_BASIC_SIGNED_RESPONSE   "1.3.6.1.5.5.7.48.1.1"
+
+//+-------------------------------------------------------------------------
+//  OCSP_BASIC_SIGNED_RESPONSE
+//  szOID_PKIX_OCSP_BASIC_SIGNED_RESPONSE
+//
+//  OCSP basic signed response.
+//--------------------------------------------------------------------------
+typedef struct _OCSP_BASIC_SIGNED_RESPONSE_INFO {
+    CRYPT_DER_BLOB              ToBeSigned;     // Encoded OCSP_BASIC_RESPONSE
+    OCSP_SIGNATURE_INFO         SignatureInfo;
+} OCSP_BASIC_SIGNED_RESPONSE_INFO, *POCSP_BASIC_SIGNED_RESPONSE_INFO;
+
+//+-------------------------------------------------------------------------
+//  OCSP_BASIC_RESPONSE
+//
+//  ToBeSigned OCSP basic response.
+//--------------------------------------------------------------------------
+
+typedef struct _OCSP_BASIC_REVOKED_INFO {
+    FILETIME                    RevocationDate;
+
+    // See X509_CRL_REASON_CODE for list of reason codes
+    DWORD                       dwCrlReasonCode;
+} OCSP_BASIC_REVOKED_INFO, *POCSP_BASIC_REVOKED_INFO;
+
+typedef struct _OCSP_BASIC_RESPONSE_ENTRY {
+    OCSP_CERT_ID                CertId;
+    DWORD                       dwCertStatus;
+    union {
+        // OCSP_BASIC_GOOD_CERT_STATUS
+        // OCSP_BASIC_UNKNOWN_CERT_STATUS
+        //  No additional information
+
+        // OCSP_BASIC_REVOKED_CERT_STATUS
+        POCSP_BASIC_REVOKED_INFO    pRevokedInfo;
+
+    } _empty_union_;
+    FILETIME                    ThisUpdate;
+    FILETIME                    NextUpdate; // Optional, zero filetime implies
+                                            // never expires
+    DWORD                       cExtension;
+    PCERT_EXTENSION             rgExtension;
+} OCSP_BASIC_RESPONSE_ENTRY, *POCSP_BASIC_RESPONSE_ENTRY;
+
+#define OCSP_BASIC_GOOD_CERT_STATUS         0
+#define OCSP_BASIC_REVOKED_CERT_STATUS      1
+#define OCSP_BASIC_UNKNOWN_CERT_STATUS      2
+
+
+typedef struct _OCSP_BASIC_RESPONSE_INFO {
+    DWORD                       dwVersion;
+    DWORD                       dwResponderIdChoice;
+    union {
+        // OCSP_BASIC_BY_NAME_RESPONDER_ID
+        CERT_NAME_BLOB              ByNameResponderId;
+        // OCSP_BASIC_BY_KEY_RESPONDER_ID
+        CRYPT_HASH_BLOB              ByKeyResponderId;
+    } _empty_union_;
+    FILETIME                    ProducedAt;
+    DWORD                       cResponseEntry;
+    POCSP_BASIC_RESPONSE_ENTRY  rgResponseEntry;
+    DWORD                       cExtension;
+    PCERT_EXTENSION             rgExtension;
+} OCSP_BASIC_RESPONSE_INFO, *POCSP_BASIC_RESPONSE_INFO;
+
+#define OCSP_BASIC_RESPONSE_V1  0
+
+#define OCSP_BASIC_BY_NAME_RESPONDER_ID     1
+#define OCSP_BASIC_BY_KEY_RESPONDER_ID      2
+
 
 //+-------------------------------------------------------------------------
 //  Information stored in a certificate
@@ -2106,6 +2327,23 @@ typedef struct _CRYPT_TIME_STAMP_REQUEST_INFO {
 } CRYPT_TIME_STAMP_REQUEST_INFO, *PCRYPT_TIME_STAMP_REQUEST_INFO;
 
 //+-------------------------------------------------------------------------
+//  Name Value Attribute
+//--------------------------------------------------------------------------
+typedef struct _CRYPT_ENROLLMENT_NAME_VALUE_PAIR {
+    LPWSTR      pwszName;
+    LPWSTR      pwszValue;
+} CRYPT_ENROLLMENT_NAME_VALUE_PAIR, * PCRYPT_ENROLLMENT_NAME_VALUE_PAIR;
+
+//+-------------------------------------------------------------------------
+//  CSP Provider
+//--------------------------------------------------------------------------
+typedef struct _CRYPT_CSP_PROVIDER {
+    DWORD           dwKeySpec;
+    LPWSTR          pwszProviderName;
+    CRYPT_BIT_BLOB  Signature;
+} CRYPT_CSP_PROVIDER, * PCRYPT_CSP_PROVIDER;
+
+//+-------------------------------------------------------------------------
 //  Certificate, CRL and CTL property IDs
 //
 //  See CertSetCertificateContextProperty or CertGetCertificateContextProperty
@@ -2155,13 +2393,19 @@ typedef struct _CRYPT_TIME_STAMP_REQUEST_INFO {
 
 #define CERT_OCSP_RESPONSE_PROP_ID          70
 #define CERT_REQUEST_ORIGINATOR_PROP_ID     71	// string:machine DNS name
-#define CERT_CA_OCSP_AUTHORITY_INFO_ACCESS_PROP_ID 81
+#define CERT_NCRYPT_KEY_HANDLE_PROP_ID      78
+#define CERT_HCRYPTPROV_OR_NCRYPT_KEY_HANDLE_PROP_ID   79
 
-#define CERT_FIRST_RESERVED_PROP_ID         82
+#define CERT_CA_OCSP_AUTHORITY_INFO_ACCESS_PROP_ID 81
 
 #define CERT_SUBJECT_PUB_KEY_BIT_LENGTH_PROP_ID 92
 
 #define CERT_NO_EXPIRE_NOTIFICATION_PROP_ID 97
+
+#define CERT_NCRYPT_KEY_HANDLE_TRANSFER_PROP_ID 99
+#define CERT_HCRYPTPROV_TRANSFER_PROP_ID    100
+
+#define CERT_FIRST_RESERVED_PROP_ID            128
 
 #define CERT_CRL_ISSUER_PROP_ID		    32000
 #define CERT_KEY_PROV_INFO_PROP_ID_BLOB	    32001
@@ -2169,8 +2413,6 @@ typedef struct _CRYPT_TIME_STAMP_REQUEST_INFO {
 #define CERT_LAST_RESERVED_PROP_ID          0x00007FFF // 32767
 #define CERT_FIRST_USER_PROP_ID             0x00008000
 #define CERT_LAST_USER_PROP_ID              0x0000FFFF
-
-#define CERT_URL_OBJECT_CACHE_DATA_PROP_ID  0x00008001
 
 #define IS_CERT_HASH_PROP_ID(X)     (CERT_SHA1_HASH_PROP_ID == (X) || \
                                         CERT_MD5_HASH_PROP_ID == (X) || \
@@ -2261,19 +2503,6 @@ typedef struct _CERT_KEY_ATTRIBUTES_INFO {
 #define CERT_ENCIPHER_ONLY_KEY_USAGE         0x01
 // Byte[1]
 #define CERT_DECIPHER_ONLY_KEY_USAGE         0x80
-
-//+=========================================================================
-//  Online Certificate Status Protocol (OCSP) Data Structures
-//==========================================================================
-
-typedef struct _OCSP_CERT_ID {
-    CRYPT_ALGORITHM_IDENTIFIER  HashAlgorithm;  // Normally SHA1
-    CRYPT_HASH_BLOB             IssuerNameHash; // Hash of encoded name
-    CRYPT_HASH_BLOB             IssuerKeyHash;  // Hash of PublicKey bits
-    CRYPT_INTEGER_BLOB          SerialNumber;
-} OCSP_CERT_ID, *POCSP_CERT_ID;
-
-#define OCSP_REQUEST_V1     0
 
 //+-------------------------------------------------------------------------
 //  Find an extension identified by its Object Identifier.
@@ -2477,8 +2706,62 @@ CryptAcquireCertificatePrivateKey(
 #define CRYPT_ACQUIRE_ONLY_NCRYPT_KEY_FLAG      0x00040000
 
 //+=========================================================================
+//  Object IDentifier (OID) Installable Functions:  Data Structures and APIs
+//==========================================================================
+
+// OID used for Default OID functions
+#define CRYPT_DEFAULT_OID                   "DEFAULT"
+
+typedef struct _CRYPT_OID_FUNC_ENTRY {
+    LPCSTR  pszOID;
+    void    *pvFuncAddr;
+} CRYPT_OID_FUNC_ENTRY, *PCRYPT_OID_FUNC_ENTRY;
+
+#define CRYPT_INSTALL_OID_FUNC_BEFORE_FLAG  1
+
+//+-------------------------------------------------------------------------
+//  Install a set of callable OID function addresses.
+//
+//  By default the functions are installed at end of the list.
+//  Set CRYPT_INSTALL_OID_FUNC_BEFORE_FLAG to install at beginning of list.
+//
+//  hModule should be updated with the hModule passed to DllMain to prevent
+//  the Dll containing the function addresses from being unloaded by
+//  CryptGetOIDFuncAddress/CryptFreeOIDFunctionAddress. This would be the
+//  case when the Dll has also regsvr32'ed OID functions via
+//  CryptRegisterOIDFunction.
+//
+//  DEFAULT functions are installed by setting rgFuncEntry[].pszOID =
+//  CRYPT_DEFAULT_OID.
+//--------------------------------------------------------------------------
+WINCRYPT32API
+CSP_BOOL
+WINAPI
+CryptInstallOIDFunctionAddress(
+    IN OPTIONAL HMODULE hModule,         // hModule passed to DllMain
+    IN DWORD dwEncodingType,
+    IN LPCSTR pszFuncName,
+    IN DWORD cFuncEntry,
+    IN const CRYPT_OID_FUNC_ENTRY rgFuncEntry[],
+    IN DWORD dwFlags
+    );
+
+//+=========================================================================
 //  Object IDentifier (OID) Information:  Data Structures and APIs
 //==========================================================================
+
+//+-------------------------------------------------------------------------
+//  Special ALG_ID's used in CRYPT_OID_INFO
+//--------------------------------------------------------------------------
+// Algorithm is only implemented in CNG.
+#define CALG_OID_INFO_CNG_ONLY                   0xFFFFFFFF
+
+// Algorithm is defined in the encoded parameters. Only supported
+// using CNG.
+#define CALG_OID_INFO_PARAMETERS                 0xFFFFFFFE
+
+// Macro to check for a special ALG_ID used in CRYPT_OID_INFO
+#define IS_SPECIAL_OID_INFO_ALGID(Algid)        (Algid >= CALG_OID_INFO_PARAMETERS)
 
 //+-------------------------------------------------------------------------
 //  OID Information
@@ -2602,13 +2885,37 @@ CryptFindOIDInfo(
 #define CRYPT_OID_INFO_PUBKEY_SIGN_KEY_FLAG 0x80000000
 #define CRYPT_OID_INFO_PUBKEY_ENCRYPT_KEY_FLAG 0x40000000
 
-/* XXX: dim �������� �����, � � ��������� ���������... */
+//+-------------------------------------------------------------------------
+//  Register OID information. The OID information specified in the
+//  CCRYPT_OID_INFO structure is persisted to the registry.
+//
+//  libcapi contains information for the commonly known OIDs. This function
+//  allows applications to augment libcapi's OID information. During
+//  CryptFindOIDInfo's/CryptEnumOIDInfo's first call, the registered OID
+//  information is installed.
+//
+//  By default the registered OID information is installed after libcapi's
+//  OID entries. Set CRYPT_INSTALL_OID_INFO_BEFORE_FLAG to install before.
+//--------------------------------------------------------------------------
 WINCRYPT32API
 CSP_BOOL
 WINAPI
 CryptRegisterOIDInfo(
   PCCRYPT_OID_INFO pInfo,
   DWORD dwFlags
+);
+
+#define CRYPT_INSTALL_OID_INFO_BEFORE_FLAG 1
+
+//+-------------------------------------------------------------------------
+//  Unregister OID information. Only the pszOID and dwGroupId fields are
+//  used to identify the OID information to be unregistered.
+//--------------------------------------------------------------------------
+WINCRYPT32API
+CSP_BOOL
+WINAPI
+CryptUnregisterOIDInfo(
+  PCCRYPT_OID_INFO pInfo
 );
 
 //+-------------------------------------------------------------------------
@@ -2772,6 +3079,43 @@ CryptGetOIDFunctionAddress(
     IN DWORD dwFlags,
     OUT void **ppvFuncAddr,
     OUT HCRYPTOIDFUNCADDR *phFuncAddr
+    );
+
+#define CRYPT_GET_INSTALLED_OID_FUNC_FLAG       0x1
+
+//+-------------------------------------------------------------------------
+//  Either: get the first or next installed DEFAULT function OR
+//  load the Dll containing the DEFAULT function.
+//
+//  If pwszDll is NULL, search the list of installed DEFAULT functions.
+//  *phFuncAddr must be set to NULL to get the first installed function.
+//  Successive installed functions are returned by setting *phFuncAddr
+//  to the hFuncAddr returned by the previous call.
+//
+//  If pwszDll is NULL, the input *phFuncAddr
+//  is always CryptFreeOIDFunctionAddress'ed by this function, even for
+//  an error.
+//
+//  If pwszDll isn't NULL, then, attempts to load the Dll and the DEFAULT
+//  function. *phFuncAddr is ignored upon entry and isn't
+//  CryptFreeOIDFunctionAddress'ed.
+//
+//  For success, returns TRUE with *ppvFuncAddr updated with the function's
+//  address and *phFuncAddr updated with the function address's handle.
+//  The function's handle is AddRef'ed. CryptFreeOIDFunctionAddress needs to
+//  be called to release it or CryptGetDefaultOIDFunctionAddress can also
+//  be called for a NULL pwszDll.
+//--------------------------------------------------------------------------
+WINCRYPT32API
+CSP_BOOL
+WINAPI
+CryptGetDefaultOIDFunctionAddress(
+    IN HCRYPTOIDFUNCSET hFuncSet,
+    IN DWORD dwEncodingType,
+    IN OPTIONAL LPCWSTR pwszDll,
+    IN DWORD dwFlags,
+    OUT void **ppvFuncAddr,
+    IN OUT HCRYPTOIDFUNCADDR *phFuncAddr
     );
 
 //+-------------------------------------------------------------------------
@@ -4292,6 +4636,8 @@ CertFindCertificateInStore(
 
 #define CERT_COMPARE_PUBKEY_MD5_HASH 18
 
+#define CERT_COMPARE_HAS_PRIVATE_KEY 21
+
 //+-------------------------------------------------------------------------
 //  dwFindType
 //
@@ -4340,7 +4686,7 @@ CertFindCertificateInStore(
 #define CERT_FIND_PUBKEY_MD5_HASH \
                     (CERT_COMPARE_PUBKEY_MD5_HASH << CERT_COMPARE_SHIFT)
 
-
+#define CERT_FIND_HAS_PRIVATE_KEY (CERT_COMPARE_HAS_PRIVATE_KEY << CERT_COMPARE_SHIFT)
 
 //+-------------------------------------------------------------------------
 //  CERT_FIND_ANY
@@ -6309,7 +6655,6 @@ typedef struct _CERT_SYSTEM_STORE_INFO {
 //  When the system store is opened, its physical stores are ordered
 //  according to the dwPriority. A larger dwPriority indicates higher priority.
 //--------------------------------------------------------------------------
-#if defined WIN32
 typedef struct _CERT_PHYSICAL_STORE_INFO {
     DWORD               cbSize;
     LPSTR               pszOpenStoreProvider;   // REG_SZ
@@ -6319,7 +6664,6 @@ typedef struct _CERT_PHYSICAL_STORE_INFO {
     DWORD               dwFlags;                // REG_DWORD
     DWORD               dwPriority;             // REG_DWORD
 } CERT_PHYSICAL_STORE_INFO, *PCERT_PHYSICAL_STORE_INFO;
-#endif /* WIN32 */
 
 //+-------------------------------------------------------------------------
 //  Physical Store Information dwFlags
@@ -6480,7 +6824,6 @@ typedef CSP_BOOL (WINAPI *PFN_CERT_ENUM_SYSTEM_STORE)(
     IN OPTIONAL void *pvArg
     );
 
-#if defined WIN32
 typedef CSP_BOOL (WINAPI *PFN_CERT_ENUM_PHYSICAL_STORE)(
     IN const void *pvSystemStore,
     IN DWORD dwFlags,
@@ -6489,7 +6832,6 @@ typedef CSP_BOOL (WINAPI *PFN_CERT_ENUM_PHYSICAL_STORE)(
     IN OPTIONAL void *pvReserved,
     IN OPTIONAL void *pvArg
     );
-#endif /* WIN32 */
 
 // In the PFN_CERT_ENUM_PHYSICAL_STORE callback the following flag is
 // set if the physical store wasn't registered and is an implicitly created
@@ -6575,7 +6917,6 @@ CertEnumSystemStore(
 //  If the system store location only supports system stores and doesn't
 //  support physical stores, LastError is set to ERROR_CALL_NOT_IMPLEMENTED.
 //--------------------------------------------------------------------------
-#ifdef WIN32
 WINCRYPT32API
 CSP_BOOL
 WINAPI
@@ -6585,7 +6926,6 @@ CertEnumPhysicalStore(
     IN void *pvArg,
     IN PFN_CERT_ENUM_PHYSICAL_STORE pfnEnum
     );
-#endif /* WIN32 */
 
 //+-------------------------------------------------------------------------
 //  Certificate System Store Installable Functions
@@ -7055,6 +7395,7 @@ typedef struct _CERT_CHAIN_ENGINE_CONFIG {
     DWORD       dwUrlRetrievalTimeout;      // milliseconds
     DWORD       MaximumCachedCertificates;
     DWORD       CycleDetectionModulus;
+    // For more fields see CERT_CHAIN_ENGINE_CONFIG_WIN8 in WinCryptEx.h
 
 } CERT_CHAIN_ENGINE_CONFIG, *PCERT_CHAIN_ENGINE_CONFIG;
 
@@ -7075,6 +7416,17 @@ VOID
 WINAPI
 CertFreeCertificateChainEngine (
     IN HCERTCHAINENGINE hChainEngine
+    );
+
+// Resync the certificate chain engine.  This resync's the stores backing
+// the engine and updates the engine caches.
+//
+
+WINCRYPT32API
+CSP_BOOL
+WINAPI
+CertResyncCertificateChainEngine(
+    IN OPTIONAL HCERTCHAINENGINE hChainEngine
     );
 
 //
@@ -7975,6 +8327,7 @@ CertNameToStrW(
 #define CERT_NAME_STR_DISABLE_IE4_UTF8_FLAG     0x00010000
 #define CERT_NAME_STR_ENABLE_T61_UNICODE_FLAG   0x00020000
 #define CERT_NAME_STR_ENABLE_UTF8_UNICODE_FLAG  0x00040000
+#define CERT_NAME_STR_FORCE_UTF8_DIR_STR_FLAG   0x00080000
 #define CERT_NAME_STR_ENABLE_PUNYCODE_FLAG      0x00200000
 
 //+-------------------------------------------------------------------------
@@ -8023,6 +8376,12 @@ CertNameToStrW(
 //  to select the CERT_RDN_UTF8_STRING encoded value type instead of
 //  CERT_RDN_UNICODE_STRING.
 //
+//  CERT_NAME_STR_FORCE_UTF8_DIR_STR_FLAG can be or'ed into dwStrType
+//  to force the CERT_RDN_UTF8_STRING encoded value type instead of
+//  allowing CERT_RDN_PRINTABLE_STRING for DirectoryString types.
+//  Applies to the X500 Keys below which allow "Printable, Unicode".
+//  Also, enables CERT_NAME_STR_ENABLE_UTF8_UNICODE_FLAG.
+//
 //  Support the following X500 Keys:
 //
 //  Key         Object Identifier               RDN Value Type(s)
@@ -8045,6 +8404,7 @@ CertNameToStrW(
 //  Initials    szOID_INITIALS                  Printable, Unicode
 //  SN          szOID_SUR_NAME                  Printable, Unicode
 //  DC          szOID_DOMAIN_COMPONENT          IA5, UTF8
+//  SERIALNUMBER szOID_DEVICE_SERIAL_NUMBER     Only Printable
 //
 //  Note, T61 is selected instead of Unicode if
 //  CERT_NAME_STR_ENABLE_T61_UNICODE_FLAG is set and all the unicode
@@ -8301,6 +8661,8 @@ CryptVerifyCertificateSignatureEx(
 #define CRYPT_VERIFY_CERT_SIGN_ISSUER_NULL          4
     // pvIssuer :: NULL
 
+#define CRYPT_VERIFY_CERT_SIGN_DISABLE_MD2_MD4_FLAG     0x00000001
+
 //+-------------------------------------------------------------------------
 //  Compute the hash of the "to be signed" information in the encoded
 //  signed content (CERT_SIGNED_CONTENT_INFO).
@@ -8423,6 +8785,22 @@ WINAPI
 CertVerifyValidityNesting(
     IN PCERT_INFO pSubjectInfo,
     IN PCERT_INFO pIssuerInfo
+    );
+
+//+-------------------------------------------------------------------------
+//  Verify that the subject certificate isn't on its issuer CRL.
+//
+//  Returns true if the certificate isn't on the CRL.
+//--------------------------------------------------------------------------
+WINCRYPT32API
+CSP_BOOL
+WINAPI
+CertVerifyCRLRevocation(
+    IN DWORD dwCertEncodingType,
+    IN PCERT_INFO pCertId,          // Only the Issuer and SerialNumber
+                                    // fields are used
+    IN DWORD cCrlInfo,
+    IN PCRL_INFO rgpCrlInfo[]
     );
 
 //End of certificate functions
@@ -9099,6 +9477,8 @@ CryptRetrieveObjectByUrlW (
 // 1 minute
 #define CERT_SRV_OCSP_RESP_MIN_AFTER_NEXT_UPDATE_SECONDS_DEFAULT \
     (1 * 60)
+#define CERT_CHAIN_URL_RETRIEVAL_TIMEOUT_MILLISECONDS_DEFAULT       \
+    (15 * 1000)
 
 
 //+=========================================================================
@@ -10301,6 +10681,40 @@ CryptMsgControl(
     IN DWORD dwFlags,
     IN DWORD dwCtrlType,
     IN void const *pvCtrlPara
+    );
+
+//+-------------------------------------------------------------------------
+//  Countersign an already-existing signature in a message
+//
+//  dwIndex is a zero-based index of the SignerInfo to be countersigned.
+//--------------------------------------------------------------------------
+WINCRYPT32API
+CSP_BOOL
+WINAPI
+CryptMsgCountersign(
+    IN OUT HCRYPTMSG hCryptMsg,
+    IN DWORD dwIndex,
+    IN DWORD cCountersigners,
+    IN PCMSG_SIGNER_ENCODE_INFO rgCountersigners
+    );
+
+//+-------------------------------------------------------------------------
+//  Countersign an already-existing signature (encoded SignerInfo).
+//  Output an encoded SignerInfo blob, suitable for use as a countersignature
+//  attribute in the unauthenticated attributes of a signed-data or
+//  signed-and-enveloped-data message.
+//--------------------------------------------------------------------------
+WINCRYPT32API
+CSP_BOOL
+WINAPI
+CryptMsgCountersignEncoded(
+    IN DWORD dwEncodingType,
+    IN PBYTE pbSignerInfo,
+    IN DWORD cbSignerInfo,
+    IN DWORD cCountersigners,
+    IN PCMSG_SIGNER_ENCODE_INFO rgCountersigners,
+    OUT PBYTE pbCountersignature,
+    IN OUT PDWORD pcbCountersignature
     );
 
 //+-------------------------------------------------------------------------
@@ -11738,6 +12152,37 @@ PFXImportCertStore(
 #define PKCS12_NO_PERSIST_KEY       0x00008000  // key will not be persisted
 
 //+-------------------------------------------------------------------------
+//      PFXIsPFXBlob
+//
+//  This function will try to decode the outer layer of the blob as a pfx 
+//  blob, and if that works it will return TRUE, it will return FALSE otherwise
+//
+//--------------------------------------------------------------------------
+WINCRYPT32API
+CSP_BOOL
+WINAPI
+PFXIsPFXBlob(
+    IN CRYPT_DATA_BLOB *pPFX);
+
+//+-------------------------------------------------------------------------
+//      PFXVerifyPassword
+//
+//  This function will attempt to decode the outer layer of the blob as a pfx 
+//  blob and decrypt with the given password. No data from the blob will be
+//  imported.
+//
+//  Return value is TRUE if password appears correct, FALSE otherwise.
+//
+//--------------------------------------------------------------------------
+WINCRYPT32API
+CSP_BOOL
+WINAPI
+PFXVerifyPassword(
+    IN CRYPT_DATA_BLOB *pPFX,
+    IN LPCWSTR szPassword,
+    IN DWORD dwFlags);
+
+//+-------------------------------------------------------------------------
 //      PFXExportCertStoreEx
 //
 //  Export the certificates and private keys referenced in the passed-in store
@@ -11933,6 +12378,10 @@ CertOpenServerOcspResponse(
     DWORD dwFlags,
     LPVOID pvReserved
     );
+
+// Set this flag to return immediately without making the initial
+// synchronous retrieval
+#define CERT_SERVER_OCSP_RESPONSE_ASYNC_FLAG        0x00000001
 
 //TODO
 //+-------------------------------------------------------------------------

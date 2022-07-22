@@ -14,9 +14,9 @@
 
 /*!
  * \file $RCSfile$
- * \version $Revision: 199212 $
- * \date $Date:: 2019-09-13 14:58:11 +0400#$
- * \author $Author: ivan $
+ * \version $Revision: 220877 $
+ * \date $Date:: 2020-11-04 00:39:34 -0800#$
+ * \author $Author: maxdm $
  *
  * \brief XXX
  *
@@ -504,5 +504,114 @@ struct CPC_CONFIG2_ {//::CPC_CONFIG_ ��� �����������
 #if defined(__cplusplus)
 } // extern "C"
 #endif // defined(__cplusplus)
+
+#define ACQUIRE_CONTEXT_ADD_INFO_CARRIER_IDENTIFIER  ((DWORD)0x4321)
+
+/*��������� ������������ ��� �������� �������������� ������� �� �������� ���������.
+ ���������� ������������� ����� �������� � ��������� ��������� ����������.
+*/
+typedef struct ACQUIRECONTEXTADDINFO_ {
+    DWORD dwType;
+    BYTE pbSessionIdentifier[CARRIER_CLIENT_IDENTIFIER_SIZE];
+    DWORD cbAdditionalData;
+    BYTE* pbAdditionalData;
+} ACQUIRECONTEXTADDINFO, *PACQUIRECONTEXTADDINFO;
+
+
+#ifdef PIN_INFO_SUPPORT
+
+// ****************
+// PIN SUPPORT (from \windows kits\8.0\cryptographic provider development kit\include\cardmod.h)
+// ****************
+
+//
+// There are 8 PINs currently defined in version 6. PIN values 0, 1 and 2 are 
+// reserved for backwards compatibility, whereas PIN values 3-7 can be used 
+// as additional PINs to protect key containers.
+//
+
+typedef     DWORD                       PIN_ID, *PPIN_ID;
+typedef     DWORD                       PIN_SET, *PPIN_SET;
+
+#define     MAX_PINS                    8
+
+#define     ROLE_EVERYONE               0
+#define     ROLE_USER                   1
+#define     ROLE_ADMIN                  2
+
+#define     PIN_SET_NONE                0x00
+#define     PIN_SET_ALL_ROLES           0xFF
+#define     CREATE_PIN_SET(PinId)       (1 << PinId)
+#define     SET_PIN(PinSet, PinId)      PinSet |= CREATE_PIN_SET(PinId)
+#define     IS_PIN_SET(PinSet, PinId)   (0 != (PinSet & CREATE_PIN_SET(PinId)))
+#define     CLEAR_PIN(PinSet, PinId)    PinSet &= ~CREATE_PIN_SET(PinId)
+
+#define     PIN_CHANGE_FLAG_UNBLOCK     0x01
+#define     PIN_CHANGE_FLAG_CHANGEPIN   0x02
+
+#define     CP_CACHE_MODE_GLOBAL_CACHE  1
+#define     CP_CACHE_MODE_SESSION_ONLY  2
+#define     CP_CACHE_MODE_NO_CACHE      3
+
+#define     CARD_AUTHENTICATE_GENERATE_SESSION_PIN      0x10000000
+#define     CARD_AUTHENTICATE_SESSION_PIN               0x20000000
+
+#define     CARD_PIN_STRENGTH_PLAINTEXT                 0x1
+#define     CARD_PIN_STRENGTH_SESSION_PIN               0x2 
+
+#define     CARD_PIN_SILENT_CONTEXT                     0x00000040
+
+typedef enum
+{
+    AlphaNumericPinType = 0,            // Regular PIN
+    ExternalPinType,                    // Biometric PIN
+    ChallengeResponsePinType,           // Challenge/Response PIN
+    EmptyPinType                        // No PIN
+} SECRET_TYPE;
+
+typedef enum
+{
+    AuthenticationPin,                  // Authentication PIN
+    DigitalSignaturePin,                // Digital Signature PIN
+    EncryptionPin,                      // Encryption PIN
+    NonRepudiationPin,                  // Non Repudiation PIN
+    AdministratorPin,                   // Administrator PIN
+    PrimaryCardPin,                     // Primary Card PIN
+    UnblockOnlyPin,                     // Unblock only PIN (PUK)
+} SECRET_PURPOSE;
+
+typedef enum
+{
+    PinCacheNormal = 0,
+    PinCacheTimed,
+    PinCacheNone,
+    PinCacheAlwaysPrompt
+} PIN_CACHE_POLICY_TYPE;
+
+#define      PIN_CACHE_POLICY_CURRENT_VERSION     6
+
+typedef struct _PIN_CACHE_POLICY
+{
+    DWORD                                 dwVersion;
+    PIN_CACHE_POLICY_TYPE                 PinCachePolicyType;
+    DWORD                                 dwPinCachePolicyInfo;
+} PIN_CACHE_POLICY, *PPIN_CACHE_POLICY;
+
+#define      PIN_INFO_CURRENT_VERSION             6
+
+#define      PIN_INFO_REQUIRE_SECURE_ENTRY        1
+
+typedef struct _PIN_INFO
+{
+    DWORD                                 dwVersion;
+    SECRET_TYPE                           PinType;
+    SECRET_PURPOSE                        PinPurpose;
+    PIN_SET                               dwChangePermission;
+    PIN_SET                               dwUnblockPermission;
+    PIN_CACHE_POLICY                      PinCachePolicy;
+    DWORD                                 dwFlags;
+} PIN_INFO, *PPIN_INFO;
+
+#endif /*PIN_INFO_SUPPORT*/
 
 #endif /* _WINCSPC_H_INCLUDED */

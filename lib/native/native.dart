@@ -88,7 +88,7 @@ class Native {
     } catch (exception) {
       if (exception is ApiResponseException) rethrow;
       if (exception is PlatformException) throw ApiResponseException(exception.message, exception.details.toString());
-      throw ApiResponseException("Не удалось получить информацию о лицензию", exception.toString());
+      throw ApiResponseException("Не удалось получить Digest", exception.toString());
     }
   }
 
@@ -108,7 +108,7 @@ class Native {
     } catch (exception) {
       if (exception is ApiResponseException) rethrow;
       if (exception is PlatformException) throw ApiResponseException(exception.message, exception.details.toString());
-      throw ApiResponseException("Не удалось получить информацию о лицензию", exception.toString());
+      throw ApiResponseException("Не удалось выполнить подпись", exception.toString());
     }
   }
 
@@ -122,7 +122,7 @@ class Native {
     } catch (exception) {
       if (exception is ApiResponseException) rethrow;
       if (exception is PlatformException) throw ApiResponseException(exception.message, exception.details.toString());
-      throw ApiResponseException("Не удалось получить информацию о лицензию", exception.toString());
+      throw ApiResponseException("Не удалось создать PKCS7", exception.toString());
     }
   }
 
@@ -135,7 +135,7 @@ class Native {
     } catch (exception) {
       if (exception is ApiResponseException) rethrow;
       if (exception is PlatformException) throw ApiResponseException(exception.message, exception.details.toString());
-      throw ApiResponseException("Не удалось получить информацию о лицензию", exception.toString());
+      throw ApiResponseException("Не удалось добавить сигнатуру к PKCS7", exception.toString());
     }
   }
 }

@@ -38,4 +38,10 @@
 #endif //CSP_LITE
 
 #include"std_decl.h"
+
+#ifdef UNIX
+# define SUP_INLINE inline
+#else
+# define SUP_INLINE __inline
+#endif
 #endif //SUPPORT_BASE_DEFS_H_INCLUDED

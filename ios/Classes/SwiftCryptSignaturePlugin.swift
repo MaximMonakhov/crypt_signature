@@ -2,9 +2,6 @@ import Flutter
 import UIKit
 
 public class SwiftCryptSignaturePlugin: NSObject, FlutterPlugin {
-    private let INIT_CSP_OK = 0;
-    private let INIT_CSP_ERROR = -1;
-    
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "crypt_signature", binaryMessenger: registrar.messenger())
         let instance = SwiftCryptSignaturePlugin()
@@ -15,41 +12,31 @@ public class SwiftCryptSignaturePlugin: NSObject, FlutterPlugin {
         let args = call.arguments as? Dictionary<String, String>;
         
         if (call.method == "initCSP") {
-            let resultCode = initCSP();
-            
-            if (resultCode == INIT_CSP_OK) {
-                result(INIT_CSP_OK);
-            }
-            else {
-                result(FlutterError(code: "ERROR", message: "Ошибка при инициализации провайдера", details: INIT_CSP_ERROR));
-            }
+            let response = initCSP();
+            result(response);
         }
         
-        if (call.method == "installCertificate") {
-            let path = args?["pathToCert"];
+        if (call.method == "addCertificate") {
+            let path = args?["path"];
             let password = args?["password"];
-            
-            let resulty = addCert(path, password);
-            
-            if (resulty == nil) {
-                result(FlutterError(code: "ERROR", message: "Не удалось добавить сертификат", details: nil));
-            } else {
-                result(resulty);
-            }
+            let response = addCertificate(path, password);
+            result(response);
+        }
+        
+        if (call.method == "digest") {
+            let alias = args?["certificateUUID"];
+            let password = args?["password"];
+            let message = args?["message"];
+            let response = digest(alias, password, message);
+            result(response);
         }
         
         if (call.method == "sign") {
-            let alias = args?["id"];
+            let alias = args?["certificateUUID"];
             let password = args?["password"];
-            let data = args?["data"];
-            
-            let resulty = sign(alias, password, data);
-            
-            if (resulty == nil) {
-                result(FlutterError(code: "ERROR", message: "Не удалось подписать данные", details: nil));
-            } else {
-                result(resulty);
-            }
+            let digest = args?["digest"];
+            let response = sign(alias, password, digest);
+            result(response);
         }
         
         result(FlutterMethodNotImplemented);

@@ -1,12 +1,13 @@
 #ifndef _COMMON_H_INCLUDED_
 #define _COMMON_H_INCLUDED_
 
-#define BUILD_YEAR	"2019"
+#define BUILD_YEAR	"2022"
 
 /* Code types for USE_CODE #define */
 #define USE_CODE_C	    1
 #define USE_CODE_ASM	    2
 #define USE_CODE_ASM64	    3
+#define USE_CODE_ASM_E2K64  4
 
 /* Processor types for PROCESSOR_TYPE #define */
 #define PROC_TYPE_SPARC 1
@@ -47,6 +48,10 @@
 #  if defined(_WIN32)
 #    if defined(_M_IX86)
 #      define PROCESSOR_TYPE PROC_TYPE_I386
+#    elif defined(_M_ARM64)
+#      define PROCESSOR_TYPE PROC_TYPE_ARM64
+#    elif defined(_M_ARM64EC)
+#      define PROCESSOR_TYPE PROC_TYPE_ARM64
 #    elif defined(_M_X64)
 #      define PROCESSOR_TYPE PROC_TYPE_X64
 #    endif //defined(_M_IX86) or defined(_M_X64)
@@ -122,6 +127,8 @@
 #      define USE_CODE USE_CODE_ASM
 #    elif PROCESSOR_TYPE == PROC_TYPE_X64
 #      define USE_CODE USE_CODE_ASM64
+#    elif PROCESSOR_TYPE == PROC_TYPE_E2K64
+#      define USE_CODE USE_CODE_ASM_E2K64
 #    else
 #      define USE_CODE USE_CODE_C
 #    endif /* PROCESSOR_TYPE_* */
@@ -210,6 +217,9 @@
 //-V:CPRO_OFFSETOF:221
 #define CPRO_OFFSETOF(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
 #endif // HAVE_BUILTIN_OFFSETOF
+
+// Enable CryptoPro specific parts of shared sdk sources
+#define CPCSP_BUILD 1
 
 #ifdef UNIX
 typedef struct __TSupCSPPaths__

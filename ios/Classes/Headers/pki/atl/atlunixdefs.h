@@ -40,7 +40,9 @@ typedef uint64_t __uint64;
 typedef int64_t __int64;
 typedef uint64_t __uint64;
 #endif 
+#ifndef HAVE___TIME64_T
 typedef time_t __time64_t;
+#endif
 
 #define _WCHAR_T_DEFINED 
 #define _VA_LIST_DEFINED

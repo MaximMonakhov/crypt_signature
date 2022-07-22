@@ -1,15 +1,15 @@
 /*
- * Copyright(C) 2000 пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ
+ * Copyright(C) 2000 Проект ИОК
  *
- * пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
- * пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ.
+ * Этот файл содержит информацию, являющуюся
+ * собственностью компании Крипто Про.
  *
- * пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ,
- * пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ,
- * пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ,
- * пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅ пїЅпїЅ
- * пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
- * пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ.
+ * Любая часть этого файла не может быть скопирована,
+ * исправлена, переведена на другие языки,
+ * локализована или модифицирована любым способом,
+ * откомпилирована, передана по сети с или на
+ * любую компьютерную систему без предварительного
+ * заключения соглашения с компанией Крипто Про.
  */
 
 /************************************************************************
@@ -22,8 +22,6 @@
 
 #ifndef _CSP_WINERROR_
 #define _CSP_WINERROR_
-
-#include"CSP_WinDef.h"
 
 /**/
 /*  Values are 32 bit values layed out as follows:*/
@@ -1846,6 +1844,15 @@
 /* The exception %s (0x%08lx) occurred in the application at location 0x%08lx. */
 /**/
 #define ERROR_UNHANDLED_EXCEPTION        574L
+
+/**/
+/* MessageId: ERROR_BUFFER_ALL_ZEROS*/
+/**/
+/* MessageText:*/
+/**/
+/* Specified buffer contains all zeros.*/
+/**/
+#define ERROR_BUFFER_ALL_ZEROS           754L
 
 /**/
 /* MessageId: ERROR_EA_ACCESS_DENIED*/
@@ -18339,6 +18346,15 @@
 #define NTE_FIXEDPARAMETER               _HRESULT_TYPEDEF_(0x80090025L)
 
 /**/
+/* MessageId: NTE_INVALID_HANDLE*/
+/**/
+/* MessageText:*/
+/**/
+/* The supplied handle is invalid.*/
+/**/
+#define NTE_INVALID_HANDLE               _HRESULT_TYPEDEF_(0x80090026L)
+
+/**/
 /* MessageId: NTE_INVALID_PARAMETER*/
 /**/
 /* MessageText:*/
@@ -18348,6 +18364,15 @@
 #define NTE_INVALID_PARAMETER _HRESULT_TYPEDEF_(0x80090027L)
 
 /**/
+/* MessageId: NTE_BUFFER_TOO_SMALL*/
+/**/
+/* MessageText:*/
+/**/
+/* The buffer supplied to a function was too small.*/
+/**/
+#define NTE_BUFFER_TOO_SMALL             _HRESULT_TYPEDEF_(0x80090028L)
+
+/**/
 /* MessageId: NTE_NOT_SUPPORTED*/
 /**/
 /* MessageText:*/
@@ -18355,6 +18380,141 @@
 /* The requested operation is not supported.*/
 /**/
 #define NTE_NOT_SUPPORTED                _HRESULT_TYPEDEF_(0x80090029L)
+
+/**/
+/* MessageId: NTE_NO_MORE_ITEMS*/
+/**/
+/* MessageText:*/
+/**/
+/* No more data is available.*/
+/**/
+#define NTE_NO_MORE_ITEMS                _HRESULT_TYPEDEF_(0x8009002AL)
+
+/**/
+/* MessageId: NTE_BUFFERS_OVERLAP*/
+/**/
+/* MessageText:*/
+/**/
+/* The supplied buffers overlap incorrectly.*/
+/**/
+#define NTE_BUFFERS_OVERLAP              _HRESULT_TYPEDEF_(0x8009002BL)
+
+/**/
+/* MessageId: NTE_DECRYPTION_FAILURE*/
+/**/
+/* MessageText:*/
+/**/
+/* The specified data could not be decrypted.*/
+/**/
+#define NTE_DECRYPTION_FAILURE           _HRESULT_TYPEDEF_(0x8009002CL)
+
+/**/
+/* MessageId: NTE_INTERNAL_ERROR*/
+/**/
+/* MessageText:*/
+/**/
+/* An internal consistency check failed.*/
+/**/
+#define NTE_INTERNAL_ERROR               _HRESULT_TYPEDEF_(0x8009002DL)
+
+/**/
+/* MessageId: NTE_UI_REQUIRED*/
+/**/
+/* MessageText:*/
+/**/
+/* This operation requires input from the user.*/
+/**/
+#define NTE_UI_REQUIRED                  _HRESULT_TYPEDEF_(0x8009002EL)
+
+/**/
+/* MessageId: NTE_HMAC_NOT_SUPPORTED*/
+/**/
+/* MessageText:*/
+/**/
+/* The cryptographic provider does not support HMAC.*/
+/**/
+#define NTE_HMAC_NOT_SUPPORTED           _HRESULT_TYPEDEF_(0x8009002FL)
+
+/**/
+/* MessageId: NTE_DEVICE_NOT_READY*/
+/**/
+/* MessageText:*/
+/**/
+/* The device that is required by this cryptographic provider is not ready for use.*/
+/**/
+#define NTE_DEVICE_NOT_READY             _HRESULT_TYPEDEF_(0x80090030L)
+
+/**/
+/* MessageId: NTE_AUTHENTICATION_IGNORED*/
+/**/
+/* MessageText:*/
+/**/
+/* The dictionary attack mitigation is triggered and the provided authorization was ignored by the provider.*/
+/**/
+#define NTE_AUTHENTICATION_IGNORED       _HRESULT_TYPEDEF_(0x80090031L)
+
+/**/
+/* MessageId: NTE_VALIDATION_FAILED*/
+/**/
+/* MessageText:*/
+/**/
+/* The validation of the provided data failed the integrity or signature validation.*/
+/**/
+#define NTE_VALIDATION_FAILED            _HRESULT_TYPEDEF_(0x80090032L)
+
+/**/
+/* MessageId: NTE_INCORRECT_PASSWORD*/
+/**/
+/* MessageText:*/
+/**/
+/* Incorrect password.*/
+/**/
+#define NTE_INCORRECT_PASSWORD           _HRESULT_TYPEDEF_(0x80090033L)
+
+/**/
+/* MessageId: NTE_ENCRYPTION_FAILURE*/
+/**/
+/* MessageText:*/
+/**/
+/* Encryption failed.*/
+/**/
+#define NTE_ENCRYPTION_FAILURE           _HRESULT_TYPEDEF_(0x80090034L)
+
+/**/
+/* MessageId: NTE_DEVICE_NOT_FOUND*/
+/**/
+/* MessageText:*/
+/**/
+/* The device that is required by this cryptographic provider is not found on this platform.*/
+/**/
+#define NTE_DEVICE_NOT_FOUND             _HRESULT_TYPEDEF_(0x80090035L)
+
+/**/
+/* MessageId: NTE_USER_CANCELLED*/
+/**/
+/* MessageText:*/
+/**/
+/* The action was cancelled by the user.*/
+/**/
+#define NTE_USER_CANCELLED               _HRESULT_TYPEDEF_(0x80090036L)
+
+/**/
+/* MessageId: NTE_PASSWORD_CHANGE_REQUIRED*/
+/**/
+/* MessageText:*/
+/**/
+/* The password is no longer valid and must be changed.*/
+/**/
+#define NTE_PASSWORD_CHANGE_REQUIRED     _HRESULT_TYPEDEF_(0x80090037L)
+
+/**/
+/* MessageId: NTE_NOT_ACTIVE_CONSOLE*/
+/**/
+/* MessageText:*/
+/**/
+/* The operation cannot be completed from Terminal Server client sessions.*/
+/**/
+#define NTE_NOT_ACTIVE_CONSOLE           _HRESULT_TYPEDEF_(0x80090038L)
 
 /**/
 /* MessageId: SEC_E_INSUFFICIENT_MEMORY*/
@@ -18736,6 +18896,24 @@
 /*  The security context could not be established due to a failure in the requested quality of service (e.g. mutual authentication or delegation).*/
 /**/
 #define SEC_E_SECURITY_QOS_FAILED        _HRESULT_TYPEDEF_(0x80090332L)
+
+//
+// MessageId: SEC_E_CRYPTO_SYSTEM_INVALID
+//
+// MessageText:
+//
+// The crypto system or checksum function is invalid because a required function is unavailable.
+//
+#define SEC_E_CRYPTO_SYSTEM_INVALID      _HRESULT_TYPEDEF_(0x80090337L)
+
+//
+// MessageId: SEC_E_INVALID_PARAMETER
+//
+// MessageText:
+//
+// One or more of the parameters passed to the function was invalid.
+//
+#define SEC_E_INVALID_PARAMETER          _HRESULT_TYPEDEF_(0x8009035DL)
 
 //
 // MessageId: SEC_I_NO_RENEGOTIATION

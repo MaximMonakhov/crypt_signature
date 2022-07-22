@@ -15,7 +15,7 @@
 /*!
  * \file $RCSfile$
  * \version $Revision: 154264 $
- * \date $Date:: 2017-03-15 18:01:24 +0400#$
+ * \date $Date:: 2017-03-15 07:01:24 -0700#$
  * \author $Author: sonina $
  *
  * \brief XXX

@@ -27,7 +27,7 @@
 
 /*!
  * \version $Revision: 200060 $
- * \date $Date:: 2019-10-01 13:24:09 +0400#$
+ * \date $Date:: 2019-10-01 02:24:09 -0700#$
  * \author $Author: sagafyin $ (Original author: halaud) 
  *
  * \brief Буфер для хранения PIN и паролей

@@ -14,9 +14,9 @@
 
 /*!
  * \file $RCSfile$
- * \version $Revision: 127051 $
- * \date $Date:: 2015-09-09 16:08:20 +0400#$
- * \author $Author: pav $
+ * \version $Revision: 207435 $
+ * \date $Date:: 2020-02-28 03:03:16 -0800#$
+ * \author $Author: frolov $
  *
  * \brief ����������� VTABLEPROVSTRUC.
  *

@@ -35,7 +35,7 @@ struct RND_CONTEXT_;
 * \param length [in] ������ ������ ��� ��������� ������������������.
 * \return TRUE, ��������� ������������������ ��������, FALSE �����.
 */
-typedef CSP_BOOL(*GetRandomFunction)(pCP_CALL_CTX pCallCtx, struct RND_CONTEXT_ *context, LPBYTE buffer, uint32_t length, uint32_t flags);
+typedef CSP_BOOL(*GetRandomFunction)(pCP_CALL_CTX pCallCtx, struct RND_CONTEXT_ *context, LPBYTE buffer, uint32_t length, uint32_t flags) ATTR_USERES;
 
 
 /*! \internal
@@ -46,7 +46,7 @@ typedef CSP_BOOL(*GetRandomFunction)(pCP_CALL_CTX pCallCtx, struct RND_CONTEXT_ 
 * \return TRUE, ��������� ������������������ ����� ���� �������� (��� ���������������),
 *  FALSE �����.
 */
-typedef CSP_BOOL(*IsRandomInitedFunction)(struct RND_CONTEXT_ *context);
+typedef CSP_BOOL(*IsRandomInitedFunction)(struct RND_CONTEXT_ *context) ATTR_USERES;
 
 /*! \internal
 * \brief ��������� �� ������� ��������� ��������� ���.
@@ -55,7 +55,7 @@ typedef CSP_BOOL(*IsRandomInitedFunction)(struct RND_CONTEXT_ *context);
 *  ������ ��������� ���������.
 * \param seed [out] ���������������� ������������������.
 */
-typedef CSP_BOOL(*GetRandomSeedFunction)(struct RND_CONTEXT_ *context, LPBYTE seed, size_t length);
+typedef CSP_BOOL(*GetRandomSeedFunction)(struct RND_CONTEXT_ *context, LPBYTE seed, size_t length) ATTR_USERES;
 
 /*! \internal
 * \brief ��������� �� ������� ��������� ���������������� ������������������.
@@ -64,13 +64,7 @@ typedef CSP_BOOL(*GetRandomSeedFunction)(struct RND_CONTEXT_ *context, LPBYTE se
 *  ������ ��������� ���������.
 * \param seed [in] ���������������� ������������������.
 */
-typedef CSP_BOOL(*SetRandomSeedFunction)(pCP_CALL_CTX pCallCtx, struct RND_CONTEXT_ *context, const LPBYTE seed, size_t length);
-/*! \internal
-* \brief ������� ������������� ��������� �� �������� ���������,
-*  � ��������� � �������������� ������� CPSetProvParam(), PP_RANDOM.
-*/
-#define RND_INITED 0x00000001
-
+typedef CSP_BOOL(*SetRandomSeedFunction)(pCP_CALL_CTX pCallCtx, struct RND_CONTEXT_ *context, const LPBYTE seed, size_t length, DWORD dwInitFlags) ATTR_USERES;
 
 /*! \internal
 * \brief �������� ������� ��������� ��������� ������������������.
@@ -81,6 +75,7 @@ typedef struct RND_CONTEXT_ {
     GetRandomSeedFunction get_random_seed; /*!< ��������� �� ������� ��������� random seed. */
     SetRandomSeedFunction set_random_seed; /*!< ��������� �� ������� ��������� random_seed. */
     DWORD Flags;			    /*!< ���� ��������� ���������.*/
+    DWORD dwSecurityLevel;
 } RND_CONTEXT, *LPRND_CONTEXT;
 
 /* ��������������� �������� CSP_SetLastError/CSP_GetLastError */
@@ -109,6 +104,8 @@ void	rValidateMemory	(pCP_CALL_CTX pCallCtx);
 void	rInitCallCtx	(pCP_CALL_CTX pCallCtx, LPCRYPT_CSP hCSP);
 
 
+#define	 ROOT_PRSG_CRITICAL_ERROR	   1
+
 struct _CP_CALL_CTX_
 {
     LPCRYPT_CSP			hCSP;
@@ -121,9 +118,10 @@ struct _CP_CALL_CTX_
     CSP_BOOL			bOwnFPU;
     int				iCntFPU;
     DWORD			dwFPUOpType;
-	// ASSERT - ����� �������� �� FPUAllignValue
+    DWORD			dwCriticalErrorFlags;
+
     struct cp_vtb_28147_89     *pVTB;
-    CP_ASTACK	       *pAStk;
+    CP_ASTACK		       *pAStk;
 };
 
 

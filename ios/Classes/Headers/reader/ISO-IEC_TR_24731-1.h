@@ -15,7 +15,7 @@
 /*!
  * \file $RCSfile$
  * \version $Revision: 174826 $
- * \date $Date:: 2018-05-15 17:27:58 +0400#$
+ * \date $Date:: 2018-05-15 06:27:58 -0700#$
  * \author $Author: ladunoff $
  *
  * \brief �������� ����� ����������� ������ ����������

@@ -1165,7 +1165,7 @@ EXTERNRT int   rtInitContext (ASN1CTXT* ctxt_p, void *pCSP);
 EXTERNRT int   rtInitSubContext (ASN1CTXT* ctxt_p, ASN1CTXT* psrc);
 #endif	/* !NO_ASN1_RT_REDUNDANT */
 
-  /* кроме прототипа от неё нет ничего EXTERNRT int   rtInitContextExt (ASN1CTXT* ctxt_p); */
+  /* ����� ��������� �� �� ��� ������ EXTERNRT int   rtInitContextExt (ASN1CTXT* ctxt_p); */
 
 /**
  * This function allocates a new ASN1CTXT block and initializes it. Although

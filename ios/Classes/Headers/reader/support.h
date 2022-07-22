@@ -16,6 +16,7 @@
 #define _READER_SUPPORT_SUPPORT_H
 
 #include"support_base_defs.h"
+#include"support_registry.h"
 
 #if !defined( _SUPPORT_CALLBACK_CONV )
 #   if defined( UNIX )
@@ -128,10 +129,10 @@
 /* Mutex - ����������� ���������� � ������������� ������.
    ���������� ��� ���������� ���������� ������ ����� ���� ������� ��
    ���������� */
-#   define support_mutex_init( mutex ) *mutex = INVALID_HANDLE_VALUE;
+#   define support_mutex_init( mutex ) *mutex = INVALID_HANDLE_VALUE
 #   define support_mutex_open( mutex, name, f) support_mutex_open_fun(mutex, name)
 #   define support_mutex_lock( mutex ) WaitForSingleObject( (mutex), INFINITE )
-#   define support_mutex_unlock( mutex ) ReleaseMutex( mutex );
+#   define support_mutex_unlock( mutex ) ReleaseMutex( mutex )
 #   define support_mutex_close( mutex ) { if( *mutex != INVALID_HANDLE_VALUE ) { CloseHandle( *mutex ); *mutex = INVALID_HANDLE_VALUE; } }
 # ifndef _M_ARM
 #   define support_try __try {
@@ -151,11 +152,11 @@
 #   define support_section_leave( section ) (LeaveCriticalSection(&section),0)
 
 #else /* UNIX */
-#define support_mutex_init(m)
+#define support_mutex_init(m)           *m = NULL
 #define support_mutex_open(pm, name, f) ubi_mutex_open(pm, name, f)
-#define support_mutex_lock(m)        ubi_mutex_lock(m)
-#define support_mutex_unlock(m)      ubi_mutex_unlock(m)
-#define support_mutex_close(pm)      ubi_mutex_close(*pm)
+#define support_mutex_lock(m)           ubi_mutex_lock(m)
+#define support_mutex_unlock(m)         ubi_mutex_unlock(m)
+#define support_mutex_close(pm)         ubi_mutex_close(*pm)
 
 # define support_section_init( section, arg ) pthread_mutex_init( section,NULL )
 # define support_section_init_recursive(section) support_mutex_init_recursive(section)
@@ -226,11 +227,6 @@
     #endif
 #endif
 
-#ifdef UNIX
-# define SUP_INLINE inline
-#else
-# define SUP_INLINE __inline
-#endif
 
 #ifdef __cplusplus
 # if defined(__xlC__) || defined(_AIX)
@@ -495,11 +491,20 @@ SUP_INLINE static int IsGoodCodePtr(SUP_PROC_PTR p) { return (p != NULL); }
 
 #define SUP_LOAD_LIBRARY_STD 0
 
+// ��������� �������� ����������, ���� � ����������� ��� � AppPath
 #define SUP_LOAD_LIBRARY_DEFAULT    1
+// �������� � ������ RTLD_GROUP (���������� ������ ��������). Solaris-only.
 #define SUP_LOAD_LIBRARY_SEPARATE   2
+// �� ���������� ��������� ���������� (RTLD_LAZY). Unix-only.
 #define SUP_LOAD_LIBRARY_LAZY	    4
-#define SUP_LOAD_LIBRARY_SYSTEM	    8 /* do not use this module path during dll search */ 
-#define SUP_LOAD_LIBRARY_REDIRECTION 16 /*try to get redirected path or use default behaviour*/
+// ��� ������ DLL �� ������������ ���� ������������ ������. Windows-only.
+#define SUP_LOAD_LIBRARY_SYSTEM	    8
+// experimental, disabled - ��� ������ DLL ������������ ����������������, ���� ������. Windows-only.
+#define SUP_LOAD_LIBRARY_REDIRECTION 16
+// �� ������������� ������ �������� ����������. Unix-only.
+#define SUP_LOAD_LIBRARY_NO_ERROR_LOG 32
+// ������ ����������� ���������� ������ � ��������� ������������. Windows-only (System32).
+#define SUP_LOAD_LIBRARY_SYSTEM_PATH 64
 
 /* --------------- TYPES --------------- */
 
@@ -508,9 +513,8 @@ SUP_INLINE static int IsGoodCodePtr(SUP_PROC_PTR p) { return (p != NULL); }
 
     typedef struct
     {
-	int * idc_hide;
-	int idc_hide_len;
 	int max_resume_time;
+	int timer_id;
     } TSupResumeTimeStruct;
 #endif
 
@@ -597,7 +601,7 @@ typedef enum TSupFileType_ {
 	    LONG lDone;
 	    LONG lInited;
 	} TSupportOnce;
-	#define SUPPORT_ONCE_INIT { 0, 0 }
+	#define SUPPORT_ONCE_INIT { 0, 0, 0 }
 
 	static __inline int
 	support_once(TSupportOnce *once_control, 
@@ -748,17 +752,18 @@ typedef struct timeval support_timeval;
 extern "C" {
 #endif /* defined( __cplusplus ) */
 
-#include"altreg.h"
 DWORD usenewreg(void); /* ������������ �� ����� ��������. 0 -- �������, ��-0 -- ������ */
 DWORD rlsnewreg(void); /* ��������� ������ � �����, ������������� �� ������. ������ ������� */
 DWORD isnewreg(void);   /* 0 -- ������, ��-0 -- ����� */
-DWORD support_registry_get_oid(struct AREG_CRYPT_OID_INFO*); /* �������� ��������� OID. -1 -- ������ */
-DWORD support_registry_get_oidlen(void); /* ���������� ��������� OID. -1 -- ������ */
-DWORD release_files(void);
-DWORD write_random_seed(void);
 
 unsigned long       support_get_last_error (void);
 void                support_set_last_error (unsigned long);
+
+#ifdef _WIN32
+void support_set_library(TSupModuleInstance support_ext_module);
+#else //_WIN32
+#define support_set_library(x) 
+#endif //_WIN32
 
 DWORD support_set_impersonate (int delayed, int hsmmode, int kb2mode);
 
@@ -786,6 +791,22 @@ void* support_shared_memory_lock(
 DWORD support_shared_memory_unlock( 
     TSupportSharedMemory *shared );
 #endif /* _WIN32 */
+
+/* �������� �������� �� ��������� */
+#define DEF_DIALOG_TIMEOUT_VALUE 600
+
+/* ������� ��������� � ������ �������� �������� ���������� ���� ����������.
+   ���� start_timeout == NULL, ������� ��������.
+   ����� ����� � �������� * start_timeout.*/
+DWORD support_set_to_config_dialog_timeout(CSP_BOOL is_global, int * start_timeout);
+
+/* ������� ������ �������� �������� ���������� ���� ����������.
+   ���������� ERROR_FILE_NOT_FOUND � ������ ������ ��� ���������� ��������� � �������.
+   ����� ���������� ERROR_SUCCESS, �, ���� ������ start_timeout, �� � ��� �������� ��������. */
+DWORD support_get_from_config_dialog_timeout(CSP_BOOL is_global, int * start_timeout);
+
+/* ������� ������ �������� ��������� ���������� ���� ���������� */
+void support_get_dialog_timeouts(int * start_timeout, int * show_timeout, int * resume_timeout);
 
 /* ������� ��������� ���������� ���������. */
 DWORD support_registry_get_string(
@@ -984,6 +1005,10 @@ DWORD support_registry_notify_done(
 DWORD support_resource_string(
     TSupResourceInstance instance, size_t ids, TCHAR *dest, size_t *length );
 
+/* ������� ��������� ������ �� �������� ����� �� ������-�������. */
+DWORD support_resource_string_local(
+    TSupResourceInstance instance, WORD language, size_t ids, TCHAR *dest, size_t *length );
+
 /*! \ingroup group_resource
  * ������� ��������� �������� ������������� �� ������-�������.
  */
@@ -1042,6 +1067,7 @@ WORD support_wnd_language_get(void);
 DWORD support_wnd_language_update(void);
 DWORD support_wnd_language_done(void);
 
+// � length ��������� � ���������� ����� ������ ��� ����� ����-�����������
 DWORD support_path2dir(
     const TCHAR *src, size_t *length, TCHAR *dest );
 
@@ -1141,14 +1167,22 @@ TSupModuleInstance support_load_library_registry(
 void support_unload_library_registry(TSupModuleInstance handle);
 TSupProc support_load_library_getaddr(TSupModuleInstance handle,
     const char *name);
-TSupModuleInstance support_load_dll(TCHAR *path, int mode);
+
+#ifdef _WIN32
+TSupModuleInstance support_load_dll(const TCHAR *path, int mode);
 void support_unload_dll( TSupModuleInstance handle );
+#endif //_WIN32
 
 DWORD support_registry_get_app_path(
     const TCHAR *path, size_t *length, TCHAR *dest );
 
 DWORD support_registry_get_app_path_ex(
     const TCHAR *path, size_t *length, TCHAR *dest, int do_not_use_this_file_path);
+
+#ifdef WIN32
+/* ��������� ���� �� ����������� ������ ��� ��������� �������� ��������� */
+CSP_BOOL support_init_module_path(void);
+#endif 
 
 /* ��������� ����������. */
 DWORD support_load_library( void );
@@ -1828,6 +1862,8 @@ void support_init_locale(void);
 }
 #endif
 
+#ifndef CSP_LITE
 #include"support_util.h"
+#endif //CSP_LITE
 
 #endif /* !_READER_SUPPORT_SUPPORT_H */

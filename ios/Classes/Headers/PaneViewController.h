@@ -8,7 +8,9 @@
 
 #import <UIKit/UIKit.h>
 #define CSP_BOOL CSP_CSP_BOOL
+#include<reader/support.h>
 #include<CSP_WinCrypt.h>
+#undef CSP_BOOL
 
 #define URL_RETRIEVER_TIMEOUT 60000
 
@@ -18,6 +20,7 @@
 
 @end
 
+OBJC_EXPORT
 @interface PaneViewController : UIViewController<ModalViewControllerDelegate, UINavigationControllerDelegate> {
 	__unsafe_unretained id<ModalViewControllerDelegate, UITableViewDelegate> delegate;
 	bool needExitButton;

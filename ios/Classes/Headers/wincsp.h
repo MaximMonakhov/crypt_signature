@@ -15,7 +15,7 @@
 /*!
  * \file $RCSfile$
  * \version $Revision: 132389 $
- * \date $Date:: 2015-12-25 13:44:02 +0400#$
+ * \date $Date:: 2015-12-25 01:44:02 -0800#$
  * \author $Author: borodin $
  *
  * \brief ��������� Microsoft Cryptography Service Provider.

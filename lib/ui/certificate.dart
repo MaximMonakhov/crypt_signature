@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:crypt_signature/crypt_signature_icons_icons.dart';
 import 'package:crypt_signature/exceptions/api_response_exception.dart';
 import 'package:crypt_signature/inherited_crypt_signature.dart';
@@ -84,9 +86,21 @@ class CertificateWidget extends StatelessWidget {
       InheritedLocker.of(context).lockScreen();
       String message = await (InheritedCryptSignature.of(context).interfaceRequest as PKCS7InterfaceRequest).getMessage.call(certificate);
       DigestResult digestResult = await Native.digest(certificate, password, message);
-      PKCS7 pkcs7 = await Native.createPKCS7(certificate, password, digestResult.digest);
-      DigestResult signedAttributesDigest = await Native.digest(certificate, password, pkcs7.signedAttributes);
+      PKCS7 pkcs7;
+      String signedAttributes;
+      if (Platform.isIOS)
+        signedAttributes =
+            await (InheritedCryptSignature.of(context).interfaceRequest as PKCS7InterfaceRequest).getSignedAttributes(certificate, digestResult.digest);
+      else {
+        pkcs7 = await Native.createPKCS7(certificate, password, digestResult.digest);
+        signedAttributes = pkcs7.signedAttributes;
+      }
+      DigestResult signedAttributesDigest = await Native.digest(certificate, password, signedAttributes);
       SignResult signResult = await Native.sign(certificate, password, signedAttributesDigest.digest);
+      if (Platform.isIOS) {
+        Navigator.of(InheritedCryptSignature.of(context).rootContext).pop(signResult);
+        return;
+      }
       pkcs7 = await Native.addSignatureToPKCS7(pkcs7, signResult.signature);
       Navigator.of(InheritedCryptSignature.of(context).rootContext).pop(pkcs7);
     } on ApiResponseException catch (e) {
@@ -102,9 +116,20 @@ class CertificateWidget extends StatelessWidget {
     try {
       InheritedLocker.of(context).lockScreen();
       String digest = await (InheritedCryptSignature.of(context).interfaceRequest as PKCS7HASHInterfaceRequest).getDigest.call(certificate);
-      PKCS7 pkcs7 = await Native.createPKCS7(certificate, password, digest);
-      DigestResult signedAttributesDigest = await Native.digest(certificate, password, pkcs7.signedAttributes);
+      PKCS7 pkcs7;
+      String signedAttributes;
+      if (Platform.isIOS)
+        signedAttributes = await (InheritedCryptSignature.of(context).interfaceRequest as PKCS7HASHInterfaceRequest).getSignedAttributes(certificate, digest);
+      else {
+        pkcs7 = await Native.createPKCS7(certificate, password, digest);
+        signedAttributes = pkcs7.signedAttributes;
+      }
+      DigestResult signedAttributesDigest = await Native.digest(certificate, password, signedAttributes);
       SignResult signResult = await Native.sign(certificate, password, signedAttributesDigest.digest);
+      if (Platform.isIOS) {
+        Navigator.of(InheritedCryptSignature.of(context).rootContext).pop(signResult);
+        return;
+      }
       pkcs7 = await Native.addSignatureToPKCS7(pkcs7, signResult.signature);
       Navigator.of(InheritedCryptSignature.of(context).rootContext).pop(pkcs7);
     } on ApiResponseException catch (e) {
@@ -118,6 +143,7 @@ class CertificateWidget extends StatelessWidget {
 
   void _signCustom(BuildContext context, String password) {
     (InheritedCryptSignature.of(context).interfaceRequest as CustomInterfaceRequest).onCertificateSelected.call(certificate, password);
+    Navigator.of(InheritedCryptSignature.of(context).rootContext).pop();
   }
 
   @override
@@ -173,7 +199,7 @@ class CertificateWidget extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text("Алиас", style: TextStyle(fontSize: 12)),
+                Text(Platform.isIOS ? "Имя контейнера" : "Алиас", style: const TextStyle(fontSize: 12)),
                 const Padding(padding: EdgeInsets.symmetric(horizontal: 5.0)),
                 Expanded(
                   child: FittedBox(

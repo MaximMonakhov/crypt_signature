@@ -106,6 +106,9 @@
 #define SECPKG_ATTR_LOCAL_CERT_INFO      0x63   // returns SecPkgContext_CertInfo
 #define SECPKG_ATTR_CIPHER_INFO          0x64   // returns new CNG SecPkgContext_CipherInfo
 #define SECPKG_ATTR_SUPPORTED_SIGNATURES 0x66   // returns SecPkgContext_SupportedSignatures
+#define SECPKG_ATTR_REMOTE_CERT_CHAIN    0x67   // returns PCCERT_CONTEXT
+#define SECPKG_ATTR_UI_INFO              0x68   // sets SecPkgContext_UiInfo
+#define SECPKG_ATTR_EARLY_START          0x69   // sets SecPkgContext_EarlyStart
 
 
 
@@ -317,6 +320,19 @@ typedef struct _SecPkgContext_SupportedSignatures
 
 #define KERN_CONTEXT_CERT_INFO_V1 0x00000000
 
+typedef struct _SecPkgContext_UiInfo
+{
+    HWND    hParentWindow;
+} SecPkgContext_UiInfo, *PSecPkgContext_UiInfo;
+
+typedef struct _SecPkgContext_EarlyStart
+{
+    DWORD dwEarlyStartFlags;
+} SecPkgContext_EarlyStart, *PSecPkgContext_EarlyStart;
+
+// Flag values for SecPkgContext_EarlyStart
+#define ENABLE_TLS_CLIENT_EARLY_START           0x00000001
+
 //
 // Schannel credentials data structure.
 //
@@ -456,6 +472,10 @@ typedef struct _SCHANNEL_CERT_HASH_STORE
 #define SCH_CRED_REVOCATION_CHECK_CHAIN_EXCLUDE_ROOT 0x00000400
 #define SCH_CRED_IGNORE_NO_REVOCATION_CHECK          0x00000800
 #define SCH_CRED_IGNORE_REVOCATION_OFFLINE           0x00001000
+
+#define SCH_SEND_ROOT_CERT                           0x00040000
+#define SCH_CRED_SNI_CREDENTIAL                      0x00080000
+#define SCH_CRED_SNI_ENABLE_OCSP                     0x00100000
 
 //wininet.h
 #define INTERNET_FLAG_IGNORE_CERT_DATE_INVALID  0x00002000 // expired X509 Cert.

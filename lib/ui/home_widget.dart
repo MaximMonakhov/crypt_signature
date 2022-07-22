@@ -21,6 +21,31 @@ class HomeWidget extends StatelessWidget {
     this.hint = "Выберите сертификат",
   }) : super(key: key);
 
+  PreferredSize appBar(BuildContext context) => PreferredSize(
+        preferredSize: const Size.fromHeight(40),
+        child: AppBar(
+          backgroundColor: const Color.fromRGBO(250, 250, 250, 1),
+          centerTitle: true,
+          elevation: 0,
+          title: Text(
+            title,
+            style: const TextStyle(color: Colors.black87),
+          ),
+          leading: GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTap: () => Navigator.of(InheritedCryptSignature.of(context).rootContext).pop(),
+            child: Container(
+              alignment: Alignment.centerRight,
+              child: const Text(
+                "Назад",
+                maxLines: 1,
+                style: TextStyle(color: Colors.redAccent),
+              ),
+            ),
+          ),
+        ),
+      );
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -31,37 +56,14 @@ class HomeWidget extends StatelessWidget {
           child: LicenseWrapper(
             child: Scaffold(
               backgroundColor: const Color.fromRGBO(250, 250, 250, 1),
-              appBar: PreferredSize(
-                preferredSize: const Size.fromHeight(40),
-                child: AppBar(
-                  backgroundColor: const Color.fromRGBO(250, 250, 250, 1),
-                  centerTitle: true,
-                  elevation: 0,
-                  title: Text(
-                    title,
-                    style: const TextStyle(color: Colors.black87),
-                  ),
-                  leading: GestureDetector(
-                    behavior: HitTestBehavior.translucent,
-                    onTap: () => Navigator.of(InheritedCryptSignature.of(context).rootContext).pop(),
-                    child: Container(
-                      alignment: Alignment.centerRight,
-                      child: const Text(
-                        "Назад",
-                        maxLines: 1,
-                        style: TextStyle(color: Colors.redAccent),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+              appBar: appBar(context),
               body: Stack(
                 children: [
                   FutureBuilder<bool>(
                     future: Native.initCSP(),
                     builder: (context, snapshot) {
-                      if (!snapshot.hasData) return const LoadingWidget();
                       if (snapshot.hasError) return ErrorView(snapshot.error as ApiResponseException);
+                      if (!snapshot.hasData) return const LoadingWidget();
 
                       return Column(children: [const LicenseWidget(), Expanded(child: Certificates(hint: hint))]);
                     },

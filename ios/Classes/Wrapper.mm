@@ -15,11 +15,10 @@
 extern bool USE_CACHE_DIR;
 bool USE_CACHE_DIR = false;
 
-void handleError(NSString* message) {
+NSString* getError() {
     DWORD error = CSP_GetLastError();
     
     printf("\nОшибка\n");
-    printf("%s ", [message UTF8String]);
     printf("%d\n", error);
     
     wchar_t buf[256];
@@ -27,15 +26,22 @@ void handleError(NSString* message) {
                        NULL, error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
                        buf, (sizeof(buf) / sizeof(wchar_t)), NULL);
     printf("%ls\n", buf);
+    
+    return [[NSString alloc] initWithBytes:buf length:wcslen(buf)*sizeof(*buf) encoding:NSUTF32LittleEndianStringEncoding];
+}
+
+NSString* getErrorResponse(NSString* message) {
+    NSDictionary *map = [[NSDictionary alloc] initWithObjectsAndKeys: @(false), @"success", message, @"message", getError(), @"exception", nil];
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:map
+                                                       options:NSJSONWritingPrettyPrinted
+                                                         error:NULL];
+    
+    return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
 }
 
 /// Инициализация провайдера и получение списка контейнеров
-int initCSP()
+bool initCSP()
 {
-    int INIT_CSP_OK = 0;
-    //int INIT_CSP_LICENSE_ERROR = 1;
-    int INIT_CSP_ERROR = -1;
-    
     printf("\nИнициализация провайдера и получение списка контейнеров\n\n");
     
     DisableIntegrityCheck();
@@ -44,9 +50,8 @@ int initCSP()
     HCRYPTPROV phProv = 0;
     
     if (!CryptAcquireContextA(&phProv, NULL, NULL, PROV_GOST_2012_256, CRYPT_SILENT | CRYPT_VERIFYCONTEXT)) {
-        printf("Не удалось инициализировать context\n");
-        handleError(@"CryptAcquireContextA");
-        return INIT_CSP_ERROR;
+        printf("Не удалось инициализировать context CryptAcquireContextA\n");
+        return false;
     }
     
     printf("\nКонтекст инициализирован\n");
@@ -62,13 +67,12 @@ int initCSP()
         if (error == ERROR_NO_MORE_ITEMS) {
             printf("Список контейнеров пуст\n");
             CryptReleaseContext(phProv, 0);
-            return INIT_CSP_OK;
+            return true;
         }
         
         printf("Не удалось получить список контейнеров CryptGetProvParam (PP_ENUMCONTAINERS)\n");
-        handleError(@"CryptAcquireContextA");
         CryptReleaseContext(phProv, 0);
-        return INIT_CSP_ERROR;
+        return false;
     }
     
     BYTE* data = (BYTE*)malloc(pdwDataLen);
@@ -85,19 +89,19 @@ int initCSP()
     free(data);
     CryptReleaseContext(phProv, 0);
     
-    return INIT_CSP_OK;
+    return true;
 }
 
 wchar_t *convertCharArrayToLPCWSTR(const char* charArray)
 {
-    /// TODO: освободить память после new
+    /// освободить память после new
     wchar_t* wString=new wchar_t[4096];
     MultiByteToWideChar(CP_ACP, 0, charArray, -1, wString, 4096);
     return wString;
 }
 
-NSString* addCert(NSString* pathtoCertFile, NSString* password) {
-    const char *pathToCertFileChar = [pathtoCertFile UTF8String];
+NSString* addCertificate(NSString* pathToCert, NSString* password) {
+    const char *pathToCertFileChar = [pathToCert UTF8String];
     const char *passwordChar = [password UTF8String];
     
     NSString* result;
@@ -122,13 +126,9 @@ NSString* addCert(NSString* pathtoCertFile, NSString* password) {
     
     free((void*)passwordL);
     
-    if (!certStore) {
-        printf("Не удалось добавить контейнер закрытого ключа");
-        handleError(@"PFXImportCertStore");
-        return NULL;
-    } else {
-        printf("\nКонтейнер успешно добавлен\n\n");
-    }
+    if (!certStore)
+        return getErrorResponse(@"Не удалось добавить контейнер закрытого ключа (PFXImportCertStore).\nПроверьте правильность введенного пароля");
+    printf("\nКонтейнер успешно добавлен\n\n");
     
     /// Вывод информации о сертификате
     PCCERT_CONTEXT pPrevCertContext = NULL;
@@ -157,7 +157,7 @@ NSString* addCert(NSString* pathtoCertFile, NSString* password) {
                 CryptGetProvParam(hProv, PP_CONTAINER, data, &pdwDataLen, NULL);
                 const char *ch = reinterpret_cast<const char*>(data);
                 containerName = [NSString stringWithFormat:@"%s", ch];
-                NSDictionary *map = [[NSDictionary alloc] initWithObjectsAndKeys:base64Certificate, @"certificate", containerName, @"alias", nil];
+                NSDictionary *map = [[NSDictionary alloc] initWithObjectsAndKeys:base64Certificate, @"certificate", containerName, @"alias", @(true), @"success", nil];
                 NSData *jsonData = [NSJSONSerialization dataWithJSONObject:map
                                                                    options:NSJSONWritingPrettyPrinted
                                                                      error:NULL];
@@ -184,8 +184,7 @@ NSString* addCert(NSString* pathtoCertFile, NSString* password) {
                             PROV_GOST_2012_256,
                             CRYPT_SILENT))
     {
-        handleError(@"CryptAcquireContext");
-        return NULL;
+        return getErrorResponse(@"Не удалось Закрытие certStore и дескриптора сертификата (CryptAcquireContext)");
     }
     
     //--------------------------------------------------------------------
@@ -203,26 +202,20 @@ NSString* addCert(NSString* pathtoCertFile, NSString* password) {
                           (BYTE*)&param,
                           0))
     {
-        printf("Set pin error\n");
-        handleError(@"CryptSetProvParam (PP_CHANGE_PIN)");
-        return NULL;
+        return getErrorResponse(@"Не удалось установить пароль на ключевой контейнер (CryptSetProvParam (PP_CHANGE_PIN))");
     }
     
     return result;
 }
 
-NSString* sign(NSString* alias, NSString* password, NSString* data) {
-    printf("\nПодписание\n");
-    HCRYPTPROV hProv = 0;            // Дескриптор CSP
+NSString* digest(NSString* alias, NSString* password, NSString* message) {
+    HCRYPTPROV hProv = 0;
     HCRYPTHASH hHash = 0;
     
     BYTE *pbHash = NULL;
     DWORD cbHash;
     
-    BYTE *pbSignature = NULL;
-    DWORD cbSignature;
-    
-    const char *dataChar = [data UTF8String];
+    const char *dataChar = [message UTF8String];
     DWORD cbBuffer;
     CryptStringToBinaryA(dataChar, strlen(dataChar), CRYPT_STRING_BASE64, NULL, &cbBuffer, 0, NULL);
     BYTE* pbBuffer = (BYTE*)malloc(cbBuffer);
@@ -238,8 +231,7 @@ NSString* sign(NSString* alias, NSString* password, NSString* data) {
                             PROV_GOST_2012_256,
                             CRYPT_SILENT))
     {
-        handleError(@"CryptAcquireContext");
-        return NULL;
+        return getErrorResponse(@"Не удалось получить дескриптор провайдера (CryptAcquireContext)");
     }
     
     printf("Установка параметров в соответствии с паролем\n");
@@ -251,9 +243,7 @@ NSString* sign(NSString* alias, NSString* password, NSString* data) {
                           (BYTE*)passwordChar,
                           0))
     {
-        printf("Set pin error\n");
-        handleError(@"CryptSetProvParam (PP_KEYEXCHANGE_PIN)");
-        return NULL;
+        return getErrorResponse(@"Не удалось установить параметры в соответствии с паролем (CryptSetProvParam(PP_KEYEXCHANGE_PIN))");
     }
     
     printf("Создание объекта функции хэширования\n");
@@ -264,8 +254,7 @@ NSString* sign(NSString* alias, NSString* password, NSString* data) {
                         0,
                         &hHash))
     {
-        printf("CryptCreateHash error\n");
-        return NULL;
+        return getErrorResponse(@"Не удалось создать объект функции хэширования (CryptCreateHash)");
     }
     
     //--------------------------------------------------------------------
@@ -277,8 +266,7 @@ NSString* sign(NSString* alias, NSString* password, NSString* data) {
                       cbBuffer,
                       0))
     {
-        handleError(@"CryptHashData");
-        return NULL;
+        return getErrorResponse(@"Не удалось вычислить криптографический хэш буфера (CryptHashData)");
     }
     
     if(!CryptGetHashParam(hHash,
@@ -287,14 +275,12 @@ NSString* sign(NSString* alias, NSString* password, NSString* data) {
                           &cbHash,
                           0))
     {
-        printf("CryptGetHashParam error \n");
-        return NULL;
+        return getErrorResponse(@"Не удалось получить размер хэша(CryptGetHashParam)");
     }
     
     pbHash = (BYTE*)malloc(cbHash);
     if(!pbHash) {
-        printf("Out of memmory \n");
-        return NULL;
+        return getErrorResponse(@"Out of memmory");
     }
     
     if(!CryptGetHashParam(hHash,
@@ -303,8 +289,7 @@ NSString* sign(NSString* alias, NSString* password, NSString* data) {
                           &cbHash,
                           0))
     {
-        printf("CryptGetHashParam error \n");
-        return NULL;
+        return getErrorResponse(@"Не удалось получить хэш (CryptGetHashParam)");
     }
     
     DWORD hashBase64Len;
@@ -312,12 +297,85 @@ NSString* sign(NSString* alias, NSString* password, NSString* data) {
     LPSTR hashBase64String = (char*)malloc(hashBase64Len);
     CryptBinaryToStringA(pbHash, cbHash, CRYPT_STRING_BASE64, hashBase64String, &hashBase64Len);
     
-    printf("Хэш: ");
-    printf("%s", hashBase64String);
+    NSDictionary *map = [[NSDictionary alloc] initWithObjectsAndKeys: @(true), @"success", message, @"message", [NSString stringWithUTF8String:hashBase64String], @"digest",@"CALG_GR3411_2012_256", @"digestAlgorithm", nil];
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:map
+                                                       options:NSJSONWritingPrettyPrinted
+                                                         error:NULL];
+    
+    if(pbHash)
+        free(pbHash);
+    
+    // Уничтожение объекта функции хэширования.
+    if(hHash)
+        CryptDestroyHash(hHash);
+    
+    // Освобождение дескриптора провайдера.
+    if(hProv)
+        CryptReleaseContext(hProv, 0);
+    
+    return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+}
+
+NSString* sign(NSString* alias, NSString* password, NSString* digest) {
+    HCRYPTPROV hProv = 0;
+    HCRYPTHASH hHash = 0;
+    
+    BYTE *pbSignature = NULL;
+    DWORD cbSignature;
+    
+    const char *dataChar = [digest UTF8String];
+    DWORD cbHash;
+    CryptStringToBinaryA(dataChar, strlen(dataChar), CRYPT_STRING_BASE64, NULL, &cbHash, 0, NULL);
+    BYTE* pbHash = (BYTE*)malloc(cbHash);
+    CryptStringToBinaryA(dataChar, strlen(dataChar), CRYPT_STRING_BASE64, pbHash, &cbHash, 0, NULL);
+    
+    printf("Получение дескриптора провайдера\n");
+    NSString *pathString = [@"\\\\.\\HDIMAGE\\" stringByAppendingString:alias];
+    const char *path = [pathString UTF8String];
+    if(!CryptAcquireContext(
+                            &hProv,
+                            _TEXT(path),
+                            NULL,
+                            PROV_GOST_2012_256,
+                            CRYPT_SILENT))
+    {
+        return getErrorResponse(@"Не удалось получить дескриптор провайдера (CryptAcquireContext)");
+    }
+    
+    printf("Установка параметров в соответствии с паролем\n");
+    const char *passwordChar = [password UTF8String];
+    
+    if(!CryptSetProvParam(
+                          hProv,
+                          PP_KEYEXCHANGE_PIN,
+                          (BYTE*)passwordChar,
+                          0))
+    {
+        return getErrorResponse(@"Не удалось установить параметры в соответствии с паролем (CryptSetProvParam(PP_KEYEXCHANGE_PIN))");
+    }
+    
+    printf("Создание объекта функции хэширования\n");
+    if(!CryptCreateHash(
+                        hProv,
+                        CALG_GR3411_2012_256,
+                        0,
+                        0,
+                        &hHash))
+    {
+        return getErrorResponse(@"Не удалось создать объект функции хэширования (CryptCreateHash)");
+    }
+    
+    
+    if(!CryptSetHashParam(hHash,
+                          HP_HASHVAL,
+                          pbHash,
+                          0))
+    {
+        return getErrorResponse(@"Не удалось установить хэш у дескриптора хэширования (CryptSetHashParam(HP_HASHVAL))");
+    }
     
     //--------------------------------------------------------------------
     // Определение размера подписи и распределение памяти.
-    
     if(!CryptSignHash(
                       hHash,
                       AT_KEYEXCHANGE,
@@ -326,9 +384,7 @@ NSString* sign(NSString* alias, NSString* password, NSString* data) {
                       NULL,
                       &cbSignature))
     {
-        printf("CryptSignHash error\n");
-        handleError(@"CryptSignHash");
-        return NULL;
+        return getErrorResponse(@"Не удалось определить размер подписи (CryptSignHash)");
     }
     
     //--------------------------------------------------------------------
@@ -338,8 +394,7 @@ NSString* sign(NSString* alias, NSString* password, NSString* data) {
     
     if(!pbSignature)
     {
-        printf("Out of memmory \n");
-        return NULL;
+        return getErrorResponse(@"Out of memmory");
     }
     
     // Подпись объекта функции хэширования.
@@ -352,8 +407,7 @@ NSString* sign(NSString* alias, NSString* password, NSString* data) {
                       pbSignature,
                       &cbSignature))
     {
-        handleError(@"CryptSignHash");
-        return NULL;
+        return getErrorResponse(@"Не удалось подписать объект функции хэширования (CryptSignHash)");
     }
     
     DWORD signatureBase64Len;
@@ -364,8 +418,12 @@ NSString* sign(NSString* alias, NSString* password, NSString* data) {
     printf("Сигнатура: ");
     printf("%s", signatureBase64String);
     
-    // Освобождение памяти
+    NSDictionary *map = [[NSDictionary alloc] initWithObjectsAndKeys: @(true), @"success", digest, @"digest", [NSString stringWithUTF8String:signatureBase64String], @"signature", @"CALG_GR3410_12_256", @"signatureAlgorithm", nil];
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:map
+                                                       options:NSJSONWritingPrettyPrinted
+                                                         error:NULL];
     
+    // Освобождение памяти
     if(pbHash)
         free(pbHash);
     if(pbSignature)
@@ -379,5 +437,5 @@ NSString* sign(NSString* alias, NSString* password, NSString* data) {
     if(hProv)
         CryptReleaseContext(hProv, 0);
     
-    return [NSString stringWithUTF8String:signatureBase64String];
+    return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
 }
