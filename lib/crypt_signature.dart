@@ -81,7 +81,11 @@ class CryptSignature {
 
   /// Очистить список сертификатов
   static Future<bool> clear() async {
+    Directory applicationDirectory = await getApplicationDocumentsDirectory();
+    Directory directory = Directory('${applicationDirectory.path}/certificates');
+
+    if (directory != null && directory.existsSync()) await directory.delete(recursive: true);
     sharedPreferences ??= await SharedPreferences.getInstance();
-    return sharedPreferences.clear();
+    return sharedPreferences.remove("Certificate");
   }
 }
