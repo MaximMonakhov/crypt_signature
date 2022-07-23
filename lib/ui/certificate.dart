@@ -72,6 +72,8 @@ class CertificateWidget extends StatelessWidget {
       Navigator.of(InheritedCryptSignature.of(context).rootContext).pop(signResult);
     } on ApiResponseException catch (e) {
       showError(context, e.message, details: e.details);
+    } on Exception catch (e) {
+      showError(context, "Возникла ошибка при выполнении ЭП", details: e.toString());
     } finally {
       InheritedLocker.of(context).unlockScreen();
     }
@@ -89,6 +91,8 @@ class CertificateWidget extends StatelessWidget {
       Navigator.of(InheritedCryptSignature.of(context).rootContext).pop(pkcs7);
     } on ApiResponseException catch (e) {
       showError(context, e.message, details: e.details);
+    } on Exception catch (e) {
+      showError(context, "Возникла ошибка при выполнении ЭП", details: e.toString());
     } finally {
       InheritedLocker.of(context).unlockScreen();
     }
@@ -105,6 +109,8 @@ class CertificateWidget extends StatelessWidget {
       Navigator.of(InheritedCryptSignature.of(context).rootContext).pop(pkcs7);
     } on ApiResponseException catch (e) {
       showError(context, e.message, details: e.details);
+    } on Exception catch (e) {
+      showError(context, "Возникла ошибка при выполнении ЭП", details: e.toString());
     } finally {
       InheritedLocker.of(context).unlockScreen();
     }
