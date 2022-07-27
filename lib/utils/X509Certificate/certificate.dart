@@ -1,9 +1,7 @@
 import 'package:asn1lib/asn1lib.dart';
 import 'package:crypt_signature/utils/X509Certificate/util.dart';
+import 'package:crypt_signature/utils/X509Certificate/x509_base.dart';
 import 'package:crypto_keys/crypto_keys.dart' hide AlgorithmIdentifier;
-
-import 'x509_base.dart';
-import 'extension.dart';
 
 /// A Certificate.
 abstract class Certificate {
@@ -97,68 +95,24 @@ class TbsCertificate {
     this.subjectUniqueID,
   });
 
-  /// Creates a to-be-signed certificate from an [ASN1Sequence].
-  ///
-  /// The ASN.1 definition is:
-  ///
-  ///   TBSCertificate  ::=  SEQUENCE  {
-  ///     version         [0]  EXPLICIT Version DEFAULT v1,
-  ///     serialNumber         CertificateSerialNumber,
-  ///     signature            AlgorithmIdentifier,
-  ///     issuer               Name,
-  ///     validity             Validity,
-  ///     subject              Name,
-  ///     subjectPublicKeyInfo SubjectPublicKeyInfo,
-  ///     issuerUniqueID  [1]  IMPLICIT UniqueIdentifier OPTIONAL,
-  ///                          -- If present, version MUST be v2 or v3
-  ///     subjectUniqueID [2]  IMPLICIT UniqueIdentifier OPTIONAL,
-  ///                          -- If present, version MUST be v2 or v3
-  ///     extensions      [3]  EXPLICIT Extensions OPTIONAL
-  ///                          -- If present, version MUST be v3 }
-  ///
-  ///   Version  ::=  INTEGER  {  v1(0), v2(1), v3(2)  }
-  ///
-  ///   CertificateSerialNumber  ::=  INTEGER
-  ///
-  ///   UniqueIdentifier  ::=  BIT STRING
-  ///
-  ///   Extensions  ::=  SEQUENCE SIZE (1..MAX) OF Extension
-  ///
   factory TbsCertificate.fromAsn1(ASN1Sequence sequence) {
-    var elements = sequence.elements;
+    List<ASN1Object> elements = sequence.elements;
     var version = 1;
     if (elements.first.tag == 0xa0) {
       var e = ASN1Parser(elements.first.valueBytes()).nextObject() as ASN1Integer;
       version = e.valueAsBigInteger.toInt() + 1;
       elements = elements.skip(1).toList();
     }
-    var optionals = elements.skip(6);
-    var iUid, sUid;
-    var ex;
-    for (var o in optionals) {
-      if (o.tag >> 6 == 2) {
-        // context
-        switch (o.tag & 0x1f) {
-          case 1:
-            iUid = o.contentBytes();
-            break;
-          case 2:
-            sUid = o.contentBytes();
-            break;
-        }
-      }
-    }
 
     return TbsCertificate(
-        version: version,
-        serialNumber: (elements[0] as ASN1Integer).valueAsBigInteger,
-        signature: AlgorithmIdentifier.fromAsn1(elements[1] as ASN1Sequence),
-        issuer: Name.fromAsn1(elements[2] as ASN1Sequence),
-        validity: Validity.fromAsn1(elements[3] as ASN1Sequence),
-        subject: Name.fromAsn1(elements[4] as ASN1Sequence),
-        subjectPublicKeyInfo: SubjectPublicKeyInfo.fromAsn1(elements[5] as ASN1Sequence),
-        issuerUniqueID: iUid,
-        subjectUniqueID: sUid);
+      version: version,
+      serialNumber: (elements[0] as ASN1Integer).valueAsBigInteger,
+      signature: AlgorithmIdentifier.fromAsn1(elements[1] as ASN1Sequence),
+      issuer: Name.fromAsn1(elements[2] as ASN1Sequence),
+      validity: Validity.fromAsn1(elements[3] as ASN1Sequence),
+      subject: Name.fromAsn1(elements[4] as ASN1Sequence),
+      subjectPublicKeyInfo: SubjectPublicKeyInfo.fromAsn1(elements[5] as ASN1Sequence),
+    );
   }
 
   ASN1Sequence toAsn1() {

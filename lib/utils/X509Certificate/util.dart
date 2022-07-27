@@ -1,93 +1,6 @@
-import 'dart:convert';
-
 import 'package:asn1lib/asn1lib.dart';
-import 'package:crypt_signature/utils/X509Certificate/x509_base.dart';
+import 'package:crypt_signature/utils/X509Certificate/objectidentifier.dart';
 import 'package:crypto_keys/crypto_keys.dart' hide AlgorithmIdentifier;
-import 'objectidentifier.dart';
-
-ObjectIdentifier _ecParametersFromAsn1(ASN1Object object) {
-  // https://tools.ietf.org/html/rfc5480#section-2.1.1
-  //     ECParameters ::= CHOICE {
-  //       namedCurve         OBJECT IDENTIFIER
-  //       -- implicitCurve   NULL
-  //       -- specifiedCurve  SpecifiedECDomain
-  //     }
-  //       -- implicitCurve and specifiedCurve MUST NOT be used in PKIX.
-  //       -- Details for SpecifiedECDomain can be found in [X9.62].
-  //       -- Any future additions to this CHOICE should be coordinated
-  //       -- with ANSI X9.
-  if (object is ASN1ObjectIdentifier) {
-    return ObjectIdentifier.fromAsn1(object);
-  }
-  return null;
-}
-
-KeyPair ecKeyPairFromAsn1(ASN1Sequence sequence) {
-  // https://tools.ietf.org/html/rfc5915
-  //   ECPrivateKey ::= SEQUENCE {
-  //     version        INTEGER { ecPrivkeyVer1(1) } (ecPrivkeyVer1),
-  //     privateKey     OCTET STRING,
-  //     parameters [0] ECParameters {{ NamedCurve }} OPTIONAL,
-  //     publicKey  [1] BIT STRING OPTIONAL
-  //   }
-  var version = toDart(sequence.elements[0]);
-  if (version != BigInt.one) {
-    throw UnsupportedError('Only `ecPrivkeyVer1` supported.');
-  }
-
-  var privateKey = toBigInt(sequence.elements[1].contentBytes());
-
-  var l = sequence.elements[1].contentBytes().length;
-
-  Identifier curve;
-
-  var i = 2;
-  if (sequence.elements.length > i && sequence.elements[i].tag == 0xa0) {
-    var e = ASN1Parser(sequence.elements[i].valueBytes()).nextObject();
-    curve = _curveObjectIdentifierToIdentifier(_ecParametersFromAsn1(e));
-    i++;
-  }
-  curve ??= _lengthToCurve(l);
-
-  var publicKey;
-  if (sequence.elements.length > i && sequence.elements[i].tag == 0xa1) {
-    var e = ASN1Parser(sequence.elements[i].contentBytes()).nextObject() as ASN1BitString;
-    // https://tools.ietf.org/html/rfc5480#section-2.2
-    // ECPoint ::= OCTET STRING
-
-    publicKey = ecPublicKeyFromAsn1(e, curve: curve);
-  }
-
-  return KeyPair(privateKey: EcPrivateKey(eccPrivateKey: privateKey, curve: curve), publicKey: publicKey);
-}
-
-Identifier _curveObjectIdentifierToIdentifier(ObjectIdentifier id) {
-  var curve = {
-    'secp256k1': curves.p256k,
-    'prime256v1': curves.p256,
-    'secp384r1': curves.p384,
-    'secp521r1': curves.p521,
-  }[id.name];
-  if (curve == null) {
-    throw UnsupportedError('Curves of type $id not supported');
-  }
-  return curve;
-}
-
-KeyPair rsaKeyPairFromAsn1(ASN1Sequence sequence) {
-  // var version = _toDart(sequence.elements[0]).toInt() + 1;
-  var modulus = toDart(sequence.elements[1]);
-  var publicExponent = toDart(sequence.elements[2]);
-  var privateExponent = toDart(sequence.elements[3]);
-  var prime1 = toDart(sequence.elements[4]);
-  var prime2 = toDart(sequence.elements[5]);
-  // var exponent1 = _toDart(sequence.elements[6]);
-  // var exponent2 = _toDart(sequence.elements[7]);
-  // var coefficient = _toDart(sequence.elements[8]);
-  var privateKey = RsaPrivateKey(modulus: modulus, privateExponent: privateExponent, firstPrimeFactor: prime1, secondPrimeFactor: prime2);
-  var publicKey = RsaPublicKey(modulus: modulus, exponent: publicExponent);
-  return KeyPair(publicKey: publicKey, privateKey: privateKey);
-}
 
 RsaPublicKey rsaPublicKeyFromAsn1(ASN1Sequence sequence) {
   var modulus = (sequence.elements[0] as ASN1Integer).valueAsBigInteger;
@@ -125,38 +38,12 @@ EcPublicKey ecPublicKeyFromAsn1(ASN1BitString bitString, {Identifier curve}) {
   }
 }
 
-KeyPair keyPairFromAsn1(ASN1BitString data, ObjectIdentifier algorithm) {
-  switch (algorithm.name) {
-    case 'rsaEncryption':
-      var sequence = ASN1Parser(data.contentBytes()).nextObject() as ASN1Sequence;
-      return rsaKeyPairFromAsn1(sequence);
-    case 'ecPublicKey':
-      var sequence = ASN1Parser(data.contentBytes()).nextObject() as ASN1Sequence;
-      return ecKeyPairFromAsn1(sequence);
-    case 'sha1WithRSAEncryption':
-  }
-  return null;
-  //throw UnimplementedError('Unknown algoritmh $algorithm');
-}
-
-PublicKey publicKeyFromAsn1(ASN1BitString data, AlgorithmIdentifier algorithm) {
-  switch (algorithm.algorithm.name) {
-    case 'rsaEncryption':
-      var s = ASN1Parser(data.contentBytes()).nextObject() as ASN1Sequence;
-      return rsaPublicKeyFromAsn1(s);
-    case 'ecPublicKey':
-      return ecPublicKeyFromAsn1(data, curve: _curveObjectIdentifierToIdentifier(algorithm.parameters));
-    case 'sha1WithRSAEncryption':
-  }
-  return null; //throw UnimplementedError('Unknown algoritmh $algorithm');
-}
-
 String keyToString(Key key, [String prefix = '']) {
   if (key is RsaPublicKey) {
     var buffer = StringBuffer();
     var l = key.modulus.bitLength;
     buffer.writeln('${prefix}Modulus ($l bit):');
-    buffer.writeln(toHexString(key.modulus, '$prefix\t', 15));
+    buffer.writeln(toHexString(key.modulus, '$prefix\t'));
     buffer.writeln('${prefix}Exponent: ${key.exponent}');
     return buffer.toString();
   }
@@ -178,8 +65,8 @@ ASN1BitString keyPairToAsn1(KeyPair keyPair) {
 
   var key = keyPair.privateKey as RsaPrivateKey;
   var publicKey = keyPair.publicKey as RsaPublicKey;
-  var pSub1 = (key.firstPrimeFactor - BigInt.one);
-  var qSub1 = (key.secondPrimeFactor - BigInt.one);
+  var pSub1 = key.firstPrimeFactor - BigInt.one;
+  var qSub1 = key.secondPrimeFactor - BigInt.one;
   var exponent1 = key.privateExponent.remainder(pSub1);
   var exponent2 = key.privateExponent.remainder(qSub1);
   var coefficient = key.secondPrimeFactor.modInverse(key.firstPrimeFactor);
@@ -203,12 +90,16 @@ ASN1Object fromDart(dynamic obj) {
   if (obj is List<int>) return ASN1BitString(obj);
   if (obj is List) {
     var s = ASN1Sequence();
-    obj.forEach((v) => s.add(fromDart(v)));
+    for (final v in obj) {
+      s.add(fromDart(v));
+    }
     return s;
   }
   if (obj is Set) {
     var s = ASN1Set();
-    obj.forEach((v) => s.add(fromDart(v)));
+    for (final v in obj) {
+      s.add(fromDart(v));
+    }
     return s;
   }
   if (obj is BigInt) return ASN1Integer(obj);
@@ -221,25 +112,25 @@ ASN1Object fromDart(dynamic obj) {
   throw ArgumentError.value(obj, 'obj', 'cannot be encoded as ASN1Object');
 }
 
-dynamic toDart(ASN1Object obj) {
+T toDart<T>(ASN1Object obj) {
   if (obj is ASN1Null) return null;
-  if (obj is ASN1Sequence) return obj.elements.map(toDart).toList();
-  if (obj is ASN1Set) return obj.elements.map(toDart).toSet();
-  if (obj is ASN1Integer) return obj.valueAsBigInteger;
-  if (obj is ASN1ObjectIdentifier) return ObjectIdentifier.fromAsn1(obj);
-  if (obj is ASN1BitString) return obj.stringValue;
-  if (obj is ASN1Boolean) return obj.booleanValue;
-  if (obj is ASN1OctetString) return obj.stringValue;
-  if (obj is ASN1PrintableString) return obj.stringValue;
-  if (obj is ASN1UtcTime) return obj.dateTimeValue;
-  if (obj is ASN1IA5String) return obj.stringValue;
-  if (obj is ASN1UTF8String) return obj.utf8StringValue;
-  if (obj is ASN1NumericString) return obj.stringValue;
+  if (obj is ASN1Sequence) return obj.elements.map(toDart).toList() as T;
+  if (obj is ASN1Set) return obj.elements.map(toDart).toSet() as T;
+  if (obj is ASN1Integer) return obj.valueAsBigInteger as T;
+  if (obj is ASN1ObjectIdentifier) return ObjectIdentifier.fromAsn1(obj) as T;
+  if (obj is ASN1BitString) return obj.stringValue as T;
+  if (obj is ASN1Boolean) return obj.booleanValue as T;
+  if (obj is ASN1OctetString) return obj.stringValue as T;
+  if (obj is ASN1PrintableString) return obj.stringValue as T;
+  if (obj is ASN1UtcTime) return obj.dateTimeValue as T;
+  if (obj is ASN1IA5String) return obj.stringValue as T;
+  if (obj is ASN1UTF8String) return obj.utf8StringValue as T;
+  if (obj is ASN1NumericString) return obj.stringValue as T;
   switch (obj.tag) {
     case 0xa0:
       return toDart(ASN1Parser(obj.valueBytes()).nextObject());
     case 0x86:
-      return utf8.decode(obj.valueBytes());
+      return null;
   }
   return null;
 }

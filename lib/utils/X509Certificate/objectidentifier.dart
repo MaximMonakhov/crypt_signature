@@ -7,9 +7,7 @@ class ObjectIdentifier {
 
   const ObjectIdentifier(this.nodes);
 
-  ObjectIdentifier get parent => nodes.length > 1
-      ? ObjectIdentifier(nodes.take(nodes.length - 1).toList())
-      : null;
+  ObjectIdentifier get parent => nodes.length > 1 ? ObjectIdentifier(nodes.take(nodes.length - 1).toList()) : null;
 
   factory ObjectIdentifier.fromAsn1(ASN1ObjectIdentifier id) {
     var bytes = id.valueBytes();
@@ -19,7 +17,7 @@ class ObjectIdentifier {
     nodes.add(v % 40);
 
     var w = 0;
-    for (var v in bytes.skip(1)) {
+    for (final v in bytes.skip(1)) {
       if (v >= 128) {
         w += v - 128;
         w *= 128;
@@ -37,7 +35,7 @@ class ObjectIdentifier {
     var bytes = <int>[];
     bytes.add(nodes.first * 40 + nodes[1]);
     for (var v in nodes.skip(2)) {
-      var w = [];
+      List<int> w = [];
       while (v > 128) {
         var u = v % 128;
         v -= u;
@@ -55,26 +53,24 @@ class ObjectIdentifier {
   int get hashCode => hashObjects(nodes);
 
   @override
-  bool operator ==(dynamic other) =>
-      other is ObjectIdentifier && listsEqual(nodes, other.nodes);
+  bool operator ==(dynamic other) => other is ObjectIdentifier && listsEqual(nodes, other.nodes);
 
   String get name {
     try {
       dynamic tree = _tree;
-      for (var n in nodes) {
+      for (final int n in nodes) {
+        // ignore: avoid_dynamic_calls
         tree = tree[n];
       }
-      if (tree is Map) return tree[null];
-      return tree;
+      if (tree is Map) return tree[null] != null ? tree[null] as String : "Unknown ${this.nodes.toString()}";
+      return tree.toString();
     } catch (e) {
       return this.nodes.toString();
-      // throw StateError(
-      //     'Unable to get name of ObjectIdentifier with nodes $nodes');
     }
   }
 
   @override
-  String toString() => '$name';
+  String toString() => name;
 
   static const _tree = {
     0: {
@@ -164,34 +160,11 @@ class ObjectIdentifier {
                 9: 'extendedCertificateAttributes'
               },
               3: {null: 'pkcs-3', 1: 'dhKeyAgreement'},
-              7: {
-                null: 'pkcs-7',
-                1: 'data',
-                2: 'signedData',
-                3: 'envelopedData',
-                4: 'signedAndEnvelopedData',
-                5: 'digestData',
-                6: 'encryptedData'
-              }
+              7: {null: 'pkcs-7', 1: 'data', 2: 'signedData', 3: 'envelopedData', 4: 'signedAndEnvelopedData', 5: 'digestData', 6: 'encryptedData'}
             },
             2: {null: 'digestAlgorithm', 2: 'md2', 4: 'md4', 5: 'md5'},
-            3: {
-              null: 'encryptionAlgorithm',
-              2: 'rc2CBC',
-              4: 'rc4',
-              7: 'DES-EDE3-CBC',
-              8: 'RC5CBC',
-              9: 'RC5CBCPAD',
-              10: 'desCDMF',
-              17: 'des-ede3'
-            },
-            5: {
-              null: 'pkcs-5',
-              1: 'pbeWithMD2AndDES-CBC',
-              3: 'pbeWithMD5AndDES-CBC',
-              11: 'pbeWithSHA1AndRC2-CBC',
-              12: 'pbeWithSHA1AndRC4'
-            },
+            3: {null: 'encryptionAlgorithm', 2: 'rc2CBC', 4: 'rc4', 7: 'DES-EDE3-CBC', 8: 'RC5CBC', 9: 'RC5CBCPAD', 10: 'desCDMF', 17: 'des-ede3'},
+            5: {null: 'pkcs-5', 1: 'pbeWithMD2AndDES-CBC', 3: 'pbeWithMD5AndDES-CBC', 11: 'pbeWithSHA1AndRC2-CBC', 12: 'pbeWithSHA1AndRC4'},
             12: {
               null: 'pkcs-12',
               1: {
@@ -209,12 +182,7 @@ class ObjectIdentifier {
             null: 'nt',
             7: {
               null: 'nsn',
-              66: {
-                null: 'algorithms',
-                10: 'cast5CBC',
-                11: 'cast5MAC',
-                12: 'pbeWithMD5AndCAST5-CBC'
-              }
+              66: {null: 'algorithms', 10: 'cast5CBC', 11: 'cast5MAC', 12: 'pbeWithMD5AndCAST5-CBC'}
             }
           }
         }
@@ -238,11 +206,7 @@ class ObjectIdentifier {
                     4: 'auditIdentity',
                     5: 'id-pe-acTargeting',
                     6: 'aaControls',
-                    7: {
-                      null: 'id-pe-ipAddrBlocks',
-                      1: 'id-acTemplate',
-                      2: 'id-openPGPCertTemplateExt'
-                    },
+                    7: {null: 'id-pe-ipAddrBlocks', 1: 'id-acTemplate', 2: 'id-openPGPCertTemplateExt'},
                     8: 'id-pe-autonomousSysIds',
                     9: 'id-pe-sbgp-routerIdentifier',
                     10: 'proxying',
@@ -269,23 +233,8 @@ class ObjectIdentifier {
                     31: 'id-pe-acmeIdentifier',
                     32: 'id-pe-masa-url',
                   },
-                  2: {
-                    null: 'qt',
-                    1: 'cps',
-                    2: 'unotice',
-                    3: 'id-qt-textNotice',
-                    4: 'id-qt-acps',
-                    5: 'id-qt-acunotice'
-                  },
-                  3: {
-                    null: 'kp',
-                    1: 'serverAuth',
-                    2: 'clientAuth',
-                    3: 'codeSigning',
-                    4: 'emailProtection',
-                    8: 'timeStamping',
-                    9: 'OCSPSigning'
-                  }
+                  2: {null: 'qt', 1: 'cps', 2: 'unotice', 3: 'id-qt-textNotice', 4: 'id-qt-acps', 5: 'id-qt-acunotice'},
+                  3: {null: 'kp', 1: 'serverAuth', 2: 'clientAuth', 3: 'codeSigning', 4: 'emailProtection', 8: 'timeStamping', 9: 'OCSPSigning'}
                 }
               }
             }
@@ -337,20 +286,10 @@ class ObjectIdentifier {
           null: 'teletrust',
           3: {
             null: 'algorithm',
-            2: {
-              null: 'hashAlgorithm',
-              1: 'ripemd160',
-              2: 'ripemd128',
-              3: 'ripemd256'
-            },
+            2: {null: 'hashAlgorithm', 1: 'ripemd160', 2: 'ripemd128', 3: 'ripemd256'},
             3: {
               null: 'signatureAlgorithm',
-              1: {
-                null: 'rsaSignature',
-                2: 'rsaSignatureWithripemd160',
-                3: 'rsaSignatureWithripemd128',
-                4: 'rsaSignatureWithripemd256'
-              }
+              1: {null: 'rsaSignature', 2: 'rsaSignatureWithripemd160', 3: 'rsaSignatureWithripemd128', 4: 'rsaSignatureWithripemd256'}
             }
           }
         },
@@ -479,12 +418,7 @@ class ObjectIdentifier {
           1: {
             null: 'certificate-policies',
             1: 'ev-guidelines',
-            2: {
-              null: 'baseline-requirements',
-              1: 'domain-validated',
-              2: 'organization-validated',
-              3: 'individual-validated'
-            },
+            2: {null: 'baseline-requirements', 1: 'domain-validated', 2: 'organization-validated', 3: 'individual-validated'},
             3: '3',
             4: {
               null: 'code-signing-requirements',
