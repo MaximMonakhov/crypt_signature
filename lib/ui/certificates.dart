@@ -116,7 +116,7 @@ class _CertificatesState extends State<Certificates> {
               return Column(
                 children: [
                   const Padding(padding: EdgeInsets.symmetric(vertical: 5.0)),
-                  Text(widget.hint),
+                  Padding(padding: const EdgeInsets.symmetric(horizontal: 20.0), child: Text(widget.hint, textAlign: TextAlign.center)),
                   Expanded(
                     child: ListView.builder(
                       padding: const EdgeInsets.only(top: 5.0, bottom: 10),

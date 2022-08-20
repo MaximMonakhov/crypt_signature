@@ -82,7 +82,7 @@ class Native {
           certificate: certificate,
           message: map["message"] as String,
           digestAlgorithm: map["digestAlgorithm"] as String,
-          digest: map["digest"] as String,
+          digest: (map["digest"] as String).replaceAll("\n", ""),
         );
       throw ApiResponseException(map["message"] as String, map["exception"].toString());
     } catch (exception) {
