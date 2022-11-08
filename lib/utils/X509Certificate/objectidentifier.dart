@@ -7,7 +7,7 @@ class ObjectIdentifier {
 
   const ObjectIdentifier(this.nodes);
 
-  ObjectIdentifier get parent => nodes.length > 1 ? ObjectIdentifier(nodes.take(nodes.length - 1).toList()) : null;
+  ObjectIdentifier? get parent => nodes.length > 1 ? ObjectIdentifier(nodes.take(nodes.length - 1).toList()) : null;
 
   factory ObjectIdentifier.fromAsn1(ASN1ObjectIdentifier id) {
     var bytes = id.valueBytes();
@@ -55,14 +55,14 @@ class ObjectIdentifier {
   @override
   bool operator ==(dynamic other) => other is ObjectIdentifier && listsEqual(nodes, other.nodes);
 
-  String get name {
+  String? get name {
     try {
       dynamic tree = _tree;
       for (final int n in nodes) {
         // ignore: avoid_dynamic_calls
         tree = tree[n];
       }
-      if (tree is Map) return tree[null] != null ? tree[null] as String : "Unknown ${this.nodes.toString()}";
+      if (tree is Map) return tree[null] != null ? tree[null] as String? : "Unknown ${this.nodes.toString()}";
       return tree.toString();
     } catch (e) {
       return this.nodes.toString();
@@ -70,7 +70,7 @@ class ObjectIdentifier {
   }
 
   @override
-  String toString() => name;
+  String toString() => name!;
 
   static const _tree = {
     0: {

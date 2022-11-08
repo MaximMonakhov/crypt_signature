@@ -4,7 +4,8 @@ class License {
   final String message;
   final int expiredThroughDays;
 
-  License({this.status, this.message, this.expiredThroughDays, this.serialNumber});
+  /// TODO: Добавить сравнение не null
+  License({required this.status, required this.message, required this.expiredThroughDays, required this.serialNumber});
 
   static License fromMap(Map map) => License(
         status: map["success"] as bool,

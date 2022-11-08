@@ -3,10 +3,10 @@ import 'package:crypt_signature/ui/error/error_details_view.dart';
 import 'package:flutter/material.dart';
 
 class ErrorView extends StatelessWidget {
-  const ErrorView(this.state, {Key key, this.onRepeat}) : super(key: key);
+  const ErrorView(this.state, {Key? key, this.onRepeat}) : super(key: key);
 
   final ApiResponseException state;
-  final void Function() onRepeat;
+  final void Function()? onRepeat;
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +26,7 @@ class ErrorView extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 15.0),
               child: Text(
-                state.message,
+                state.message ?? "Ошибка",
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 14,

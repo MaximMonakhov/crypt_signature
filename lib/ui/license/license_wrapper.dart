@@ -11,14 +11,14 @@ import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 class LicenseWrapper extends StatefulWidget {
   final Widget child;
-  const LicenseWrapper({Key key, @required this.child}) : super(key: key);
+  const LicenseWrapper({Key? key, required this.child}) : super(key: key);
 
   @override
   State<LicenseWrapper> createState() => _LicenseWrapperState();
 }
 
 class _LicenseWrapperState extends State<LicenseWrapper> {
-  License license;
+  License? license;
 
   @override
   void initState() {
@@ -64,7 +64,7 @@ class _LicenseWrapperState extends State<LicenseWrapper> {
       mask: '#####-#####-#####-#####-#####',
       filter: {"#": RegExp('[0-9+A-Z]')},
     );
-    String newLicense = await showInputDialog(
+    String? newLicense = await showInputDialog(
       context,
       "Введите вашу лицензию Крипто ПРО",
       "Номер лицензии",

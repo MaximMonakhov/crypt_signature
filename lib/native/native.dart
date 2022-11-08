@@ -1,5 +1,6 @@
 // ignore_for_file: curly_braces_in_flow_control_structures
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -17,7 +18,7 @@ class Native {
 
   static Future<bool> initCSP() async {
     try {
-      bool response = await _channel.invokeMethod("initCSP");
+      bool response = await (_channel.invokeMethod("initCSP") as FutureOr<bool>);
       if (response) return true;
       throw ApiResponseException("Не удалось инициализировать провайдер", "Неизвестная ошибка");
     } catch (exception) {
@@ -29,7 +30,7 @@ class Native {
 
   static Future<Certificate> addCertificate(File file, String password) async {
     try {
-      String response = await _channel.invokeMethod("addCertificate", {"path": file.path, "password": password});
+      String response = await (_channel.invokeMethod("addCertificate", {"path": file.path, "password": password}) as FutureOr<String>);
       Map map = json.decode(response) as Map;
       if (map["success"] as bool) {
         Certificate certificate = Certificate.fromBase64(map);
@@ -40,7 +41,7 @@ class Native {
         file.delete();
         return certificate;
       }
-      throw ApiResponseException(map["message"] as String, map["exception"].toString());
+      throw ApiResponseException(map["message"] as String?, map["exception"].toString());
     } catch (exception) {
       if (exception is ApiResponseException) rethrow;
       if (exception is PlatformException) throw ApiResponseException(exception.message, exception.details.toString());
@@ -50,7 +51,7 @@ class Native {
 
   static Future<License> setLicense(String licenseSerialNumber) async {
     try {
-      String response = await _channel.invokeMethod("setLicense", {"license": licenseSerialNumber});
+      String response = await (_channel.invokeMethod("setLicense", {"license": licenseSerialNumber}) as FutureOr<String>);
       Map map = json.decode(response) as Map;
       License license = License.fromMap(map);
       return license;
@@ -62,7 +63,7 @@ class Native {
 
   static Future<License> getLicense() async {
     try {
-      String response = await _channel.invokeMethod("getLicense");
+      String response = await (_channel.invokeMethod("getLicense") as FutureOr<String>);
       Map map = json.decode(response) as Map;
       License license = License.fromMap(map);
       return license;
@@ -74,8 +75,10 @@ class Native {
 
   static Future<DigestResult> digest(Certificate certificate, String password, String message) async {
     try {
-      String response = await _channel
-          .invokeMethod("digest", {"certificateUUID": Platform.isIOS ? certificate.alias : certificate.uuid, "password": password, "message": message});
+      String response = await (_channel.invokeMethod(
+        "digest",
+        {"certificateUUID": Platform.isIOS ? certificate.alias : certificate.uuid, "password": password, "message": message},
+      ) as FutureOr<String>);
       Map map = json.decode(response) as Map;
       if (map["success"] as bool)
         return DigestResult(
@@ -84,7 +87,7 @@ class Native {
           digestAlgorithm: map["digestAlgorithm"] as String,
           digest: (map["digest"] as String).replaceAll("\n", ""),
         );
-      throw ApiResponseException(map["message"] as String, map["exception"].toString());
+      throw ApiResponseException(map["message"] as String?, map["exception"].toString());
     } catch (exception) {
       if (exception is ApiResponseException) rethrow;
       if (exception is PlatformException) throw ApiResponseException(exception.message, exception.details.toString());
@@ -94,17 +97,13 @@ class Native {
 
   static Future<SignResult> sign(Certificate certificate, String password, String digest) async {
     try {
-      String response = await _channel
-          .invokeMethod("sign", {"certificateUUID": Platform.isIOS ? certificate.alias : certificate.uuid, "password": password, "digest": digest});
+      String response = await (_channel.invokeMethod(
+        "sign",
+        {"certificateUUID": Platform.isIOS ? certificate.alias : certificate.uuid, "password": password, "digest": digest},
+      ) as FutureOr<String>);
       Map map = json.decode(response) as Map;
-      if (map["success"] as bool)
-        return SignResult(
-          certificate: certificate,
-          digest: map["digest"] as String,
-          signatureAlgorithm: map["signatureAlgorithm"] as String,
-          signature: map["signature"] as String,
-        );
-      throw ApiResponseException(map["message"] as String, map["exception"].toString());
+      if (map["success"] as bool) return SignResult(certificate, map["digest"] as String, map["signatureAlgorithm"] as String, map["signature"] as String);
+      throw ApiResponseException(map["message"] as String?, map["exception"].toString());
     } catch (exception) {
       if (exception is ApiResponseException) rethrow;
       if (exception is PlatformException) throw ApiResponseException(exception.message, exception.details.toString());
@@ -114,11 +113,12 @@ class Native {
 
   static Future<PKCS7> createPKCS7(Certificate certificate, String password, String digest) async {
     try {
-      String response = await _channel
-          .invokeMethod("createPKCS7", {"certificateUUID": Platform.isIOS ? certificate.alias : certificate.uuid, "password": password, "digest": digest});
+      String response = await (_channel
+              .invokeMethod("createPKCS7", {"certificateUUID": Platform.isIOS ? certificate.alias : certificate.uuid, "password": password, "digest": digest})
+          as FutureOr<String>);
       Map map = json.decode(response) as Map;
       if (map["success"] as bool) return PKCS7(content: map["pkcs7"] as String, signedAttributes: map["signedAttributes"] as String);
-      throw ApiResponseException(map["message"] as String, map["exception"].toString());
+      throw ApiResponseException(map["message"] as String?, map["exception"].toString());
     } catch (exception) {
       if (exception is ApiResponseException) rethrow;
       if (exception is PlatformException) throw ApiResponseException(exception.message, exception.details.toString());
@@ -128,10 +128,10 @@ class Native {
 
   static Future<PKCS7> addSignatureToPKCS7(PKCS7 pkcs7, String signature) async {
     try {
-      String response = await _channel.invokeMethod("addSignatureToPKCS7", {"pkcs7": pkcs7.content, "signature": signature});
+      String response = await (_channel.invokeMethod("addSignatureToPKCS7", {"pkcs7": pkcs7.content, "signature": signature}) as FutureOr<String>);
       Map map = json.decode(response) as Map;
-      if (map["success"] as bool) return PKCS7(content: map["pkcs7"] as String);
-      throw ApiResponseException(map["message"] as String, map["exception"].toString());
+      if (map["success"] as bool) return PKCS7(content: map["pkcs7"] as String, signedAttributes: "");
+      throw ApiResponseException(map["message"] as String?, map["exception"].toString());
     } catch (exception) {
       if (exception is ApiResponseException) rethrow;
       if (exception is PlatformException) throw ApiResponseException(exception.message, exception.details.toString());

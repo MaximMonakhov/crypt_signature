@@ -6,7 +6,7 @@ import 'package:crypto_keys/crypto_keys.dart' hide AlgorithmIdentifier;
 /// A Certificate.
 abstract class Certificate {
   /// The public key from this certificate.
-  PublicKey get publicKey;
+  PublicKey? get publicKey;
 }
 
 /// A X.509 Certificate
@@ -16,10 +16,10 @@ class X509Certificate implements Certificate {
 
   ///
   final AlgorithmIdentifier signatureAlgorithm;
-  final List<int> signatureValue;
+  final List<int>? signatureValue;
 
   @override
-  PublicKey get publicKey => tbsCertificate.subjectPublicKeyInfo.subjectPublicKey;
+  PublicKey? get publicKey => tbsCertificate.subjectPublicKeyInfo.subjectPublicKey;
 
   const X509Certificate(this.tbsCertificate, this.signatureAlgorithm, this.signatureValue);
 
@@ -36,13 +36,6 @@ class X509Certificate implements Certificate {
     return X509Certificate(TbsCertificate.fromAsn1(sequence.elements[0] as ASN1Sequence), algorithm, toDart(sequence.elements[2]));
   }
 
-  ASN1Sequence toAsn1() {
-    return ASN1Sequence()
-      ..add(tbsCertificate.toAsn1())
-      ..add(signatureAlgorithm.toAsn1())
-      ..add(fromDart(signatureValue));
-  }
-
   @override
   String toString([String prefix = '']) {
     var buffer = StringBuffer();
@@ -50,7 +43,7 @@ class X509Certificate implements Certificate {
     buffer.writeln('\tData:');
     buffer.writeln(tbsCertificate.toString('\t\t'));
     buffer.writeln('\tSignature Algorithm: $signatureAlgorithm');
-    buffer.writeln(toHexString(toBigInt(signatureValue), '$prefix\t\t', 18));
+    buffer.writeln(toHexString(toBigInt(signatureValue!), '$prefix\t\t', 18));
     return buffer.toString();
   }
 }
@@ -77,22 +70,14 @@ class TbsCertificate {
 
   final SubjectPublicKeyInfo subjectPublicKeyInfo;
 
-  /// The issuer unique id.
-  final List<int> issuerUniqueID;
-
-  /// The subject unique id.
-  final List<int> subjectUniqueID;
-
   const TbsCertificate({
-    this.version,
-    this.serialNumber,
-    this.signature,
-    this.issuer,
-    this.validity,
-    this.subject,
-    this.subjectPublicKeyInfo,
-    this.issuerUniqueID,
-    this.subjectUniqueID,
+    required this.version,
+    required this.serialNumber,
+    required this.signature,
+    required this.issuer,
+    required this.validity,
+    required this.subject,
+    required this.subjectPublicKeyInfo,
   });
 
   factory TbsCertificate.fromAsn1(ASN1Sequence sequence) {
@@ -100,46 +85,19 @@ class TbsCertificate {
     var version = 1;
     if (elements.first.tag == 0xa0) {
       var e = ASN1Parser(elements.first.valueBytes()).nextObject() as ASN1Integer;
-      version = e.valueAsBigInteger.toInt() + 1;
+      version = e.valueAsBigInteger!.toInt() + 1;
       elements = elements.skip(1).toList();
     }
 
     return TbsCertificate(
       version: version,
-      serialNumber: (elements[0] as ASN1Integer).valueAsBigInteger,
+      serialNumber: (elements[0] as ASN1Integer).valueAsBigInteger!,
       signature: AlgorithmIdentifier.fromAsn1(elements[1] as ASN1Sequence),
       issuer: Name.fromAsn1(elements[2] as ASN1Sequence),
       validity: Validity.fromAsn1(elements[3] as ASN1Sequence),
       subject: Name.fromAsn1(elements[4] as ASN1Sequence),
       subjectPublicKeyInfo: SubjectPublicKeyInfo.fromAsn1(elements[5] as ASN1Sequence),
     );
-  }
-
-  ASN1Sequence toAsn1() {
-    var seq = ASN1Sequence();
-
-    if (version != 1) {
-      var v = ASN1Integer(BigInt.from(version - 1));
-      var o = ASN1Object.preEncoded(0xa0, v.encodedBytes);
-      var b = o.encodedBytes..setRange(o.encodedBytes.length - v.encodedBytes.length, o.encodedBytes.length, v.encodedBytes);
-      o = ASN1Object.fromBytes(b);
-      seq.add(o);
-    }
-    seq
-      ..add(fromDart(serialNumber))
-      ..add(signature.toAsn1())
-      ..add(issuer.toAsn1())
-      ..add(validity.toAsn1())
-      ..add(subject.toAsn1())
-      ..add(subjectPublicKeyInfo.toAsn1());
-    if (version > 1) {
-      if (issuerUniqueID != null) {
-        // TODO: Изменения в пакете
-        // var iuid = ASN1BitString.fromBytes(issuerUniqueID);
-        //ASN1Object.preEncoded(tag, valBytes)
-      }
-    }
-    return seq;
   }
 
   @override
@@ -150,10 +108,10 @@ class TbsCertificate {
     buffer.writeln('${prefix}Signature Algorithm: $signature');
     buffer.writeln('${prefix}Issuer: $issuer');
     buffer.writeln('${prefix}Validity:');
-    buffer.writeln(validity?.toString('$prefix\t') ?? '');
+    buffer.writeln(validity.toString('$prefix\t'));
     buffer.writeln('${prefix}Subject: $subject');
     buffer.writeln('${prefix}Subject Public Key Info:');
-    buffer.writeln(subjectPublicKeyInfo?.toString('$prefix\t') ?? '');
+    buffer.writeln(subjectPublicKeyInfo.toString('$prefix\t'));
     return buffer.toString();
   }
 }

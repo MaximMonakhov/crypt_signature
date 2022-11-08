@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class ErrorDetailsView extends StatefulWidget {
-  final String details;
-  const ErrorDetailsView(this.details, {Key key}) : super(key: key);
+  final String? details;
+  const ErrorDetailsView(this.details, {Key? key}) : super(key: key);
 
   @override
   _ErrorDetailsViewState createState() => _ErrorDetailsViewState();
@@ -15,7 +15,7 @@ class _ErrorDetailsViewState extends State<ErrorDetailsView> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.details == null || widget.details.isEmpty) return Container();
+    if (widget.details == null || widget.details!.isEmpty) return Container();
 
     return isDetailsOpen
         ? Flexible(
@@ -61,7 +61,7 @@ class _ErrorDetailsViewState extends State<ErrorDetailsView> {
                         physics: const BouncingScrollPhysics(),
                         children: [
                           SelectableText(
-                            widget.details,
+                            widget.details!,
                             textAlign: TextAlign.left,
                             style: const TextStyle(fontSize: 13),
                           ),

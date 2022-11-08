@@ -13,16 +13,16 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 
 class Certificates extends StatefulWidget {
-  final String hint;
+  final String? hint;
 
-  const Certificates({Key key, this.hint}) : super(key: key);
+  const Certificates({Key? key, this.hint}) : super(key: key);
 
   @override
   _CertificatesState createState() => _CertificatesState();
 }
 
 class _CertificatesState extends State<Certificates> {
-  StreamController<List<Certificate>> certificatesStreamController;
+  late StreamController<List<Certificate>> certificatesStreamController;
 
   @override
   void initState() {
@@ -43,11 +43,11 @@ class _CertificatesState extends State<Certificates> {
   }
 
   Future<void> _addCertificate() async {
-    FilePickerResult filePickerResult = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ["pfx"]);
+    FilePickerResult? filePickerResult = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ["pfx"]);
 
     if (filePickerResult != null) {
-      File file = File(filePickerResult.files.single.path);
-      String password = await showInputDialog(
+      File file = File(filePickerResult.files.single.path!);
+      String? password = await showInputDialog(
         context,
         "Введите пароль для\n распаковки сертификата",
         "Пароль",
@@ -111,7 +111,7 @@ class _CertificatesState extends State<Certificates> {
             builder: (context, snapshot) {
               if (!snapshot.hasData) return const LoadingWidget();
 
-              if (snapshot.data.isEmpty) return const Center(child: Text("Список сертификатов пуст"));
+              if (snapshot.data!.isEmpty) return const Center(child: Text("Список сертификатов пуст"));
 
               return Column(
                 children: [
@@ -121,8 +121,8 @@ class _CertificatesState extends State<Certificates> {
                     child: ListView.builder(
                       padding: const EdgeInsets.only(top: 5.0, bottom: 10),
                       physics: const BouncingScrollPhysics(),
-                      itemCount: snapshot.data.length,
-                      itemBuilder: (context, index) => CertificateWidget(snapshot.data[index], _removeCertificate),
+                      itemCount: snapshot.data!.length,
+                      itemBuilder: (context, index) => CertificateWidget(snapshot.data![index], _removeCertificate),
                     ),
                   ),
                 ],

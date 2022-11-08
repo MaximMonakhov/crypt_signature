@@ -7,23 +7,23 @@ import 'package:crypt_signature/ui/loading_widget.dart';
 import 'package:flutter/material.dart';
 
 class LicenseWidget extends StatelessWidget {
-  const LicenseWidget({Key key}) : super(key: key);
+  const LicenseWidget({Key? key}) : super(key: key);
 
   static const Map<String, String> types = {"0": "день", "1": "дня", "2": "дней"};
 
   String getNumSign(int num) {
     String numString = num.toString();
     int lastChar = int.parse(numString[numString.length - 1]);
-    if (num > 10 && num < 20) return types["2"];
-    if (lastChar == 1) return types["0"];
-    if (lastChar >= 2 && lastChar <= 4) return types["1"];
-    return types["2"];
+    if (num > 10 && num < 20) return types["2"]!;
+    if (lastChar == 1) return types["0"]!;
+    if (lastChar >= 2 && lastChar <= 4) return types["1"]!;
+    return types["2"]!;
   }
 
   @override
   Widget build(BuildContext context) {
     if (Platform.isIOS) return Container();
-    License license = InheritedLicense.of(context).license;
+    License? license = InheritedLicense.of(context).license;
 
     if (license == null) return const LoadingWidget();
 

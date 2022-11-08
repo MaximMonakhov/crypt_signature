@@ -21,7 +21,7 @@ class PKCS7InterfaceRequest extends InterfaceRequest {
   final Future<String> Function(Certificate certificate) getMessage;
 
   /// Получение аттрибутов подписи на основе [digest] сообщения
-  final Future<String> Function(Certificate certificate, String digest) getSignedAttributes;
+  final Future<String> Function(Certificate certificate, String digest)? getSignedAttributes;
 
   PKCS7InterfaceRequest(this.getMessage, {this.getSignedAttributes});
 }
@@ -33,7 +33,7 @@ class PKCS7HASHInterfaceRequest extends InterfaceRequest {
   final Future<String> Function(Certificate certificate) getDigest;
 
   /// Получение аттрибутов подписи на основе [digest] сообщения
-  final Future<String> Function(Certificate certificate, String digest) getSignedAttributes;
+  final Future<String> Function(Certificate certificate, String digest)? getSignedAttributes;
 
   PKCS7HASHInterfaceRequest(this.getDigest, {this.getSignedAttributes});
 }

@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-Future<String> showInputDialog(
+Future<String?> showInputDialog(
   BuildContext context,
   String message,
   String hintText,
   TextInputType keyboardType, {
-  List<TextInputFormatter> inputFormatters,
+  List<TextInputFormatter>? inputFormatters,
   bool obscureText = false,
 }) async {
-  String value = await showDialog(
+  String? value = await showDialog(
     context: context,
     builder: (BuildContext context) {
       TextEditingController controller = TextEditingController();
@@ -67,7 +67,7 @@ Future<String> showInputDialog(
   return value;
 }
 
-Future showError(BuildContext context, String message, {String details}) {
+Future showError(BuildContext context, String? message, {String? details}) {
   return showDialog(
     context: context,
     builder: (BuildContext context) {
@@ -76,7 +76,7 @@ Future showError(BuildContext context, String message, {String details}) {
         contentPadding: const EdgeInsets.only(left: 20, right: 20.0, bottom: 5.0),
         shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10))),
         title: Text(
-          message,
+          message ?? "Ошибка",
           style: const TextStyle(fontSize: 12),
           textAlign: TextAlign.center,
           maxLines: 10,

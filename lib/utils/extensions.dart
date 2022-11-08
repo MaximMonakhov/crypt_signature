@@ -6,7 +6,7 @@ extension ListExtension<E> on List<E> {
 
 extension StringExtension on String {
   String truncate({int length = 10, String omission = '...'}) {
-    if (this == null || length >= this.length) return this;
+    if (length >= this.length) return this;
 
     return this.replaceRange(length, this.length, omission);
   }

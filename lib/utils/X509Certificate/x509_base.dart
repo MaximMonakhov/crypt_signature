@@ -9,18 +9,17 @@ import 'package:crypt_signature/utils/X509Certificate/certificate.dart';
 import 'package:crypt_signature/utils/X509Certificate/objectidentifier.dart';
 import 'package:crypt_signature/utils/X509Certificate/util.dart';
 import 'package:crypto_keys/crypto_keys.dart';
-import 'package:flutter/foundation.dart';
 
 class Name {
-  final List<Map<ObjectIdentifier, dynamic>> names;
+  final List<Map<ObjectIdentifier?, dynamic>> names;
 
   const Name(this.names);
 
   factory Name.fromAsn1(ASN1Sequence sequence) {
     return Name(
       sequence.elements.map((ASN1Object set) {
-        return <ObjectIdentifier, dynamic>{
-          for (var p in (set as ASN1Set).elements) toDart((p as ASN1Sequence).elements[0]) as ObjectIdentifier: toDart((p as ASN1Sequence).elements[1])
+        return <ObjectIdentifier?, dynamic>{
+          for (var p in (set as ASN1Set).elements) toDart((p as ASN1Sequence).elements[0]) as ObjectIdentifier?: toDart(p.elements[1])
         };
       }).toList(),
     );
@@ -47,14 +46,14 @@ class Name {
 }
 
 class Validity {
-  final DateTime notBefore;
-  final DateTime notAfter;
+  final DateTime? notBefore;
+  final DateTime? notAfter;
 
-  Validity({@required this.notBefore, @required this.notAfter});
+  Validity({required this.notBefore, required this.notAfter});
 
   factory Validity.fromAsn1(ASN1Sequence sequence) => Validity(
-        notBefore: toDart(sequence.elements[0]) as DateTime,
-        notAfter: toDart(sequence.elements[1]) as DateTime,
+        notBefore: toDart(sequence.elements[0]) as DateTime?,
+        notAfter: toDart(sequence.elements[1]) as DateTime?,
       );
 
   ASN1Sequence toAsn1() {
@@ -74,7 +73,7 @@ class Validity {
 
 class SubjectPublicKeyInfo {
   final AlgorithmIdentifier algorithm;
-  final PublicKey subjectPublicKey;
+  final PublicKey? subjectPublicKey;
 
   SubjectPublicKeyInfo(this.algorithm, this.subjectPublicKey);
 
@@ -100,7 +99,7 @@ class SubjectPublicKeyInfo {
 }
 
 class AlgorithmIdentifier {
-  final ObjectIdentifier algorithm;
+  final ObjectIdentifier? algorithm;
   // ignore: type_annotate_public_apis, prefer_typing_uninitialized_variables
   final parameters;
 
@@ -115,7 +114,7 @@ class AlgorithmIdentifier {
   factory AlgorithmIdentifier.fromAsn1(ASN1Sequence sequence) {
     var algorithm = toDart(sequence.elements[0]);
     var parameters = sequence.elements.length > 1 ? toDart(sequence.elements[1]) : null;
-    return AlgorithmIdentifier(algorithm as ObjectIdentifier, parameters);
+    return AlgorithmIdentifier(algorithm as ObjectIdentifier?, parameters);
   }
 
   ASN1Sequence toAsn1() {
@@ -128,21 +127,7 @@ class AlgorithmIdentifier {
   String toString() => "$algorithm${parameters == null ? "" : "($parameters)"}";
 }
 
-String _getPEMFromBytes(List<int> bytes, String type) {
-  var buffer = StringBuffer();
-  buffer.writeln('-----BEGIN $type-----');
-  for (var i = 0; i < bytes.length; i += 48) {
-    buffer.writeln(base64.encode(bytes.skip(i).take(48).toList()));
-  }
-  buffer.writeln('-----END $type-----');
-  return buffer.toString();
-}
-
-String toPem(SubjectPublicKeyInfo key) {
-  return _getPEMFromBytes(key.toAsn1().encodedBytes, 'PUBLIC KEY');
-}
-
-Object _parseDer(List<int> bytes, String type) {
+Object _parseDer(List<int> bytes, String? type) {
   var p = ASN1Parser(bytes as Uint8List);
   var o = p.nextObject();
   if (o is! ASN1Sequence) {
@@ -183,7 +168,7 @@ Iterable parsePem(String pem) sync* {
       );
     }
 
-    var b = lines.sublist(startI, i).join('');
+    var b = lines.sublist(startI, i).join();
     var bytes = base64.decode(b);
     yield _parseDer(bytes, type);
   }

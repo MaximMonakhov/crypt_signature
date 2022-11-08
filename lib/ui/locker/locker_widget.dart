@@ -2,7 +2,7 @@ import 'package:crypt_signature/ui/locker/inherited_locker.dart';
 import 'package:flutter/material.dart';
 
 class LockerWidget extends StatelessWidget {
-  const LockerWidget({Key key}) : super(key: key);
+  const LockerWidget({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

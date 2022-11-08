@@ -18,7 +18,7 @@ void main() {
     });
 
     test('Поиск алгоритма по null OID', () {
-      String publicKeyOID;
+      String? publicKeyOID;
       Algorithm algorithm = Algorithm.findAlgorithmByPublicKeyOID(publicKeyOID);
 
       expect(algorithm.name, "Неизвестен");

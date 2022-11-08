@@ -2,14 +2,11 @@ import 'package:flutter/material.dart';
 
 class FadePageRoute<T> extends PageRoute<T> {
   FadePageRoute({
-    @required this.builder,
-    RouteSettings settings,
+    required this.builder,
+    RouteSettings? settings,
     this.maintainState = true,
     bool fullscreenDialog = false,
-  })  : assert(builder != null),
-        assert(maintainState != null),
-        assert(fullscreenDialog != null),
-        super(settings: settings, fullscreenDialog: fullscreenDialog);
+  }) : super(settings: settings, fullscreenDialog: fullscreenDialog);
 
   final WidgetBuilder builder;
 
@@ -20,10 +17,10 @@ class FadePageRoute<T> extends PageRoute<T> {
   Duration get transitionDuration => const Duration(milliseconds: 400);
 
   @override
-  Color get barrierColor => null;
+  Color? get barrierColor => null;
 
   @override
-  String get barrierLabel => null;
+  String? get barrierLabel => null;
 
   @override
   bool canTransitionFrom(TransitionRoute<dynamic> previousRoute) {
@@ -65,9 +62,9 @@ class FadePageRoute<T> extends PageRoute<T> {
 
 class _FadeInPageTransition extends StatelessWidget {
   _FadeInPageTransition({
-    Key key,
-    @required Animation<double> routeAnimation,
-    @required this.child,
+    Key? key,
+    required Animation<double> routeAnimation,
+    required this.child,
   })  : _opacityAnimation = routeAnimation.drive(_easeInTween),
         super(key: key);
   static final Animatable<double> _easeInTween = CurveTween(curve: Curves.easeIn);

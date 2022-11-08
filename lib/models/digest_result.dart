@@ -14,5 +14,5 @@ class DigestResult {
   /// Алгоритм хэширования
   final String digestAlgorithm;
 
-  DigestResult({this.certificate, this.message, this.digest, this.digestAlgorithm});
+  DigestResult({required this.certificate, required this.message, required this.digest, required this.digestAlgorithm});
 }

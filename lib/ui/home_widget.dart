@@ -16,7 +16,7 @@ class HomeWidget extends StatelessWidget {
   final String hint;
 
   const HomeWidget({
-    Key key,
+    Key? key,
     this.title = "Подпись",
     this.hint = "Выберите сертификат",
   }) : super(key: key);
@@ -62,7 +62,7 @@ class HomeWidget extends StatelessWidget {
                   FutureBuilder<bool>(
                     future: Native.initCSP(),
                     builder: (context, snapshot) {
-                      if (snapshot.hasError) return ErrorView(snapshot.error as ApiResponseException);
+                      if (snapshot.hasError) return ErrorView(snapshot.error! as ApiResponseException);
                       if (!snapshot.hasData) return const LoadingWidget();
 
                       return Column(children: [const LicenseWidget(), Expanded(child: Certificates(hint: hint))]);

@@ -3,8 +3,8 @@ import 'package:crypt_signature/utils/X509Certificate/objectidentifier.dart';
 import 'package:crypto_keys/crypto_keys.dart' hide AlgorithmIdentifier;
 
 RsaPublicKey rsaPublicKeyFromAsn1(ASN1Sequence sequence) {
-  var modulus = (sequence.elements[0] as ASN1Integer).valueAsBigInteger;
-  var exponent = (sequence.elements[1] as ASN1Integer).valueAsBigInteger;
+  var modulus = (sequence.elements[0] as ASN1Integer).valueAsBigInteger!;
+  var exponent = (sequence.elements[1] as ASN1Integer).valueAsBigInteger!;
   return RsaPublicKey(modulus: modulus, exponent: exponent);
 }
 
@@ -20,7 +20,7 @@ Identifier _lengthToCurve(int l) {
   throw UnsupportedError('No matching curve for length $l');
 }
 
-EcPublicKey ecPublicKeyFromAsn1(ASN1BitString bitString, {Identifier curve}) {
+EcPublicKey ecPublicKeyFromAsn1(ASN1BitString bitString, {Identifier? curve}) {
   var bytes = bitString.contentBytes();
   var compression = bytes[0];
   switch (compression) {
@@ -38,7 +38,7 @@ EcPublicKey ecPublicKeyFromAsn1(ASN1BitString bitString, {Identifier curve}) {
   }
 }
 
-String keyToString(Key key, [String prefix = '']) {
+String keyToString(Key? key, [String prefix = '']) {
   if (key is RsaPublicKey) {
     var buffer = StringBuffer();
     var l = key.modulus.bitLength;
@@ -50,38 +50,13 @@ String keyToString(Key key, [String prefix = '']) {
   return '$prefix$key';
 }
 
-ASN1BitString keyToAsn1(Key key) {
+ASN1BitString keyToAsn1(Key? key) {
   var s = ASN1Sequence();
   if (key is RsaPublicKey) {
     s
       ..add(ASN1Integer(key.modulus))
       ..add(ASN1Integer(key.exponent));
   }
-  return ASN1BitString(s.encodedBytes);
-}
-
-ASN1BitString keyPairToAsn1(KeyPair keyPair) {
-  var s = ASN1Sequence();
-
-  var key = keyPair.privateKey as RsaPrivateKey;
-  var publicKey = keyPair.publicKey as RsaPublicKey;
-  var pSub1 = key.firstPrimeFactor - BigInt.one;
-  var qSub1 = key.secondPrimeFactor - BigInt.one;
-  var exponent1 = key.privateExponent.remainder(pSub1);
-  var exponent2 = key.privateExponent.remainder(qSub1);
-  var coefficient = key.secondPrimeFactor.modInverse(key.firstPrimeFactor);
-
-  s
-    ..add(fromDart(0)) // version
-    ..add(fromDart(key.modulus))
-    ..add(fromDart(publicKey.exponent))
-    ..add(fromDart(key.privateExponent))
-    ..add(fromDart(key.firstPrimeFactor))
-    ..add(fromDart(key.secondPrimeFactor))
-    ..add(fromDart(exponent1))
-    ..add(fromDart(exponent2))
-    ..add(fromDart(coefficient));
-
   return ASN1BitString(s.encodedBytes);
 }
 
@@ -112,14 +87,14 @@ ASN1Object fromDart(dynamic obj) {
   throw ArgumentError.value(obj, 'obj', 'cannot be encoded as ASN1Object');
 }
 
-T toDart<T>(ASN1Object obj) {
+T? toDart<T>(ASN1Object obj) {
   if (obj is ASN1Null) return null;
   if (obj is ASN1Sequence) return obj.elements.map(toDart).toList() as T;
   if (obj is ASN1Set) return obj.elements.map(toDart).toSet() as T;
-  if (obj is ASN1Integer) return obj.valueAsBigInteger as T;
+  if (obj is ASN1Integer) return obj.valueAsBigInteger as T?;
   if (obj is ASN1ObjectIdentifier) return ObjectIdentifier.fromAsn1(obj) as T;
   if (obj is ASN1BitString) return obj.stringValue as T;
-  if (obj is ASN1Boolean) return obj.booleanValue as T;
+  if (obj is ASN1Boolean) return obj.booleanValue as T?;
   if (obj is ASN1OctetString) return obj.stringValue as T;
   if (obj is ASN1PrintableString) return obj.stringValue as T;
   if (obj is ASN1UtcTime) return obj.dateTimeValue as T;

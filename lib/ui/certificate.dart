@@ -23,10 +23,10 @@ class CertificateWidget extends StatelessWidget {
   const CertificateWidget(
     this.certificate,
     this.removeCallback, {
-    Key key,
+    Key? key,
   }) : super(key: key);
 
-  Future<String> _askPassword(BuildContext context) => showInputDialog(
+  Future<String?> _askPassword(BuildContext context) => showInputDialog(
         context,
         "Введите пароль для\n доступа к контейнеру приватного ключа",
         "Пароль",
@@ -34,7 +34,7 @@ class CertificateWidget extends StatelessWidget {
         obscureText: true,
       );
 
-  bool getLicenseStatus(BuildContext context) => InheritedLicense.of(context).license?.status;
+  bool? getLicenseStatus(BuildContext context) => InheritedLicense.of(context).license?.status;
 
   Future<void> _sign(BuildContext context) async {
     // Проверка, если лицензия не установлена, то дальше не пускаем
@@ -45,7 +45,7 @@ class CertificateWidget extends StatelessWidget {
     //   return;
     // }
 
-    String password = await _askPassword(context);
+    String? password = await _askPassword(context);
 
     if (password != null && password.isNotEmpty) {
       switch (InheritedCryptSignature.of(context).interfaceRequest.runtimeType) {
@@ -86,11 +86,11 @@ class CertificateWidget extends StatelessWidget {
       InheritedLocker.of(context).lockScreen();
       String message = await (InheritedCryptSignature.of(context).interfaceRequest as PKCS7InterfaceRequest).getMessage.call(certificate);
       DigestResult digestResult = await Native.digest(certificate, password, message);
-      PKCS7 pkcs7;
+      late PKCS7 pkcs7;
       String signedAttributes;
       if (Platform.isIOS)
         signedAttributes =
-            await (InheritedCryptSignature.of(context).interfaceRequest as PKCS7InterfaceRequest).getSignedAttributes(certificate, digestResult.digest);
+            await (InheritedCryptSignature.of(context).interfaceRequest as PKCS7InterfaceRequest).getSignedAttributes!(certificate, digestResult.digest);
       else {
         pkcs7 = await Native.createPKCS7(certificate, password, digestResult.digest);
         signedAttributes = pkcs7.signedAttributes;
@@ -116,10 +116,10 @@ class CertificateWidget extends StatelessWidget {
     try {
       InheritedLocker.of(context).lockScreen();
       String digest = await (InheritedCryptSignature.of(context).interfaceRequest as PKCS7HASHInterfaceRequest).getDigest.call(certificate);
-      PKCS7 pkcs7;
+      late PKCS7 pkcs7;
       String signedAttributes;
       if (Platform.isIOS)
-        signedAttributes = await (InheritedCryptSignature.of(context).interfaceRequest as PKCS7HASHInterfaceRequest).getSignedAttributes(certificate, digest);
+        signedAttributes = await (InheritedCryptSignature.of(context).interfaceRequest as PKCS7HASHInterfaceRequest).getSignedAttributes!(certificate, digest);
       else {
         pkcs7 = await Native.createPKCS7(certificate, password, digest);
         signedAttributes = pkcs7.signedAttributes;

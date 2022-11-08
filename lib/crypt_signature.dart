@@ -16,24 +16,22 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CryptSignature {
-  static SharedPreferences sharedPreferences;
+  static SharedPreferences? sharedPreferences;
 
   /// Открыть экран выбора сертификата и подписать сообщение [message].
   /// Метод вычисляет хэш от сообщения и подписывает его.
   /// Возвращает [SignResult] для [MessageInterfaceRequest] и [PKCS7] для [PKCS7HASHInterfaceRequest]
-  static Future<Object> interface(
+  static Future<Object?> interface(
     BuildContext context,
     InterfaceRequest interfaceRequest, {
     String title = "Подпись",
     String hint = "Выберите сертификат",
   }) async {
-    assert(interfaceRequest != null);
-
     sharedPreferences = await SharedPreferences.getInstance();
     Directory directory = await getApplicationDocumentsDirectory();
     await Directory('${directory.path}/certificates').create();
 
-    Object result = await Navigator.of(context).push(
+    Object? result = await Navigator.of(context).push(
       FadePageRoute(
         builder: (context) => InheritedCryptSignature(
           interfaceRequest,
@@ -84,8 +82,8 @@ class CryptSignature {
     Directory applicationDirectory = await getApplicationDocumentsDirectory();
     Directory directory = Directory('${applicationDirectory.path}/certificates');
 
-    if (directory != null && directory.existsSync()) await directory.delete(recursive: true);
+    if (directory.existsSync()) await directory.delete(recursive: true);
     sharedPreferences ??= await SharedPreferences.getInstance();
-    return sharedPreferences.remove("Certificate");
+    return sharedPreferences!.remove("Certificate");
   }
 }
