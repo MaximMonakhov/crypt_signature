@@ -64,7 +64,7 @@ CryptSignature.interface
 Описание режимов работы:
 * ```MessageInterfaceRequest```
     * Высчитывает хэш от сообщения, подписывает его и возвращает сигнатуру в формате Base64.
-* ```PKCS7InterfaceRequest```
+* ```PKCS7MessageInterfaceRequest```
     1. При выборе сертификата пользователем, получает сообщение через функцию ```getMessage```
     2. Высчитывает хэш от полученного сообщения
     3. Android: Формирует PKCS7 и атрибуты подписи. iOS: получает атрибуты подписи от функции ```getSignedAttributes```
@@ -72,16 +72,18 @@ CryptSignature.interface
     5. Подписывает этот хэш атрибутов
     6. Android: Вставляет сигнатуру в PKCS7 и возвращает этот PKCS7 в формате Base64. iOS: возвращает сигнатуру
 * ```PKCS7HASHInterfaceRequest```<br>
-    * Работает как и ```PKCS7InterfaceRequest```, но не высчитывает хэш от первоначального сообщения.
+    * Работает как и ```PKCS7MessageInterfaceRequest```, но не высчитывает хэш от первоначального сообщения.
     * При выборе сертификата пользователем, получает хэш для подписи через функцию ```getDigest```.
 * ```CustomInterfaceRequest```<br>
     * Создан для выполнения собственной логики ЭП, но с использования интерфейса плагина.
+
+__Иными словами. ```PKCS7MessageInterfaceRequest``` считает хэш сам, а ```PKCS7HASHInterfaceRequest``` получает его готовый из вне.__
 
 Пример работы режимов:
 * ```MessageInterfaceRequest```
     <br>
     Применяется, когда у проверяющего есть сертификат пользователя и он хочет только проверить ЭП. Например, аутентификация путем ЭП случайного набора байт.
-* ```PKCS7InterfaceRequest```
+* ```PKCS7MessageInterfaceRequest```
     <br>
     Применяется, когда у проверяющего нет информации о сертификате пользователя и дополнительной информации. Например, регистрация путем ЭП случайного набора байт.
 * ```PKCS7HASHInterfaceRequest```
@@ -141,7 +143,7 @@ Future<String> getMessage(Certificate certificate) async {
     /// Запрос на сервер с выбранным сертификатом для формирования сообщения
     return message;
 }
-PKCS7 result = await CryptSignature.interface(context, PKCS7InterfaceRequest(getMessage));
+PKCS7 result = await CryptSignature.interface(context, PKCS7MessageInterfaceRequest(getMessage));
 ```
 ### Пример использования плагина через методы
 
