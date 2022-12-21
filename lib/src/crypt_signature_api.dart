@@ -20,8 +20,8 @@ class CryptSignature {
 
   /// Открыть экран выбора сертификата и подписать сообщение [message].
   /// Метод вычисляет хэш от сообщения и подписывает его.
-  /// Возвращает [SignResult] для [MessageInterfaceRequest] и [PKCS7] для [PKCS7HASHInterfaceRequest]
-  static Future<Object?> interface(
+  /// Возвращает [SignResult]
+  static Future<SignResult?> interface(
     BuildContext context,
     InterfaceRequest interfaceRequest, {
     String title = "Подпись",
@@ -32,7 +32,7 @@ class CryptSignature {
     Directory directory = await getApplicationDocumentsDirectory();
     await Directory('${directory.path}/certificates').create();
 
-    Object? result = await navigator.push(
+    SignResult? result = await navigator.push(
       FadePageRoute(
         builder: (context) => InheritedCryptSignature(
           interfaceRequest,
