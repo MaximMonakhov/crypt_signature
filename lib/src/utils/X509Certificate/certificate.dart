@@ -1,6 +1,6 @@
 import 'package:asn1lib/asn1lib.dart';
-import 'package:crypt_signature/utils/X509Certificate/util.dart';
-import 'package:crypt_signature/utils/X509Certificate/x509_base.dart';
+import 'package:crypt_signature/src/utils/X509Certificate/util.dart';
+import 'package:crypt_signature/src/utils/X509Certificate/x509_base.dart';
 import 'package:crypto_keys/crypto_keys.dart' hide AlgorithmIdentifier;
 
 /// A Certificate.

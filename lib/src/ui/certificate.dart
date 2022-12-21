@@ -2,18 +2,18 @@
 
 import 'dart:io';
 
-import 'package:crypt_signature/exceptions/api_response_exception.dart';
-import 'package:crypt_signature/inherited_crypt_signature.dart';
-import 'package:crypt_signature/models/certificate.dart';
-import 'package:crypt_signature/models/digest_result.dart';
-import 'package:crypt_signature/models/interface_request.dart';
-import 'package:crypt_signature/models/pkcs7.dart';
-import 'package:crypt_signature/models/sign_result.dart';
-import 'package:crypt_signature/native/native.dart';
-import 'package:crypt_signature/ui/dialogs.dart';
-import 'package:crypt_signature/ui/license/inherited_license.dart';
-import 'package:crypt_signature/ui/locker/inherited_locker.dart';
-import 'package:crypt_signature/utils/crypt_signature_icons_icons.dart';
+import 'package:crypt_signature/src/exceptions/api_response_exception.dart';
+import 'package:crypt_signature/src/inherited_crypt_signature.dart';
+import 'package:crypt_signature/src/models/certificate.dart';
+import 'package:crypt_signature/src/models/digest_result.dart';
+import 'package:crypt_signature/src/models/interface_request.dart';
+import 'package:crypt_signature/src/models/pkcs7.dart';
+import 'package:crypt_signature/src/models/sign_result.dart';
+import 'package:crypt_signature/src/native/native.dart';
+import 'package:crypt_signature/src/ui/dialogs.dart';
+import 'package:crypt_signature/src/ui/license/inherited_license.dart';
+import 'package:crypt_signature/src/ui/locker/inherited_locker.dart';
+import 'package:crypt_signature/src/utils/crypt_signature_icons_icons.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 

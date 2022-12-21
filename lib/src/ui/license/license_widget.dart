@@ -1,9 +1,9 @@
 import 'dart:io';
 
-import 'package:crypt_signature/models/license.dart';
-import 'package:crypt_signature/ui/license/inherited_license.dart';
-import 'package:crypt_signature/ui/loading_widget.dart';
-import 'package:crypt_signature/utils/crypt_signature_icons_icons.dart';
+import 'package:crypt_signature/src/models/license.dart';
+import 'package:crypt_signature/src/ui/license/inherited_license.dart';
+import 'package:crypt_signature/src/ui/loading_widget.dart';
+import 'package:crypt_signature/src/utils/crypt_signature_icons_icons.dart';
 import 'package:flutter/material.dart';
 
 class LicenseWidget extends StatelessWidget {

@@ -1,4 +1,4 @@
-import 'package:crypt_signature/models/license.dart';
+import 'package:crypt_signature/src/models/license.dart';
 import 'package:flutter/material.dart';
 
 class InheritedLicense extends InheritedWidget {

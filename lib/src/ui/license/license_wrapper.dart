@@ -1,11 +1,11 @@
 import 'dart:io';
 
-import 'package:crypt_signature/exceptions/api_response_exception.dart';
-import 'package:crypt_signature/models/license.dart';
-import 'package:crypt_signature/native/native.dart';
-import 'package:crypt_signature/ui/dialogs.dart';
-import 'package:crypt_signature/ui/license/inherited_license.dart';
-import 'package:crypt_signature/ui/locker/inherited_locker.dart';
+import 'package:crypt_signature/src/exceptions/api_response_exception.dart';
+import 'package:crypt_signature/src/models/license.dart';
+import 'package:crypt_signature/src/native/native.dart';
+import 'package:crypt_signature/src/ui/dialogs.dart';
+import 'package:crypt_signature/src/ui/license/inherited_license.dart';
+import 'package:crypt_signature/src/ui/locker/inherited_locker.dart';
 import 'package:flutter/material.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 

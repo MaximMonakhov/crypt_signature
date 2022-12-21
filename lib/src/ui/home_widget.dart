@@ -1,13 +1,13 @@
-import 'package:crypt_signature/exceptions/api_response_exception.dart';
-import 'package:crypt_signature/inherited_crypt_signature.dart';
-import 'package:crypt_signature/native/native.dart';
-import 'package:crypt_signature/ui/certificates.dart';
-import 'package:crypt_signature/ui/error/error_view.dart';
-import 'package:crypt_signature/ui/license/license_widget.dart';
-import 'package:crypt_signature/ui/license/license_wrapper.dart';
-import 'package:crypt_signature/ui/loading_widget.dart';
-import 'package:crypt_signature/ui/locker/locker_widget.dart';
-import 'package:crypt_signature/ui/locker/locker_wrapper.dart';
+import 'package:crypt_signature/src/exceptions/api_response_exception.dart';
+import 'package:crypt_signature/src/inherited_crypt_signature.dart';
+import 'package:crypt_signature/src/native/native.dart';
+import 'package:crypt_signature/src/ui/certificates.dart';
+import 'package:crypt_signature/src/ui/error/error_view.dart';
+import 'package:crypt_signature/src/ui/license/license_widget.dart';
+import 'package:crypt_signature/src/ui/license/license_wrapper.dart';
+import 'package:crypt_signature/src/ui/loading_widget.dart';
+import 'package:crypt_signature/src/ui/locker/locker_widget.dart';
+import 'package:crypt_signature/src/ui/locker/locker_wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 

@@ -1,5 +1,5 @@
-import 'package:crypt_signature/exceptions/api_response_exception.dart';
-import 'package:crypt_signature/ui/error/error_details_view.dart';
+import 'package:crypt_signature/src/exceptions/api_response_exception.dart';
+import 'package:crypt_signature/src/ui/error/error_details_view.dart';
 import 'package:flutter/material.dart';
 
 class ErrorView extends StatelessWidget {

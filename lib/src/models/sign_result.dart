@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:crypt_signature/models/certificate.dart';
-import 'package:crypt_signature/utils/extensions.dart';
+import 'package:crypt_signature/src/models/certificate.dart';
+import 'package:crypt_signature/src/utils/extensions.dart';
 
 /// Результат подписи
 class SignResult {

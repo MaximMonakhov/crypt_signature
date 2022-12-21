@@ -3,9 +3,6 @@
 import 'dart:convert';
 
 import 'package:crypt_signature/crypt_signature.dart';
-import 'package:crypt_signature/models/interface_request.dart';
-import 'package:crypt_signature/models/sign_result.dart';
-import 'package:crypt_signature/models/certificate.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -86,8 +83,8 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             OutlinedButton(
               onPressed: () async {
-                SignResult result =
-                    await CryptSignature.interface(context, MessageInterfaceRequest(base64.encode(utf8.encode("Данные на подпись"))), title: "Войти по сертификату", hint: "Выберите сертификат");
+                SignResult result = await CryptSignature.interface(context, MessageInterfaceRequest(base64.encode(utf8.encode("Данные на подпись"))),
+                    title: "Войти по сертификату", hint: "Выберите сертификат");
 
                 showResultDialog(result?.toString());
               },
@@ -95,7 +92,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             OutlinedButton(
               onPressed: () async {
-                Object result = await CryptSignature.interface(context, PKCS7InterfaceRequest(getMessage,getSignedAttributes: getSignedAttributes));
+                Object result = await CryptSignature.interface(context, PKCS7InterfaceRequest(getMessage, getSignedAttributes: getSignedAttributes));
 
                 showResultDialog(result?.toString());
               },

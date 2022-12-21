@@ -1,4 +1,4 @@
-import 'package:crypt_signature/models/certificate.dart';
+import 'package:crypt_signature/src/models/certificate.dart';
 
 /// Результат хэширования
 class DigestResult {

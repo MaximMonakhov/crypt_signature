@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:crypt_signature/crypt_signature.dart';
-import 'package:crypt_signature/utils/extensions.dart';
+import 'package:crypt_signature/src/crypt_signature_api.dart';
+import 'package:crypt_signature/src/utils/extensions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Локальное хранилище для моделей

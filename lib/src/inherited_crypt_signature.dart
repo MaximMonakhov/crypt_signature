@@ -1,4 +1,4 @@
-import 'package:crypt_signature/models/interface_request.dart';
+import 'package:crypt_signature/src/models/interface_request.dart';
 import 'package:flutter/material.dart';
 
 class InheritedCryptSignature extends InheritedWidget {

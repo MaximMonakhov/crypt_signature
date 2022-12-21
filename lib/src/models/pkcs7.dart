@@ -1,4 +1,4 @@
-import 'package:crypt_signature/utils/extensions.dart';
+import 'package:crypt_signature/src/utils/extensions.dart';
 
 class PKCS7 {
   final String content;

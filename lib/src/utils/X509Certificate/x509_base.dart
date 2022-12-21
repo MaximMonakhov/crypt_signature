@@ -5,9 +5,9 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:asn1lib/asn1lib.dart';
-import 'package:crypt_signature/utils/X509Certificate/certificate.dart';
-import 'package:crypt_signature/utils/X509Certificate/objectidentifier.dart';
-import 'package:crypt_signature/utils/X509Certificate/util.dart';
+import 'package:crypt_signature/src/utils/X509Certificate/certificate.dart';
+import 'package:crypt_signature/src/utils/X509Certificate/objectidentifier.dart';
+import 'package:crypt_signature/src/utils/X509Certificate/util.dart';
 import 'package:crypto_keys/crypto_keys.dart';
 
 class Name {

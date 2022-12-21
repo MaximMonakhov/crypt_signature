@@ -1,4 +1,4 @@
-import 'package:crypt_signature/models/algorithm.dart';
+import 'package:crypt_signature/src/models/algorithm.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

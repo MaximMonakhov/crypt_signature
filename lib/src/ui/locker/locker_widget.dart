@@ -1,4 +1,4 @@
-import 'package:crypt_signature/ui/locker/inherited_locker.dart';
+import 'package:crypt_signature/src/ui/locker/inherited_locker.dart';
 import 'package:flutter/material.dart';
 
 class LockerWidget extends StatelessWidget {

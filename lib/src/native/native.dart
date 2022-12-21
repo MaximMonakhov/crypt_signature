@@ -2,12 +2,12 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:crypt_signature/exceptions/api_response_exception.dart';
-import 'package:crypt_signature/models/certificate.dart';
-import 'package:crypt_signature/models/digest_result.dart';
-import 'package:crypt_signature/models/license.dart';
-import 'package:crypt_signature/models/pkcs7.dart';
-import 'package:crypt_signature/models/sign_result.dart';
+import 'package:crypt_signature/src/exceptions/api_response_exception.dart';
+import 'package:crypt_signature/src/models/certificate.dart';
+import 'package:crypt_signature/src/models/digest_result.dart';
+import 'package:crypt_signature/src/models/license.dart';
+import 'package:crypt_signature/src/models/pkcs7.dart';
+import 'package:crypt_signature/src/models/sign_result.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 

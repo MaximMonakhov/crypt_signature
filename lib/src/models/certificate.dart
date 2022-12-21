@@ -1,9 +1,9 @@
 import 'dart:io';
 
-import 'package:crypt_signature/models/algorithm.dart';
-import 'package:crypt_signature/models/storage.dart';
-import 'package:crypt_signature/utils/X509Certificate/certificate.dart' as x509_certificate;
-import 'package:crypt_signature/utils/X509Certificate/x509_base.dart' as x509_base;
+import 'package:crypt_signature/src/models/algorithm.dart';
+import 'package:crypt_signature/src/models/storage.dart';
+import 'package:crypt_signature/src/utils/X509Certificate/certificate.dart' as x509_certificate;
+import 'package:crypt_signature/src/utils/X509Certificate/x509_base.dart' as x509_base;
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 

@@ -1,5 +1,5 @@
 import 'package:asn1lib/asn1lib.dart';
-import 'package:crypt_signature/utils/X509Certificate/objectidentifier.dart';
+import 'package:crypt_signature/src/utils/X509Certificate/objectidentifier.dart';
 import 'package:crypto_keys/crypto_keys.dart' hide AlgorithmIdentifier;
 
 RsaPublicKey rsaPublicKeyFromAsn1(ASN1Sequence sequence) {
