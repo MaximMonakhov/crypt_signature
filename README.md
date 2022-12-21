@@ -59,7 +59,7 @@ CryptSignature.interface
 ```
 При вызове данного метода открывается экран с возможностью добавления/выбора/хранения сертификатов.
 
-<br><img src="crypt_signature.jpg" alt="MarineGEO circle logo" style="height: 532px; width:400px;"/><br>
+<br><img src="crypt_signature.jpg" alt="MarineGEO circle logo" width="400"/><br>
 
 Описание режимов работы:
 * ```MessageInterfaceRequest```
