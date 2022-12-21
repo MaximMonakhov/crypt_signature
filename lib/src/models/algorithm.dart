@@ -34,4 +34,10 @@ class Algorithm {
         hashOID = json['hashOID'] as String,
         publicKeyOID = json['publicKeyOID'] as String,
         signatureOID = json['signatureOID'] as String;
+
+  @override
+  int get hashCode => Object.hash(name, hashOID, publicKeyOID, signatureOID);
+
+  @override
+  bool operator ==(Object other) => other is Algorithm && other.hashCode == hashCode;
 }
