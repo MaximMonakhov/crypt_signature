@@ -18,7 +18,7 @@ class SignResult {
   /// Алгоритм сигнатуры
   final String signatureAlgorithm;
 
-  factory SignResult(Certificate certificate, String digest, String signature, String signatureAlgorithm) {
+  factory SignResult(Certificate certificate, {required String digest, required String signature, required String signatureAlgorithm}) {
     /// Нативные функции win32 возвращают развернутую сигнатуру
     if (Platform.isIOS) signature = reverseSignature(signature);
     return SignResult._(certificate, digest, signature, signatureAlgorithm);

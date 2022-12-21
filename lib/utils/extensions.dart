@@ -8,6 +8,6 @@ extension StringExtension on String {
   String truncate({int length = 10, String omission = '...'}) {
     if (length >= this.length) return this;
 
-    return this.replaceRange(length, this.length, omission);
+    return replaceRange(length, this.length, omission);
   }
 }

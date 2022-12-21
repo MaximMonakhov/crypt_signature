@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:crypt_signature/models/algorithm.dart';
 import 'package:crypt_signature/models/storage.dart';
 import 'package:crypt_signature/utils/X509Certificate/certificate.dart' as x509_certificate;
@@ -36,6 +38,8 @@ class Certificate {
     this.x509certificate,
   });
 
+  String get storageID => Platform.isIOS ? alias : uuid;
+
   Map<String, dynamic> toJson() => {
         'uuid': uuid,
         'certificate': certificate,
@@ -53,19 +57,19 @@ class Certificate {
     certificateDescription = getCertificateDescription();
   }
 
-  static Certificate fromJson(Map json) => Certificate(
+  factory Certificate.fromJson(Map<String, dynamic> json) => Certificate(
         uuid: json["uuid"] as String? ?? const Uuid().v4(),
         certificate: json["certificate"] as String,
         alias: json['alias'] as String,
         subjectDN: json['subjectDN'] as String,
         notAfterDate: json['notAfterDate'] as String,
         serialNumber: json['serialNumber'] as String,
-        algorithm: Algorithm.fromJson(json['algorithm'] as Map),
+        algorithm: Algorithm.fromJson(json['algorithm'] as Map<String, dynamic>),
         parameterMap: json['parameterMap'] as String?,
         certificateDescription: json['certificateDescription'] as String?,
       );
 
-  static Certificate fromBase64(Map data) {
+  factory Certificate.fromBase64(Map<String, dynamic> data) {
     final String pem = PEM_START_STRING + (data["certificate"] as String) + PEM_END_STRING;
     final x509_certificate.X509Certificate cert = x509_base.parsePem(pem).first as x509_certificate.X509Certificate;
 
@@ -91,10 +95,10 @@ class Certificate {
   }
 
   @override
-  // ignore: hash_and_equals
-  bool operator ==(dynamic other) {
-    return (other is Certificate) && other.certificate == certificate && other.serialNumber == serialNumber;
-  }
+  bool operator ==(dynamic other) => (other is Certificate) && other.certificate == certificate && other.serialNumber == serialNumber;
+
+  @override
+  int get hashCode => Object.hash(certificate, serialNumber);
 
   String getParameterMap() {
     if (x509certificate == null) return "";
@@ -102,36 +106,16 @@ class Certificate {
     const String PARAMETER_SEPARATOR = "&";
     StringBuffer stringBuffer = StringBuffer();
 
-    stringBuffer.write(
-      "validFromDate=${x509certificate!.tbsCertificate.validity.notBefore}$PARAMETER_SEPARATOR",
-    );
-    stringBuffer.write(
-      "validToDate=${x509certificate!.tbsCertificate.validity.notAfter}$PARAMETER_SEPARATOR",
-    );
-    stringBuffer.write(
-      "issuer=${x509certificate!.tbsCertificate.issuer}$PARAMETER_SEPARATOR",
-    );
-    stringBuffer.write(
-      "subject=${x509certificate!.tbsCertificate.subject}$PARAMETER_SEPARATOR",
-    );
-    stringBuffer.write(
-      "subjectInfo=${x509certificate!.tbsCertificate.subject}$PARAMETER_SEPARATOR",
-    );
-    stringBuffer.write(
-      "issuerInfo=${x509certificate!.tbsCertificate.issuer}$PARAMETER_SEPARATOR",
-    );
-    stringBuffer.write(
-      "serialNumber=${x509certificate!.tbsCertificate.serialNumber.toRadixString(16)}$PARAMETER_SEPARATOR",
-    );
-    stringBuffer.write(
-      "signAlgoritm[name]=${algorithm.name}$PARAMETER_SEPARATOR",
-    );
-    stringBuffer.write(
-      "signAlgoritm[oid]=${algorithm.signatureOID}$PARAMETER_SEPARATOR",
-    );
-    stringBuffer.write(
-      "hashAlgoritm[alias]=${algorithm.hashOID}",
-    );
+    stringBuffer.write("validFromDate=${x509certificate!.tbsCertificate.validity.notBefore}$PARAMETER_SEPARATOR");
+    stringBuffer.write("validToDate=${x509certificate!.tbsCertificate.validity.notAfter}$PARAMETER_SEPARATOR");
+    stringBuffer.write("issuer=${x509certificate!.tbsCertificate.issuer}$PARAMETER_SEPARATOR");
+    stringBuffer.write("subject=${x509certificate!.tbsCertificate.subject}$PARAMETER_SEPARATOR");
+    stringBuffer.write("subjectInfo=${x509certificate!.tbsCertificate.subject}$PARAMETER_SEPARATOR");
+    stringBuffer.write("issuerInfo=${x509certificate!.tbsCertificate.issuer}$PARAMETER_SEPARATOR");
+    stringBuffer.write("serialNumber=${x509certificate!.tbsCertificate.serialNumber.toRadixString(16)}$PARAMETER_SEPARATOR");
+    stringBuffer.write("signAlgoritm[name]=${algorithm.name}$PARAMETER_SEPARATOR");
+    stringBuffer.write("signAlgoritm[oid]=${algorithm.signatureOID}$PARAMETER_SEPARATOR");
+    stringBuffer.write("hashAlgoritm[alias]=${algorithm.hashOID}");
 
     return stringBuffer.toString();
   }
@@ -141,24 +125,12 @@ class Certificate {
     const String DESCRIPTION_SEPARATOR = "\n";
     StringBuffer stringBuffer = StringBuffer();
 
-    stringBuffer.write(
-      "Владелец: ${x509certificate!.tbsCertificate.subject}$DESCRIPTION_SEPARATOR",
-    );
-    stringBuffer.write(
-      "Серийный номер: ${x509certificate!.tbsCertificate.serialNumber.toRadixString(16)}$DESCRIPTION_SEPARATOR",
-    );
-    stringBuffer.write(
-      "Издатель: ${x509certificate!.tbsCertificate.issuer}$DESCRIPTION_SEPARATOR",
-    );
-    stringBuffer.write(
-      "Алгоритм подписи:${algorithm.name}$DESCRIPTION_SEPARATOR",
-    );
-    stringBuffer.write(
-      "Действует с: ${x509certificate!.tbsCertificate.validity.notBefore}$DESCRIPTION_SEPARATOR",
-    );
-    stringBuffer.write(
-      "Действует по: ${x509certificate!.tbsCertificate.validity.notAfter}",
-    );
+    stringBuffer.write("Владелец: ${x509certificate!.tbsCertificate.subject}$DESCRIPTION_SEPARATOR");
+    stringBuffer.write("Серийный номер: ${x509certificate!.tbsCertificate.serialNumber.toRadixString(16)}$DESCRIPTION_SEPARATOR");
+    stringBuffer.write("Издатель: ${x509certificate!.tbsCertificate.issuer}$DESCRIPTION_SEPARATOR");
+    stringBuffer.write("Алгоритм подписи:${algorithm.name}$DESCRIPTION_SEPARATOR");
+    stringBuffer.write("Действует с: ${x509certificate!.tbsCertificate.validity.notBefore}$DESCRIPTION_SEPARATOR");
+    stringBuffer.write("Действует по: ${x509certificate!.tbsCertificate.validity.notAfter}");
 
     return stringBuffer.toString();
   }

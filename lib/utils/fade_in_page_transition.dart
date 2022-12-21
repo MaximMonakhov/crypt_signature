@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 class FadePageRoute<T> extends PageRoute<T> {
   FadePageRoute({
     required this.builder,
-    RouteSettings? settings,
     this.maintainState = true,
-    bool fullscreenDialog = false,
-  }) : super(settings: settings, fullscreenDialog: fullscreenDialog);
+    super.settings,
+    super.fullscreenDialog,
+  });
 
   final WidgetBuilder builder;
 
@@ -23,14 +23,10 @@ class FadePageRoute<T> extends PageRoute<T> {
   String? get barrierLabel => null;
 
   @override
-  bool canTransitionFrom(TransitionRoute<dynamic> previousRoute) {
-    return previousRoute is FadePageRoute;
-  }
+  bool canTransitionFrom(TransitionRoute<dynamic> previousRoute) => previousRoute is FadePageRoute;
 
   @override
-  bool canTransitionTo(TransitionRoute<dynamic> nextRoute) {
-    return nextRoute is FadePageRoute && !nextRoute.fullscreenDialog;
-  }
+  bool canTransitionTo(TransitionRoute<dynamic> nextRoute) => nextRoute is FadePageRoute && !nextRoute.fullscreenDialog;
 
   @override
   Widget buildPage(
@@ -52,9 +48,8 @@ class FadePageRoute<T> extends PageRoute<T> {
     Animation<double> animation,
     Animation<double> secondaryAnimation,
     Widget child,
-  ) {
-    return _FadeInPageTransition(routeAnimation: animation, child: child);
-  }
+  ) =>
+      _FadeInPageTransition(routeAnimation: animation, child: child);
 
   @override
   String get debugLabel => '${super.debugLabel}(${settings.name})';
@@ -62,21 +57,17 @@ class FadePageRoute<T> extends PageRoute<T> {
 
 class _FadeInPageTransition extends StatelessWidget {
   _FadeInPageTransition({
-    Key? key,
     required Animation<double> routeAnimation,
     required this.child,
-  })  : _opacityAnimation = routeAnimation.drive(_easeInTween),
-        super(key: key);
+  }) : _opacityAnimation = routeAnimation.drive(_easeInTween);
   static final Animatable<double> _easeInTween = CurveTween(curve: Curves.easeIn);
 
   final Animation<double> _opacityAnimation;
   final Widget child;
 
   @override
-  Widget build(BuildContext context) {
-    return FadeTransition(
-      opacity: _opacityAnimation,
-      child: child,
-    );
-  }
+  Widget build(BuildContext context) => FadeTransition(
+        opacity: _opacityAnimation,
+        child: child,
+      );
 }

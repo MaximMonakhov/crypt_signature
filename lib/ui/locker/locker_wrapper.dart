@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 class LockerWrapper extends StatefulWidget {
   final Widget child;
-  const LockerWrapper({Key? key, required this.child}) : super(key: key);
+  const LockerWrapper({required this.child, super.key});
 
   @override
   State<LockerWrapper> createState() => _LockerWrapperState();

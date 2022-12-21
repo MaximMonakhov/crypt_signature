@@ -4,7 +4,8 @@ class InheritedLocker extends InheritedWidget {
   final bool lock;
   final void Function() lockScreen;
   final void Function() unlockScreen;
-  const InheritedLocker({Key? key, required this.lock, required Widget child, required this.lockScreen, required this.unlockScreen}) : super(key: key, child: child);
+
+  const InheritedLocker({required this.lock, required super.child, required this.lockScreen, required this.unlockScreen, super.key});
 
   @override
   bool updateShouldNotify(InheritedLocker oldWidget) => lock != oldWidget.lock;

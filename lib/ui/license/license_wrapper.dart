@@ -11,7 +11,7 @@ import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 class LicenseWrapper extends StatefulWidget {
   final Widget child;
-  const LicenseWrapper({Key? key, required this.child}) : super(key: key);
+  const LicenseWrapper({required this.child, super.key});
 
   @override
   State<LicenseWrapper> createState() => _LicenseWrapperState();
@@ -22,10 +22,11 @@ class _LicenseWrapperState extends State<LicenseWrapper> {
 
   @override
   void initState() {
-    if (Platform.isAndroid)
+    if (Platform.isAndroid) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         getLicense();
       });
+    }
     super.initState();
   }
 
@@ -75,13 +76,11 @@ class _LicenseWrapperState extends State<LicenseWrapper> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return InheritedLicense(
-      license: license,
-      getLicense: getLicense,
-      setLicense: setLicense,
-      setNewLicenseSheet: setNewLicenseSheet,
-      child: widget.child,
-    );
-  }
+  Widget build(BuildContext context) => InheritedLicense(
+        license: license,
+        getLicense: getLicense,
+        setLicense: setLicense,
+        setNewLicenseSheet: setNewLicenseSheet,
+        child: widget.child,
+      );
 }

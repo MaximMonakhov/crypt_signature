@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 
 class ErrorDetailsView extends StatefulWidget {
   final String? details;
-  const ErrorDetailsView(this.details, {Key? key}) : super(key: key);
+  const ErrorDetailsView(this.details, {super.key});
 
   @override
   _ErrorDetailsViewState createState() => _ErrorDetailsViewState();

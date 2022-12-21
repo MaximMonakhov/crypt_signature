@@ -8,9 +8,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 class Storage<T> {
   String key;
   late SharedPreferences sharedPreferences;
-  T Function(Map map) parser;
+  T Function(Map<String, dynamic> map) parser;
 
-  Storage({required this.parser, String? key}) : this.key = key ?? T.toString() {
+  Storage({required this.parser, String? key}) : key = key ?? T.toString() {
     sharedPreferences = CryptSignature.sharedPreferences!;
   }
 
@@ -19,14 +19,15 @@ class Storage<T> {
 
     if (data == null) return <T>[];
 
-    List? list = json.decode(data) as List?;
+    List<dynamic>? list = json.decode(data) as List?;
 
     if (list == null || list.isEmpty) return <T>[];
 
     List<T> objects = [];
 
-    /// TODO: переделать парсер в compute
-    for (final object in list) objects.addNonNull(parser(object as Map));
+    for (final object in list) {
+      objects.addNonNull(parser(object as Map<String, dynamic>));
+    }
 
     return objects;
   }
@@ -36,25 +37,25 @@ class Storage<T> {
   }
 
   bool add(T object) {
-    List<T> objects = this.get();
+    List<T> objects = get();
 
     if (objects.contains(object)) return false;
 
     objects.addNonNull(object);
 
-    this.save(objects);
+    save(objects);
 
     return true;
   }
 
   bool remove(T object) {
-    List<T> objects = this.get();
+    List<T> objects = get();
 
     if (!objects.contains(object)) return false;
 
     objects.remove(object);
 
-    this.save(objects);
+    save(objects);
 
     return true;
   }

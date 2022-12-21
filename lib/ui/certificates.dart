@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:async';
 import 'dart:io';
 
@@ -15,7 +17,7 @@ import 'package:path_provider/path_provider.dart';
 class Certificates extends StatefulWidget {
   final String? hint;
 
-  const Certificates({Key? key, this.hint}) : super(key: key);
+  const Certificates({super.key, this.hint});
 
   @override
   _CertificatesState createState() => _CertificatesState();
@@ -59,10 +61,11 @@ class _CertificatesState extends State<Certificates> {
         try {
           InheritedLocker.of(context).lockScreen();
           Certificate certificate = await Native.addCertificate(file, password);
-          if (!Certificate.storage.add(certificate))
+          if (!Certificate.storage.add(certificate)) {
             showError(context, "Сертификат уже добавлен");
-          else
+          } else {
             _getCertificates();
+          }
         } on ApiResponseException catch (e) {
           showError(context, e.message, details: e.details);
         } finally {
@@ -84,53 +87,51 @@ class _CertificatesState extends State<Certificates> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        GestureDetector(
-          onTap: () {
-            _addCertificate();
-          },
-          child: Container(
-            margin: const EdgeInsets.only(bottom: 10.0, top: 10.0),
-            padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 10.0),
-            decoration: BoxDecoration(
-              color: const Color.fromRGBO(106, 147, 245, 1),
-              borderRadius: BorderRadius.circular(10.0),
-            ),
-            child: const Text(
-              "Добавить сертификат",
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-        ),
-        Expanded(
-          child: StreamBuilder<List<Certificate>>(
-            stream: certificatesStreamController.stream,
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) return const LoadingWidget();
-
-              if (snapshot.data!.isEmpty) return const Center(child: Text("Список сертификатов пуст"));
-
-              return Column(
-                children: [
-                  const Padding(padding: EdgeInsets.symmetric(vertical: 5.0)),
-                  Padding(padding: const EdgeInsets.symmetric(horizontal: 20.0), child: Text(widget.hint, textAlign: TextAlign.center)),
-                  Expanded(
-                    child: ListView.builder(
-                      padding: const EdgeInsets.only(top: 5.0, bottom: 10),
-                      physics: const BouncingScrollPhysics(),
-                      itemCount: snapshot.data!.length,
-                      itemBuilder: (context, index) => CertificateWidget(snapshot.data![index], _removeCertificate),
-                    ),
-                  ),
-                ],
-              );
+  Widget build(BuildContext context) => Column(
+        children: [
+          GestureDetector(
+            onTap: () {
+              _addCertificate();
             },
+            child: Container(
+              margin: const EdgeInsets.only(bottom: 10.0, top: 10.0),
+              padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 10.0),
+              decoration: BoxDecoration(
+                color: const Color.fromRGBO(106, 147, 245, 1),
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              child: const Text(
+                "Добавить сертификат",
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
           ),
-        ),
-      ],
-    );
-  }
+          Expanded(
+            child: StreamBuilder<List<Certificate>>(
+              stream: certificatesStreamController.stream,
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) return const LoadingWidget();
+
+                if (snapshot.data!.isEmpty) return const Center(child: Text("Список сертификатов пуст"));
+
+                return Column(
+                  children: [
+                    const Padding(padding: EdgeInsets.symmetric(vertical: 5.0)),
+                    Padding(padding: const EdgeInsets.symmetric(horizontal: 20.0), child: Text(widget.hint ?? "", textAlign: TextAlign.center)),
+                    Expanded(
+                      child: ListView.builder(
+                        padding: const EdgeInsets.only(top: 5.0, bottom: 10),
+                        physics: const BouncingScrollPhysics(),
+                        itemCount: snapshot.data!.length,
+                        itemBuilder: (context, index) => CertificateWidget(snapshot.data![index], _removeCertificate),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        ],
+      );
 }

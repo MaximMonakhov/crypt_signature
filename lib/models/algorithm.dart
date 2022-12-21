@@ -29,7 +29,7 @@ class Algorithm {
         'signatureOID': signatureOID,
       };
 
-  Algorithm.fromJson(Map json)
+  Algorithm.fromJson(Map<String, dynamic> json)
       : name = json['name'] as String,
         hashOID = json['hashOID'] as String,
         publicKeyOID = json['publicKeyOID'] as String,

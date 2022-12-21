@@ -62,10 +62,11 @@ class ObjectIdentifier {
         // ignore: avoid_dynamic_calls
         tree = tree[n];
       }
-      if (tree is Map) return tree[null] != null ? tree[null] as String? : "Unknown ${this.nodes.toString()}";
+      if (tree is Map) return tree[null] != null ? tree[null] as String? : "Unknown ${nodes.toString()}";
       return tree.toString();
-    } catch (e) {
-      return this.nodes.toString();
+      // ignore: avoid_catches_without_on_clauses
+    } catch (_) {
+      return nodes.toString();
     }
   }
 

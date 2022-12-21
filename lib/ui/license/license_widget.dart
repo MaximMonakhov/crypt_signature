@@ -1,13 +1,13 @@
 import 'dart:io';
 
-import 'package:crypt_signature/crypt_signature_icons_icons.dart';
 import 'package:crypt_signature/models/license.dart';
 import 'package:crypt_signature/ui/license/inherited_license.dart';
 import 'package:crypt_signature/ui/loading_widget.dart';
+import 'package:crypt_signature/utils/crypt_signature_icons_icons.dart';
 import 'package:flutter/material.dart';
 
 class LicenseWidget extends StatelessWidget {
-  const LicenseWidget({Key? key}) : super(key: key);
+  const LicenseWidget({super.key});
 
   static const Map<String, String> types = {"0": "день", "1": "дня", "2": "дней"};
 
@@ -31,7 +31,7 @@ class LicenseWidget extends StatelessWidget {
     try {
       if (license.expiredThroughDays < 0) throw Exception();
       successMessage = "Лицензия активна и истекает через ${license.expiredThroughDays} ${getNumSign(license.expiredThroughDays)}";
-    } catch (_) {
+    } on Exception catch (_) {
       successMessage = "Лицензия активна";
     }
 

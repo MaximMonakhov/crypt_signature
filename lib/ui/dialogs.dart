@@ -67,11 +67,9 @@ Future<String?> showInputDialog(
   return value;
 }
 
-Future showError(BuildContext context, String? message, {String? details}) {
-  return showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
+Future<void> showError(BuildContext context, String? message, {String? details}) => showDialog(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
         titlePadding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 10.0),
         contentPadding: const EdgeInsets.only(left: 20, right: 20.0, bottom: 5.0),
         shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10))),
@@ -111,7 +109,5 @@ Future showError(BuildContext context, String? message, {String? details}) {
             )
           ],
         ),
-      );
-    },
-  );
-}
+      ),
+    );

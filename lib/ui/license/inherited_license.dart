@@ -6,8 +6,15 @@ class InheritedLicense extends InheritedWidget {
   final Future<void> Function() setNewLicenseSheet;
   final Future<void> Function() getLicense;
   final Future<void> Function(String license) setLicense;
-  const InheritedLicense({Key? key, required this.license, required Widget child, required this.getLicense, required this.setLicense, required this.setNewLicenseSheet})
-      : super(key: key, child: child);
+
+  const InheritedLicense({
+    required this.license,
+    required super.child,
+    required this.getLicense,
+    required this.setLicense,
+    required this.setNewLicenseSheet,
+    super.key,
+  });
 
   @override
   bool updateShouldNotify(InheritedLicense oldWidget) => license != oldWidget.license;

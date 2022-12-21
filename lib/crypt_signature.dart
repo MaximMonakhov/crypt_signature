@@ -27,19 +27,17 @@ class CryptSignature {
     String title = "Подпись",
     String hint = "Выберите сертификат",
   }) async {
+    NavigatorState navigator = Navigator.of(context);
     sharedPreferences = await SharedPreferences.getInstance();
     Directory directory = await getApplicationDocumentsDirectory();
     await Directory('${directory.path}/certificates').create();
 
-    Object? result = await Navigator.of(context).push(
+    Object? result = await navigator.push(
       FadePageRoute(
         builder: (context) => InheritedCryptSignature(
           interfaceRequest,
           context,
-          child: HomeWidget(
-            title: title,
-            hint: hint,
-          ),
+          child: HomeWidget(title: title, hint: hint),
         ),
       ),
     );
@@ -48,7 +46,7 @@ class CryptSignature {
   }
 
   /// Инициализировать криптопровайдер
-  static Future initCSP() => Native.initCSP();
+  static Future<bool> initCSP() => Native.initCSP();
 
   /// Установить новую лицензию
   static Future<License> setLicense(String license) => Native.setLicense(license);

@@ -15,15 +15,15 @@ class Name {
 
   const Name(this.names);
 
-  factory Name.fromAsn1(ASN1Sequence sequence) {
-    return Name(
-      sequence.elements.map((ASN1Object set) {
-        return <ObjectIdentifier?, dynamic>{
-          for (var p in (set as ASN1Set).elements) toDart((p as ASN1Sequence).elements[0]) as ObjectIdentifier?: toDart(p.elements[1])
-        };
-      }).toList(),
-    );
-  }
+  factory Name.fromAsn1(ASN1Sequence sequence) => Name(
+        sequence.elements
+            .map(
+              (ASN1Object set) => <ObjectIdentifier?, dynamic>{
+                for (var p in (set as ASN1Set).elements) toDart((p as ASN1Sequence).elements[0]) as ObjectIdentifier?: toDart(p.elements[1])
+              },
+            )
+            .toList(),
+      );
 
   ASN1Sequence toAsn1() {
     var seq = ASN1Sequence();
@@ -56,11 +56,9 @@ class Validity {
         notAfter: toDart(sequence.elements[1]) as DateTime?,
       );
 
-  ASN1Sequence toAsn1() {
-    return ASN1Sequence()
-      ..add(fromDart(notBefore))
-      ..add(fromDart(notAfter));
-  }
+  ASN1Sequence toAsn1() => ASN1Sequence()
+    ..add(fromDart(notBefore))
+    ..add(fromDart(notAfter));
 
   @override
   String toString([String prefix = '']) {
@@ -91,11 +89,9 @@ class SubjectPublicKeyInfo {
     return buffer.toString();
   }
 
-  ASN1Sequence toAsn1() {
-    return ASN1Sequence()
-      ..add(algorithm.toAsn1())
-      ..add(keyToAsn1(subjectPublicKey));
-  }
+  ASN1Sequence toAsn1() => ASN1Sequence()
+    ..add(algorithm.toAsn1())
+    ..add(keyToAsn1(subjectPublicKey));
 }
 
 class AlgorithmIdentifier {
@@ -142,7 +138,7 @@ Object _parseDer(List<int> bytes, String? type) {
   throw const FormatException('Could not parse PEM');
 }
 
-Iterable parsePem(String pem) sync* {
+Iterable<dynamic> parsePem(String pem) sync* {
   var lines = pem.split('\n').map((line) => line.trim()).where((line) => line.isNotEmpty).toList();
 
   final re = RegExp(r'^-----BEGIN (.+)-----$');

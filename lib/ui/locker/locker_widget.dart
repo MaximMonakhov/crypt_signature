@@ -2,11 +2,11 @@ import 'package:crypt_signature/ui/locker/inherited_locker.dart';
 import 'package:flutter/material.dart';
 
 class LockerWidget extends StatelessWidget {
-  const LockerWidget({Key? key}) : super(key: key);
+  const LockerWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
-    if (InheritedLocker.of(context).lock)
+    if (InheritedLocker.of(context).lock) {
       return Container(
         width: double.infinity,
         height: double.infinity,
@@ -27,7 +27,8 @@ class LockerWidget extends StatelessWidget {
           ),
         ),
       );
+    }
 
-    return Container();
+    return const SizedBox.shrink();
   }
 }
