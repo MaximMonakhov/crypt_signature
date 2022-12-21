@@ -77,7 +77,7 @@ CryptSignature.interface
 * ```CustomInterfaceRequest```<br>
     * Создан для выполнения собственной логики ЭП, но с использования интерфейса плагина.
 
-__Иными словами. ```PKCS7MessageInterfaceRequest``` считает хэш сам, а ```PKCS7HASHInterfaceRequest``` получает его готовый из вне.__
+__Иными словами. ```PKCS7MessageInterfaceRequest``` считает хэш сам, а ```PKCS7HASHInterfaceRequest``` получает его готовый извне.__
 
 Пример работы режимов:
 * ```MessageInterfaceRequest```
