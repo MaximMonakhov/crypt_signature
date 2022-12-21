@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:crypt_signature/src/models/certificate.dart';
+import 'package:crypt_signature/src/models/pkcs7.dart';
 import 'package:crypt_signature/src/utils/extensions.dart';
 
 /// Результат подписи
@@ -18,13 +19,16 @@ class SignResult {
   /// Алгоритм сигнатуры
   final String signatureAlgorithm;
 
-  factory SignResult(Certificate certificate, {required String digest, required String signature, required String signatureAlgorithm}) {
+  /// PKCS7
+  PKCS7? pkcs7;
+
+  factory SignResult(Certificate certificate, {required String digest, required String signature, required String signatureAlgorithm, PKCS7? pkcs7}) {
     /// Нативные функции win32 возвращают развернутую сигнатуру
     if (Platform.isIOS) signature = reverseSignature(signature);
-    return SignResult._(certificate, digest, signature, signatureAlgorithm);
+    return SignResult._(certificate, digest, signature, signatureAlgorithm, pkcs7);
   }
 
-  SignResult._(this.certificate, this.digest, this.signature, this.signatureAlgorithm);
+  SignResult._(this.certificate, this.digest, this.signature, this.signatureAlgorithm, this.pkcs7);
 
   @override
   String toString() =>
