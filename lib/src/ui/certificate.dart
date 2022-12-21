@@ -5,11 +5,8 @@ import 'dart:io';
 import 'package:crypt_signature/src/exceptions/api_response_exception.dart';
 import 'package:crypt_signature/src/inherited_crypt_signature.dart';
 import 'package:crypt_signature/src/models/certificate.dart';
-import 'package:crypt_signature/src/models/digest_result.dart';
 import 'package:crypt_signature/src/models/interface_request.dart';
-import 'package:crypt_signature/src/models/pkcs7.dart';
 import 'package:crypt_signature/src/models/sign_result.dart';
-import 'package:crypt_signature/src/native/native.dart';
 import 'package:crypt_signature/src/ui/dialogs.dart';
 import 'package:crypt_signature/src/ui/license/inherited_license.dart';
 import 'package:crypt_signature/src/ui/locker/inherited_locker.dart';
@@ -43,32 +40,15 @@ class CertificateWidget extends StatelessWidget {
     // }
 
     String? password = await _askPassword(context);
+    if (password == null || password.isEmpty) return;
 
-    if (password != null && password.isNotEmpty) {
-      switch (InheritedCryptSignature.of(context).interfaceRequest.runtimeType) {
-        case MessageInterfaceRequest:
-          _signMessage(context, password);
-          break;
-        case PKCS7InterfaceRequest:
-          _signPKCS7(context, password);
-          break;
-        case PKCS7HASHInterfaceRequest:
-          _signPKCS7HASH(context, password);
-          break;
-        case CustomInterfaceRequest:
-          _signCustom(context, password);
-          break;
-      }
-    }
-  }
+    InheritedLocker.of(context).lockScreen();
 
-  Future<void> _signMessage(BuildContext context, String password) async {
+    final InheritedCryptSignature inherit = InheritedCryptSignature.of(context);
+    final InterfaceRequest request = inherit.interfaceRequest;
     try {
-      InheritedLocker.of(context).lockScreen();
-      String message = (InheritedCryptSignature.of(context).interfaceRequest as MessageInterfaceRequest).message;
-      DigestResult digestResult = await Native.digest(certificate, password, message);
-      SignResult signResult = await Native.sign(certificate, password, digestResult.digest);
-      Navigator.of(InheritedCryptSignature.of(context).rootContext).pop(signResult);
+      final SignResult result = await request.signer(certificate, password);
+      Navigator.of(inherit.rootContext).pop(result);
     } on ApiResponseException catch (e) {
       showError(context, e.message, details: e.details);
     } on Exception catch (e) {
@@ -76,73 +56,6 @@ class CertificateWidget extends StatelessWidget {
     } finally {
       InheritedLocker.of(context).unlockScreen();
     }
-  }
-
-  Future<void> _signPKCS7(BuildContext context, String password) async {
-    try {
-      InheritedLocker.of(context).lockScreen();
-      String message = await (InheritedCryptSignature.of(context).interfaceRequest as PKCS7InterfaceRequest).getMessage.call(certificate);
-      DigestResult digestResult = await Native.digest(certificate, password, message);
-      late PKCS7 pkcs7;
-      String signedAttributes;
-      if (Platform.isIOS) {
-        signedAttributes = await (InheritedCryptSignature.of(context).interfaceRequest as PKCS7InterfaceRequest).getSignedAttributes!(
-          certificate,
-          digestResult.digest,
-        );
-      } else {
-        pkcs7 = await Native.createPKCS7(certificate, password, digestResult.digest);
-        signedAttributes = pkcs7.signedAttributes;
-      }
-      DigestResult signedAttributesDigest = await Native.digest(certificate, password, signedAttributes);
-      SignResult signResult = await Native.sign(certificate, password, signedAttributesDigest.digest);
-      if (Platform.isIOS) {
-        Navigator.of(InheritedCryptSignature.of(context).rootContext).pop(signResult);
-        return;
-      }
-      pkcs7 = await Native.addSignatureToPKCS7(pkcs7, signResult.signature);
-      Navigator.of(InheritedCryptSignature.of(context).rootContext).pop(pkcs7);
-    } on ApiResponseException catch (e) {
-      showError(context, e.message, details: e.details);
-    } on Exception catch (e) {
-      showError(context, "Возникла ошибка при выполнении ЭП", details: e.toString());
-    } finally {
-      InheritedLocker.of(context).unlockScreen();
-    }
-  }
-
-  Future<void> _signPKCS7HASH(BuildContext context, String password) async {
-    try {
-      InheritedLocker.of(context).lockScreen();
-      String digest = await (InheritedCryptSignature.of(context).interfaceRequest as PKCS7HASHInterfaceRequest).getDigest.call(certificate);
-      late PKCS7 pkcs7;
-      String signedAttributes;
-      if (Platform.isIOS) {
-        signedAttributes = await (InheritedCryptSignature.of(context).interfaceRequest as PKCS7HASHInterfaceRequest).getSignedAttributes!(certificate, digest);
-      } else {
-        pkcs7 = await Native.createPKCS7(certificate, password, digest);
-        signedAttributes = pkcs7.signedAttributes;
-      }
-      DigestResult signedAttributesDigest = await Native.digest(certificate, password, signedAttributes);
-      SignResult signResult = await Native.sign(certificate, password, signedAttributesDigest.digest);
-      if (Platform.isIOS) {
-        Navigator.of(InheritedCryptSignature.of(context).rootContext).pop(signResult);
-        return;
-      }
-      pkcs7 = await Native.addSignatureToPKCS7(pkcs7, signResult.signature);
-      Navigator.of(InheritedCryptSignature.of(context).rootContext).pop(pkcs7);
-    } on ApiResponseException catch (e) {
-      showError(context, e.message, details: e.details);
-    } on Exception catch (e) {
-      showError(context, "Возникла ошибка при выполнении ЭП", details: e.toString());
-    } finally {
-      InheritedLocker.of(context).unlockScreen();
-    }
-  }
-
-  void _signCustom(BuildContext context, String password) {
-    (InheritedCryptSignature.of(context).interfaceRequest as CustomInterfaceRequest).onCertificateSelected.call(certificate, password);
-    Navigator.of(InheritedCryptSignature.of(context).rootContext).pop();
   }
 
   @override

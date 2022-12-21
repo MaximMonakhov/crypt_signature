@@ -1,5 +1,3 @@
-// ignore_for_file: use_key_in_widget_constructors, prefer_const_constructors_in_immutables, library_private_types_in_public_api
-
 import 'dart:convert';
 
 import 'package:crypt_signature/crypt_signature.dart';
@@ -92,11 +90,11 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             OutlinedButton(
               onPressed: () async {
-                Object result = await CryptSignature.interface(context, PKCS7InterfaceRequest(getMessage, getSignedAttributes: getSignedAttributes));
+                Object result = await CryptSignature.interface(context, PKCS7MessageInterfaceRequest(getMessage, getSignedAttributes: getSignedAttributes));
 
                 showResultDialog(result?.toString());
               },
-              child: const Text("PKCS7InterfaceRequest"),
+              child: const Text("PKCS7MessageInterfaceRequest"),
             ),
             OutlinedButton(
               onPressed: () async {
