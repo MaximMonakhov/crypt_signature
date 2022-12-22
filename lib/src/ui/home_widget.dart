@@ -27,10 +27,8 @@ class HomeWidget extends StatelessWidget {
           backgroundColor: const Color.fromRGBO(250, 250, 250, 1),
           centerTitle: true,
           elevation: 0,
-          title: Text(
-            title,
-            style: const TextStyle(color: Colors.black87),
-          ),
+          title: Text(title, style: const TextStyle(color: Colors.black87)),
+          actions: const [Center(child: Padding(padding: EdgeInsets.only(right: 15.0), child: Text("5.0.42798", style: TextStyle(color: Colors.black26))))],
           leading: GestureDetector(
             behavior: HitTestBehavior.translucent,
             onTap: () => Navigator.of(InheritedCryptSignature.of(context).rootContext).pop(),

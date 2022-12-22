@@ -36,7 +36,7 @@ class LicenseWidget extends StatelessWidget {
     }
 
     return Container(
-      padding: EdgeInsets.only(left: 10.0, right: 10.0, bottom: license.status ? 15.0 : 0),
+      padding: EdgeInsets.only(left: 20.0, right: 15.0, bottom: license.status ? 15.0 : 0),
       color: const Color.fromRGBO(243, 241, 247, 1),
       child: license.status
           ? Column(

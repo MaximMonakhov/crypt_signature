@@ -32,7 +32,7 @@ class SignResult {
 
   @override
   String toString() =>
-      "Сертификат из контейнера с приватным ключем: ${certificate.certificate.truncate()}\nDigest: ${digest.truncate()}\nSignature: ${signature.truncate()}\nАлгоритм сигнатуры: $signatureAlgorithm";
+      "Сертификат из контейнера с приватным ключем: ${certificate.certificate.truncate()}\nDigest: ${digest.truncate()}\nSignature: ${signature.truncate()}\nАлгоритм сигнатуры: $signatureAlgorithm\nPKCS7: $pkcs7";
 
   static String reverseSignature(String signature) => base64.encode(base64.decode(signature.replaceAll("\n", "")).reversed.toList());
 }

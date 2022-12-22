@@ -101,7 +101,7 @@ class _CertificatesState extends State<Certificates> {
                 borderRadius: BorderRadius.circular(10.0),
               ),
               child: const Text(
-                "Добавить сертификат",
+                "Добавить сертификат (.pfx)",
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.white),
               ),

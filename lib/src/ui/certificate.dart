@@ -125,7 +125,7 @@ class CertificateWidget extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text("Действителен по", style: TextStyle(fontSize: 12)),
+                  const Text("Действителен до", style: TextStyle(fontSize: 12)),
                   const Padding(padding: EdgeInsets.symmetric(horizontal: 5.0)),
                   Expanded(
                     child: FittedBox(

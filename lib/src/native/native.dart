@@ -101,7 +101,9 @@ Future<T> _invokeWithExceptionHandler<T>(Future<T> future, String errorMessage) 
     rethrow;
   } on PlatformException catch (exception) {
     throw ApiResponseException(exception.message, exception.details.toString());
-  } on Exception catch (exception) {
-    throw ApiResponseException(errorMessage, exception.toString());
+  } on Exception catch (exception, stackTrace) {
+    throw ApiResponseException(errorMessage, exception.toString() + stackTrace.toString());
+  } on Error catch (error, stackTrace) {
+    throw ApiResponseException(errorMessage, error.toString() + stackTrace.toString());
   }
 }

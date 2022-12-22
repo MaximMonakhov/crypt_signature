@@ -43,7 +43,7 @@ abstract class PKCS7InterfaceRequest extends InterfaceRequest {
         DigestResult signedAttributesDigest = await Native.digest(certificate, password, signedAttributes);
         SignResult signResult = await Native.sign(certificate, password, signedAttributesDigest.digest);
         pkcs7 = await Native.addSignatureToPKCS7(pkcs7, signResult.signature);
-        signResult.pkcs7 = pkcs7;
+        signResult.pkcs7 = PKCS7(content: pkcs7.content, signedAttributes: signedAttributes);
         return signResult;
       };
 
