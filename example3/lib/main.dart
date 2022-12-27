@@ -90,7 +90,8 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             OutlinedButton(
               onPressed: () async {
-                SignResult result = await CryptSignature.interface(context, PKCS7MessageInterfaceRequest(getMessage, getSignedAttributes: getSignedAttributes));
+                PKCS7SignResult result =
+                    await CryptSignature.interface(context, PKCS7MessageInterfaceRequest(getMessage, getSignedAttributes: getSignedAttributes));
 
                 showResultDialog(result?.toString());
               },
@@ -98,11 +99,20 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             OutlinedButton(
               onPressed: () async {
-                SignResult result = await CryptSignature.interface(context, PKCS7HASHInterfaceRequest(getDigest, getSignedAttributes: getSignedAttributes));
+                PKCS7SignResult result =
+                    await CryptSignature.interface(context, PKCS7HASHInterfaceRequest(getDigest, getSignedAttributes: getSignedAttributes));
 
                 showResultDialog(result?.toString());
               },
               child: const Text("PKCS7HASHInterfaceRequest"),
+            ),
+            OutlinedButton(
+              onPressed: () async {
+                XMLDSIGSignResult result = await CryptSignature.interface(context, XMLInterfaceRequest());
+
+                showResultDialog(result?.toString());
+              },
+              child: const Text("XMLInterfaceRequest"),
             ),
           ],
         ),

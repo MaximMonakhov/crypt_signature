@@ -1,12 +1,11 @@
 import 'dart:io';
 
 import 'package:crypt_signature/crypt_signature.dart';
-import 'package:crypt_signature/src/models/sign_result.dart';
 import 'package:crypt_signature/src/native/native.dart';
 
-typedef Signer = Future<SignResult> Function(Certificate certificate, String password);
+typedef Signer<T extends SignResult> = Future<T> Function(Certificate certificate, String password);
 
-abstract class InterfaceRequest {
+abstract class InterfaceRequest<T extends SignResult> {
   Signer get signer;
 }
 
@@ -23,7 +22,7 @@ class MessageInterfaceRequest extends InterfaceRequest {
       };
 }
 
-abstract class PKCS7InterfaceRequest extends InterfaceRequest {
+abstract class PKCS7InterfaceRequest extends InterfaceRequest<PKCS7SignResult> {
   /// Получение аттрибутов подписи на основе [digest] сообщения
   final Future<String> Function(Certificate certificate, String digest)? getSignedAttributes;
 
@@ -53,7 +52,7 @@ abstract class PKCS7InterfaceRequest extends InterfaceRequest {
         String signedAttributes = await getSignedAttributes!(certificate, digest);
         DigestResult signedAttributesDigest = await Native.digest(certificate, password, signedAttributes);
         SignResult signResult = await Native.sign(certificate, password, signedAttributesDigest.digest);
-        return signResult;
+        return PKCS7SignResult.from(PKCS7(content: "", signedAttributes: signedAttributes), signResult);
       };
 }
 
@@ -91,7 +90,7 @@ class PKCS7HASHInterfaceRequest extends PKCS7InterfaceRequest {
 }
 
 /// Класс для своей логики подписи
-class CustomInterfaceRequest extends InterfaceRequest {
+class CustomInterfaceRequest<T extends SignResult> extends InterfaceRequest<T> {
   /// Вызывается при выборе сертификата, пользовательская логика подписи
   final Signer onCertificateSelected;
 
@@ -101,8 +100,8 @@ class CustomInterfaceRequest extends InterfaceRequest {
   Signer get signer => onCertificateSelected;
 }
 
-class XMLInterfaceRequest extends InterfaceRequest {
+class XMLInterfaceRequest extends InterfaceRequest<XMLDSIGSignResult> {
   @override
   // TODO: implement XMLInterfaceRequest signer
-  Signer get signer => throw UnimplementedError();
+  Signer<XMLDSIGSignResult> get signer => throw UnimplementedError();
 }

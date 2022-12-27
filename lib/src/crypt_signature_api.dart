@@ -22,9 +22,9 @@ class CryptSignature {
   /// В случает подписи PKCS7 на Android возвращает [PKCS7SignResult]
   /// В случает подписи XML возвращает [XMLDSIGSignResult]
   /// Возвращает [SignResult] для всеъ остальных
-  static Future<SignResult?> interface(
+  static Future<T?> interface<T extends SignResult>(
     BuildContext context,
-    InterfaceRequest interfaceRequest, {
+    InterfaceRequest<T> interfaceRequest, {
     String title = "Подпись",
     String hint = "Выберите сертификат",
   }) async {
@@ -33,7 +33,7 @@ class CryptSignature {
     Directory directory = await getApplicationDocumentsDirectory();
     await Directory('${directory.path}/certificates').create();
 
-    SignResult? result = await navigator.push(
+    T? result = await navigator.push(
       FadePageRoute(
         builder: (context) => InheritedCryptSignature(
           interfaceRequest,
