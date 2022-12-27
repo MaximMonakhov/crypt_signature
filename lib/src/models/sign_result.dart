@@ -19,20 +19,43 @@ class SignResult {
   /// Алгоритм сигнатуры
   final String signatureAlgorithm;
 
-  /// PKCS7
-  PKCS7? pkcs7;
+  SignResult(this.certificate, {required this.digest, required String signature, required this.signatureAlgorithm})
+      : // Нативные функции win32 возвращают развернутую сигнатуру
+        signature = Platform.isIOS ? reverseSignature(signature) : signature;
 
-  factory SignResult(Certificate certificate, {required String digest, required String signature, required String signatureAlgorithm, PKCS7? pkcs7}) {
-    /// Нативные функции win32 возвращают развернутую сигнатуру
-    if (Platform.isIOS) signature = reverseSignature(signature);
-    return SignResult._(certificate, digest, signature, signatureAlgorithm, pkcs7);
-  }
-
-  SignResult._(this.certificate, this.digest, this.signature, this.signatureAlgorithm, this.pkcs7);
+  SignResult.from(SignResult other)
+      : certificate = other.certificate,
+        digest = other.digest,
+        signature = other.signature,
+        signatureAlgorithm = other.signatureAlgorithm;
 
   @override
-  String toString() =>
-      "Сертификат из контейнера с приватным ключем: ${certificate.certificate.truncate()}\nDigest: ${digest.truncate()}\nSignature: ${signature.truncate()}\nАлгоритм сигнатуры: $signatureAlgorithm\nPKCS7: $pkcs7";
+  String toString() {
+    StringBuffer stringBuffer = StringBuffer()
+      ..writeln("SignResult")
+      ..writeln("Сертификат из контейнера с приватным ключем: ${certificate.certificate.truncate()}")
+      ..writeln("Digest: ${digest.truncate()}")
+      ..writeln("Signature: ${signature.truncate()}")
+      ..writeln("Алгоритм сигнатуры: $signatureAlgorithm");
+
+    return stringBuffer.toString();
+  }
 
   static String reverseSignature(String signature) => base64.encode(base64.decode(signature.replaceAll("\n", "")).reversed.toList());
+}
+
+class PKCS7SignResult extends SignResult {
+  final PKCS7 pkcs7;
+
+  PKCS7SignResult(this.pkcs7, super.certificate, {required super.digest, required super.signature, required super.signatureAlgorithm});
+
+  PKCS7SignResult.from(this.pkcs7, SignResult signResult) : super.from(signResult);
+
+  @override
+  String toString() => "${super.toString()}\nPKCS7: $pkcs7";
+}
+
+class XMLDSIGSignResult extends SignResult {
+  /// TODO: implement XMLDsigSignResult
+  XMLDSIGSignResult(super.certificate, {required super.digest, required super.signature, required super.signatureAlgorithm});
 }

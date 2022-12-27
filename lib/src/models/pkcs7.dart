@@ -7,5 +7,5 @@ class PKCS7 {
   PKCS7({required this.content, required this.signedAttributes});
 
   @override
-  String toString() => "PKCS7: ${content.truncate()}\nАтрибуты подписи: ${signedAttributes.truncate()}";
+  String toString() => "Контент: ${content.truncate()}\nАтрибуты подписи: ${signedAttributes.truncate()}";
 }

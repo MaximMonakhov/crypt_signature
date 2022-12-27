@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:crypt_signature/crypt_signature.dart';
+import 'package:crypt_signature/src/models/sign_result.dart';
 import 'package:crypt_signature/src/native/native.dart';
 
 typedef Signer = Future<SignResult> Function(Certificate certificate, String password);
@@ -43,8 +44,7 @@ abstract class PKCS7InterfaceRequest extends InterfaceRequest {
         DigestResult signedAttributesDigest = await Native.digest(certificate, password, signedAttributes);
         SignResult signResult = await Native.sign(certificate, password, signedAttributesDigest.digest);
         pkcs7 = await Native.addSignatureToPKCS7(pkcs7, signResult.signature);
-        signResult.pkcs7 = PKCS7(content: pkcs7.content, signedAttributes: signedAttributes);
-        return signResult;
+        return PKCS7SignResult.from(PKCS7(content: pkcs7.content, signedAttributes: signedAttributes), signResult);
       };
 
   Signer get iosSigner => (Certificate certificate, String password) async {

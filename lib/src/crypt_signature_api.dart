@@ -18,9 +18,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 class CryptSignature {
   static SharedPreferences? sharedPreferences;
 
-  /// Открыть экран выбора сертификата и подписать сообщение [message].
-  /// Метод вычисляет хэш от сообщения и подписывает его.
-  /// Возвращает [SignResult]
+  /// Открыть экран выбора сертификата и подписать
+  /// В случает подписи PKCS7 на Android возвращает [PKCS7SignResult]
+  /// В случает подписи XML возвращает [XMLDSIGSignResult]
+  /// Возвращает [SignResult] для всеъ остальных
   static Future<SignResult?> interface(
     BuildContext context,
     InterfaceRequest interfaceRequest, {
