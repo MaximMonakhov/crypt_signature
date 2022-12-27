@@ -54,8 +54,3 @@ class PKCS7SignResult extends SignResult {
   @override
   String toString() => "${super.toString()}\nPKCS7: $pkcs7";
 }
-
-class XMLDSIGSignResult extends SignResult {
-  /// TODO: implement XMLDsigSignResult
-  XMLDSIGSignResult(super.certificate, {required super.digest, required super.signature, required super.signatureAlgorithm});
-}
