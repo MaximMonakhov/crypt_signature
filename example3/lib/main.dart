@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key}) : super(key: key);
+  MyHomePage({super.key});
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -49,7 +49,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void showResultDialog(String data) {
-    if (data == null) return;
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -81,36 +80,37 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             OutlinedButton(
               onPressed: () async {
-                SignResult result = await CryptSignature.interface(context, MessageInterfaceRequest(base64.encode(utf8.encode("Данные на подпись"))),
+                SignResult? result = await CryptSignature.interface(context, MessageInterfaceRequest(base64.encode(utf8.encode("Данные на подпись"))),
                     title: "Войти по сертификату", hint: "Выберите сертификат");
 
-                showResultDialog(result?.toString());
+                showResultDialog(result.toString());
               },
               child: const Text("MessageInterfaceRequest"),
             ),
             OutlinedButton(
               onPressed: () async {
-                PKCS7SignResult result =
+                PKCS7SignResult? result =
                     await CryptSignature.interface(context, PKCS7MessageInterfaceRequest(getMessage, getSignedAttributes: getSignedAttributes));
 
-                showResultDialog(result?.toString());
+                showResultDialog(result.toString());
               },
               child: const Text("PKCS7MessageInterfaceRequest"),
             ),
             OutlinedButton(
               onPressed: () async {
-                PKCS7SignResult result =
+                PKCS7SignResult? result =
                     await CryptSignature.interface(context, PKCS7HASHInterfaceRequest(getDigest, getSignedAttributes: getSignedAttributes));
 
-                showResultDialog(result?.toString());
+                showResultDialog(result.toString());
               },
               child: const Text("PKCS7HASHInterfaceRequest"),
             ),
             OutlinedButton(
               onPressed: () async {
-                XMLDSIGSignResult result = await CryptSignature.interface(context, XMLInterfaceRequest());
+                // TODO: доделать пример
+                // XMLDSIGSignResult? result = await CryptSignature.interface(context, XMLInterfaceRequest());
 
-                showResultDialog(result?.toString());
+                // showResultDialog(result.toString());
               },
               child: const Text("XMLInterfaceRequest"),
             ),
