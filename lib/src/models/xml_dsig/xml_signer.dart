@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:crypt_signature/src/models/certificate.dart';
 import 'package:crypt_signature/src/models/xml_dsig/algorithm_info/gost_sign_algorithm_info.dart';
 import 'package:crypt_signature/src/models/xml_dsig/operation/xml_operation_result.dart';
@@ -10,25 +12,32 @@ import 'package:crypt_signature/src/models/xml_dsig/xml_sign_transformer.dart';
 import 'package:xml/xml.dart';
 
 class XmlSigner {
-  final XmlDocument document;
-  late final TargetNode target;
   final XmlSignOptions options;
   final XmlOperations operations;
+  final FutureOr<XmlDocument> Function(Certificate certificate) getDocument;
+
+  late XmlDocument _document;
+  late TargetNode _target;
+
 
   final XmlSignatureBuilder _signatureBuilder = const XmlSignatureBuilderImpl();
 
   XmlSigner(
-    this.document,    
+    this.getDocument,  
     this.options,
     this.operations,
-  ) {
-    this.target = options.elementResolver.getTargetNode(this.document);
+  );
+
+  Future<void> _init(Certificate certificate) async {
+    _document = (await getDocument(certificate)).copy();
+    _target = options.elementResolver.getTargetNode(_document);
   }
 
   Future<XMLDSIGSignResult> sign(Certificate certificate, String password) async {
+    await _init(certificate);
     operations.init(certificate, password);
 
-    final XmlTransformsResult transformsResult = await operations.transformer.exec(target.node);
+    final XmlTransformsResult transformsResult = await operations.transformer.exec(_target.node);
     final XmlDigestResult digestResult = await operations.digest.exec(transformsResult.value);
     final XmlDigestResult certDigest = await operations.digest.exec(certificate.toString());
 
@@ -56,7 +65,7 @@ class XmlSigner {
   XmlNode _getSignedInfoNode(Certificate certificate, XmlDigestResult digestResult, XmlTransformsResult transformsResult) {
     final XmlNode signedInfo = _signatureBuilder.getSignedInfoNode(
       signatureMethod: GostSignAlgorithmInfo.fromAlgorithm(certificate.algorithm),
-      referenceUri: target.uri,
+      referenceUri: _target.uri,
       digestResult: digestResult,
       transforms: transformsResult.transforms,
       canonicalization: transformsResult.canonicalization,
@@ -69,7 +78,7 @@ class XmlSigner {
     required Certificate certificate,
     required XmlSignAlgorithmResult algorithmResult,
   }) {
-    final XmlDocument initialDocument = document.copy();
+    final XmlDocument initialDocument = _document.copy();
 
     final XmlNode keyInfo = _signatureBuilder.getKeyInfo(
       certificate,
@@ -82,13 +91,13 @@ class XmlSigner {
       signResult: algorithmResult.signature,
     );
 
-    options.signatureType.bindSignatureNode(signatureNode, target.node);
+    options.signatureType.bindSignatureNode(signatureNode, _target.node);
 
     return XMLDSIGSignResult(
       algorithmResult: algorithmResult,
       document: initialDocument,
       signatureNode: signatureNode,
-      signedDocument: document,
+      signedDocument: _document,
       certificate: certificate,
     );
   }

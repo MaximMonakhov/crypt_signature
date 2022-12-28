@@ -14,6 +14,17 @@ abstract class XmlOperations {
   XmlSignOperation get sign;
   XmlSignTransformer get transformer;
 
+  factory XmlOperations.fromOptions(
+    XmlSignOptions options, { 
+    List<XmlTransformOperation> transforms = const [],
+  }) {
+    final XmlCanonicalizationOperation canonicalization = XmlCanonicalizationOperation(options.canonicalizationType);
+    return XmlOperationsGostImpl(
+      canonicalization: canonicalization,
+      transformer: options.signatureType.getTransformer(canonicalization, transforms),
+    );
+  }
+
   void init(Certificate certificate, String password);
 }
 
@@ -45,17 +56,6 @@ class XmlOperationsGostImpl implements XmlOperations {
     required this.canonicalization,
     required this.transformer,
   });
-
-  factory XmlOperationsGostImpl.fromOptions(
-    XmlSignOptions options, { 
-    List<XmlTransformOperation> transforms = const [],
-  }) {
-    final XmlCanonicalizationOperation canonicalization = XmlCanonicalizationOperation(options.canonicalizationType);
-    return XmlOperationsGostImpl(
-      canonicalization: canonicalization,
-      transformer: options.signatureType.getTransformer(canonicalization, transforms),
-    );
-  }
 
   @override
   void init(Certificate certificate, String password) {

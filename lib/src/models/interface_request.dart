@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:crypt_signature/crypt_signature.dart';
@@ -104,6 +105,7 @@ class CustomInterfaceRequest<T extends SignResult> extends InterfaceRequest<T> {
 }
 
 /// Подписывает xml - документ по стандарту `XmlDSig`
+/// * Функция [getDocument] возвращает документ
 /// * `XmlElementResolver` находит целевой узел в документе
 /// * В зависимости от типа подписи выполняются предварительные преобразования
 /// * На последнем этапе целевой узел подвергается канонизации
@@ -112,17 +114,28 @@ class CustomInterfaceRequest<T extends SignResult> extends InterfaceRequest<T> {
 /// * `SignedInfo` канонизируется и подвергается подписи (хэш + подпись)
 /// * В зависимости от типа подписи формируется результат подписи
 class XMLInterfaceRequest extends InterfaceRequest<XMLDSIGSignResult> {
-  XMLInterfaceRequest({
-    required XmlDocument document,
-    XmlSignOptions? options, 
+  XMLInterfaceRequest(
+    FutureOr<XmlDocument> Function(Certificate certificate) getDocument, {
+    XmlSignOptions? options,
   }) {
     final XmlSignOptions targetOptions = options ?? XmlSignOptions();
-    final XmlDocument documentCopy = document.copy();
     _signer = XmlSigner(
-      documentCopy,
+      getDocument,
       targetOptions,
-      XmlOperationsGostImpl.fromOptions(targetOptions),
+      XmlOperations.fromOptions(targetOptions),
     );
+  }
+
+  factory XMLInterfaceRequest.rawDocument(
+  FutureOr<String> Function(Certificate certificate) getRawDocument, {
+    XmlSignOptions? options,
+  }) {
+    FutureOr<XmlDocument> getDocument(Certificate certificate) async {
+      final String rawDocument = await getRawDocument(certificate);
+      return XmlDocument.parse(rawDocument);
+    }
+
+    return XMLInterfaceRequest(getDocument, options: options);
   }
 
   late XmlSigner _signer;
