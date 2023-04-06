@@ -15,7 +15,7 @@ dependencies:
   uuid: ^3.0.2
   intl: ^0.17.0
   path_provider: ^2.0.1
-  file_picker: ^3.0.4
+  file_picker: ^5.2.6
   mask_text_input_formatter: ^2.0.0
   asn1lib: ^1.0.0
   crypto_keys: '>=0.2.0 <0.4.0'
