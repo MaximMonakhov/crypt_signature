@@ -12,9 +12,9 @@ class XmlSignAlgorithmResult {
   final XmlDigestResult certDigest;
 
   XmlSignAlgorithmResult({
-    required this.canonicalization, 
-    required this.digest, 
-    required this.signature, 
+    required this.canonicalization,
+    required this.digest,
+    required this.signature,
     required this.certDigest,
     required this.transforms,
   });
@@ -35,18 +35,19 @@ class XMLDSIGSignResult extends SignResult {
   }) {
     final XmlSignResult signature = algorithmResult.signature;
     return XMLDSIGSignResult._(
-      certificate, 
-      algorithmResult: algorithmResult, 
-      document: document, 
-      signatureNode: signatureNode, 
-      signedDocument: signedDocument, 
-      digest: signature.value, 
-      signature: algorithmResult.digest.value, 
+      certificate,
+      algorithmResult: algorithmResult,
+      document: document,
+      signatureNode: signatureNode,
+      signedDocument: signedDocument,
+      digest: signature.value,
+      signature: algorithmResult.digest.value,
       signatureAlgorithm: signature.signResult.signatureAlgorithm,
     );
   }
-  
-  XMLDSIGSignResult._(super.certificate, {
+
+  XMLDSIGSignResult._(
+    super.certificate, {
     required this.algorithmResult,
     required this.document,
     required this.signatureNode,
@@ -57,7 +58,6 @@ class XMLDSIGSignResult extends SignResult {
   });
 
   @override
-  String toString() => 'document: ${document.toXmlString(pretty: true)}\n' +
-    'signatureNode: ${signatureNode.toXmlString(pretty: true)}\n' +
-    'signedDocument: ${signedDocument.toXmlString(pretty: true)}';
+  String toString() =>
+      'document: ${document.toXmlString(pretty: true)}\nsignatureNode: ${signatureNode.toXmlString(pretty: true)}\nsignedDocument: ${signedDocument.toXmlString(pretty: true)}';
 }
