@@ -47,7 +47,7 @@ abstract class PKCS7InterfaceRequest extends InterfaceRequest<PKCS7SignResult> {
         DigestResult signedAttributesDigest = await Native.digest(certificate, password, signedAttributes);
         SignResult signResult = await Native.sign(certificate, password, signedAttributesDigest.digest);
         pkcs7 = await Native.addSignatureToPKCS7(pkcs7, signResult.signature);
-        return PKCS7SignResult.from(PKCS7(content: pkcs7.content, signedAttributes: signedAttributes), signResult);
+        return PKCS7SignResult.from(PKCS7(content: pkcs7.content, signedAttributes: signedAttributes), signResult, initialDigest: digest);
       };
 
   Signer get iosSigner => (Certificate certificate, String password) async {
@@ -56,7 +56,7 @@ abstract class PKCS7InterfaceRequest extends InterfaceRequest<PKCS7SignResult> {
         String signedAttributes = await getSignedAttributes!(certificate, digest);
         DigestResult signedAttributesDigest = await Native.digest(certificate, password, signedAttributes);
         SignResult signResult = await Native.sign(certificate, password, signedAttributesDigest.digest);
-        return PKCS7SignResult.from(PKCS7(content: "", signedAttributes: signedAttributes), signResult);
+        return PKCS7SignResult.from(PKCS7(content: "", signedAttributes: signedAttributes), signResult, initialDigest: digest);
       };
 }
 
@@ -127,7 +127,7 @@ class XMLInterfaceRequest extends InterfaceRequest<XMLDSIGSignResult> {
   }
 
   factory XMLInterfaceRequest.rawDocument(
-  FutureOr<String> Function(Certificate certificate) getRawDocument, {
+    FutureOr<String> Function(Certificate certificate) getRawDocument, {
     XmlSignOptions? options,
   }) {
     FutureOr<XmlDocument> getDocument(Certificate certificate) async {

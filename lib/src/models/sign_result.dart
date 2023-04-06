@@ -47,10 +47,20 @@ class SignResult {
 class PKCS7SignResult extends SignResult {
   final PKCS7 pkcs7;
 
-  PKCS7SignResult(this.pkcs7, super.certificate, {required super.digest, required super.signature, required super.signatureAlgorithm});
+  /// Хэш от изначального сообщения. Так как в signResult лежит хэш от атрибутов подписи
+  final String initialDigest;
 
-  PKCS7SignResult.from(this.pkcs7, SignResult signResult) : super.from(signResult);
+  PKCS7SignResult(
+    this.pkcs7,
+    super.certificate, {
+    required this.initialDigest,
+    required super.digest,
+    required super.signature,
+    required super.signatureAlgorithm,
+  });
+
+  PKCS7SignResult.from(this.pkcs7, SignResult signResult, {required this.initialDigest}) : super.from(signResult);
 
   @override
-  String toString() => "${super.toString()}\nPKCS7: $pkcs7";
+  String toString() => "${super.toString()}\nPKCS7: $pkcs7\nInitialDigest: $initialDigest";
 }
