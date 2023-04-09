@@ -1,5 +1,7 @@
 import 'dart:io';
+import 'dart:typed_data';
 
+import 'package:asn1lib/asn1lib.dart';
 import 'package:crypt_signature/src/models/algorithm.dart';
 import 'package:crypt_signature/src/models/storage.dart';
 import 'package:crypt_signature/src/utils/X509Certificate/certificate.dart' as x509_certificate;
@@ -78,13 +80,18 @@ class Certificate {
 
     String notAfterDate = DateFormat('HH:mm dd-MM-yyyy').format(cert.tbsCertificate.validity.notAfter!);
 
+    String radixSerialNumber = cert.tbsCertificate.serialNumber.toRadixString(16);
+    Uint8List byteSerialNumber = ASN1Integer.encodeBigInt(cert.tbsCertificate.serialNumber);
+    String serialNumber =
+        radixSerialNumber.length < byteSerialNumber.length * 2 ? radixSerialNumber.padLeft(byteSerialNumber.length * 2, "0") : radixSerialNumber;
+
     Certificate certificate = Certificate(
       uuid: const Uuid().v4(),
       certificate: data["certificate"] as String,
       alias: data["alias"] as String,
       subjectDN: cert.tbsCertificate.subject.toString(),
       notAfterDate: notAfterDate,
-      serialNumber: cert.tbsCertificate.serialNumber.toRadixString(16),
+      serialNumber: serialNumber,
       algorithm: algorithm,
       x509certificate: cert,
     );
