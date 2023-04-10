@@ -80,18 +80,13 @@ class Certificate {
 
     String notAfterDate = DateFormat('HH:mm dd-MM-yyyy').format(cert.tbsCertificate.validity.notAfter!);
 
-    String radixSerialNumber = cert.tbsCertificate.serialNumber.toRadixString(16);
-    Uint8List byteSerialNumber = ASN1Integer.encodeBigInt(cert.tbsCertificate.serialNumber);
-    String serialNumber =
-        radixSerialNumber.length < byteSerialNumber.length * 2 ? radixSerialNumber.padLeft(byteSerialNumber.length * 2, "0") : radixSerialNumber;
-
     Certificate certificate = Certificate(
       uuid: const Uuid().v4(),
       certificate: data["certificate"] as String,
       alias: data["alias"] as String,
       subjectDN: cert.tbsCertificate.subject.toString(),
       notAfterDate: notAfterDate,
-      serialNumber: serialNumber,
+      serialNumber: parseSerialNumberToHex(cert.tbsCertificate.serialNumber),
       algorithm: algorithm,
       x509certificate: cert,
     );
@@ -99,6 +94,12 @@ class Certificate {
     certificate.setParams();
 
     return certificate;
+  }
+
+  static String parseSerialNumberToHex(BigInt serialNumber) {
+    String radixSerialNumber = serialNumber.toRadixString(16);
+    Uint8List byteSerialNumber = ASN1Integer.encodeBigInt(serialNumber);
+    return radixSerialNumber.length < byteSerialNumber.length * 2 ? radixSerialNumber.padLeft(byteSerialNumber.length * 2, "0") : radixSerialNumber;
   }
 
   @override
