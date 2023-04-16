@@ -120,7 +120,7 @@ class Certificate {
     stringBuffer.write("subject=${x509certificate!.tbsCertificate.subject}$PARAMETER_SEPARATOR");
     stringBuffer.write("subjectInfo=${x509certificate!.tbsCertificate.subject}$PARAMETER_SEPARATOR");
     stringBuffer.write("issuerInfo=${x509certificate!.tbsCertificate.issuer}$PARAMETER_SEPARATOR");
-    stringBuffer.write("serialNumber=${x509certificate!.tbsCertificate.serialNumber.toRadixString(16)}$PARAMETER_SEPARATOR");
+    stringBuffer.write("serialNumber=$serialNumber$PARAMETER_SEPARATOR");
     stringBuffer.write("signAlgoritm[name]=${algorithm.name}$PARAMETER_SEPARATOR");
     stringBuffer.write("signAlgoritm[oid]=${algorithm.signatureOID}$PARAMETER_SEPARATOR");
     stringBuffer.write("hashAlgoritm[alias]=${algorithm.hashOID}");
@@ -134,7 +134,7 @@ class Certificate {
     StringBuffer stringBuffer = StringBuffer();
 
     stringBuffer.write("Владелец: ${x509certificate!.tbsCertificate.subject}$DESCRIPTION_SEPARATOR");
-    stringBuffer.write("Серийный номер: ${x509certificate!.tbsCertificate.serialNumber.toRadixString(16)}$DESCRIPTION_SEPARATOR");
+    stringBuffer.write("Серийный номер: $serialNumber$DESCRIPTION_SEPARATOR");
     stringBuffer.write("Издатель: ${x509certificate!.tbsCertificate.issuer}$DESCRIPTION_SEPARATOR");
     stringBuffer.write("Алгоритм подписи:${algorithm.name}$DESCRIPTION_SEPARATOR");
     stringBuffer.write("Действует с: ${x509certificate!.tbsCertificate.validity.notBefore}$DESCRIPTION_SEPARATOR");
