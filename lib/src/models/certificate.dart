@@ -22,10 +22,9 @@ class Certificate {
   final String notAfterDate;
   final String serialNumber;
   final Algorithm algorithm;
-  late x509_certificate.X509Certificate? x509certificate;
-
-  String? parameterMap;
-  String? certificateDescription;
+  final Map<String, dynamic> parameterMap;
+  final String certificateDescription;
+  final x509_certificate.X509Certificate? x509certificate;
 
   Certificate({
     required this.uuid,
@@ -35,8 +34,8 @@ class Certificate {
     required this.notAfterDate,
     required this.serialNumber,
     required this.algorithm,
-    this.parameterMap,
-    this.certificateDescription,
+    required this.parameterMap,
+    required this.certificateDescription,
     this.x509certificate,
   });
 
@@ -54,11 +53,6 @@ class Certificate {
         'certificateDescription': certificateDescription
       };
 
-  void setParams() {
-    parameterMap = getParameterMap();
-    certificateDescription = getCertificateDescription();
-  }
-
   factory Certificate.fromJson(Map<String, dynamic> json) => Certificate(
         uuid: json["uuid"] as String? ?? const Uuid().v4(),
         certificate: json["certificate"] as String,
@@ -67,8 +61,8 @@ class Certificate {
         notAfterDate: json['notAfterDate'] as String,
         serialNumber: json['serialNumber'] as String,
         algorithm: Algorithm.fromJson(json['algorithm'] as Map<String, dynamic>),
-        parameterMap: json['parameterMap'] as String?,
-        certificateDescription: json['certificateDescription'] as String?,
+        parameterMap: json['parameterMap'] as Map<String, dynamic>,
+        certificateDescription: json['certificateDescription'] as String,
       );
 
   factory Certificate.fromBase64(Map<String, dynamic> data) {
@@ -79,6 +73,7 @@ class Certificate {
     Algorithm algorithm = Algorithm.findAlgorithmByPublicKeyOID(publicKeyOID);
 
     String notAfterDate = DateFormat('HH:mm dd-MM-yyyy').format(cert.tbsCertificate.validity.notAfter!);
+    String serialNumber = parseSerialNumberToHex(cert.tbsCertificate.serialNumber);
 
     Certificate certificate = Certificate(
       uuid: const Uuid().v4(),
@@ -86,12 +81,12 @@ class Certificate {
       alias: data["alias"] as String,
       subjectDN: cert.tbsCertificate.subject.toString(),
       notAfterDate: notAfterDate,
-      serialNumber: parseSerialNumberToHex(cert.tbsCertificate.serialNumber),
+      serialNumber: serialNumber,
       algorithm: algorithm,
       x509certificate: cert,
+      parameterMap: getParameterMap(cert, serialNumber, algorithm),
+      certificateDescription: getCertificateDescription(cert, serialNumber, algorithm),
     );
-
-    certificate.setParams();
 
     return certificate;
   }
@@ -108,37 +103,29 @@ class Certificate {
   @override
   int get hashCode => Object.hash(certificate, serialNumber);
 
-  String getParameterMap() {
-    if (x509certificate == null) return "";
+  static Map<String, String> getParameterMap(x509_certificate.X509Certificate x509certificate, String serialNumber, Algorithm algorithm) => {
+        "validFromDate": x509certificate.tbsCertificate.validity.notBefore.toString(),
+        "validToDate": x509certificate.tbsCertificate.validity.notAfter.toString(),
+        "issuer": x509certificate.tbsCertificate.issuer.toString(),
+        "subject": x509certificate.tbsCertificate.subject.toString(),
+        "subjectInfo": x509certificate.tbsCertificate.subject.toString(),
+        "issuerInfo": x509certificate.tbsCertificate.issuer.toString(),
+        "serialNumber": serialNumber,
+        "signAlgoritm[name]": algorithm.name,
+        "signAlgoritm[oid]": algorithm.signatureOID,
+        "hashAlgoritm[alias]": algorithm.hashOID,
+      };
 
-    const String PARAMETER_SEPARATOR = "&";
-    StringBuffer stringBuffer = StringBuffer();
-
-    stringBuffer.write("validFromDate=${x509certificate!.tbsCertificate.validity.notBefore}$PARAMETER_SEPARATOR");
-    stringBuffer.write("validToDate=${x509certificate!.tbsCertificate.validity.notAfter}$PARAMETER_SEPARATOR");
-    stringBuffer.write("issuer=${x509certificate!.tbsCertificate.issuer}$PARAMETER_SEPARATOR");
-    stringBuffer.write("subject=${x509certificate!.tbsCertificate.subject}$PARAMETER_SEPARATOR");
-    stringBuffer.write("subjectInfo=${x509certificate!.tbsCertificate.subject}$PARAMETER_SEPARATOR");
-    stringBuffer.write("issuerInfo=${x509certificate!.tbsCertificate.issuer}$PARAMETER_SEPARATOR");
-    stringBuffer.write("serialNumber=$serialNumber$PARAMETER_SEPARATOR");
-    stringBuffer.write("signAlgoritm[name]=${algorithm.name}$PARAMETER_SEPARATOR");
-    stringBuffer.write("signAlgoritm[oid]=${algorithm.signatureOID}$PARAMETER_SEPARATOR");
-    stringBuffer.write("hashAlgoritm[alias]=${algorithm.hashOID}");
-
-    return stringBuffer.toString();
-  }
-
-  String getCertificateDescription() {
-    if (x509certificate == null) return "";
+  static String getCertificateDescription(x509_certificate.X509Certificate x509certificate, String serialNumber, Algorithm algorithm) {
     const String DESCRIPTION_SEPARATOR = "\n";
     StringBuffer stringBuffer = StringBuffer();
 
-    stringBuffer.write("Владелец: ${x509certificate!.tbsCertificate.subject}$DESCRIPTION_SEPARATOR");
+    stringBuffer.write("Владелец: ${x509certificate.tbsCertificate.subject}$DESCRIPTION_SEPARATOR");
     stringBuffer.write("Серийный номер: $serialNumber$DESCRIPTION_SEPARATOR");
-    stringBuffer.write("Издатель: ${x509certificate!.tbsCertificate.issuer}$DESCRIPTION_SEPARATOR");
+    stringBuffer.write("Издатель: ${x509certificate.tbsCertificate.issuer}$DESCRIPTION_SEPARATOR");
     stringBuffer.write("Алгоритм подписи:${algorithm.name}$DESCRIPTION_SEPARATOR");
-    stringBuffer.write("Действует с: ${x509certificate!.tbsCertificate.validity.notBefore}$DESCRIPTION_SEPARATOR");
-    stringBuffer.write("Действует по: ${x509certificate!.tbsCertificate.validity.notAfter}");
+    stringBuffer.write("Действует с: ${x509certificate.tbsCertificate.validity.notBefore}$DESCRIPTION_SEPARATOR");
+    stringBuffer.write("Действует по: ${x509certificate.tbsCertificate.validity.notAfter}");
 
     return stringBuffer.toString();
   }
