@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:crypt_signature/crypt_signature.dart';
 import 'package:crypt_signature/src/models/xml_dsig/request/xml_operations.dart';
@@ -38,26 +37,27 @@ abstract class PKCS7InterfaceRequest extends InterfaceRequest<PKCS7SignResult> {
   PKCS7InterfaceRequest({this.getSignedAttributes});
 
   @override
-  Signer get signer => Platform.isAndroid ? androidSigner : iosSigner;
+  //Signer get signer => Platform.isAndroid ? androidSigner : iosSigner;
+  Signer get signer => androidSigner;
 
   Signer get androidSigner => (Certificate certificate, String password) async {
         String digest = await _getDigest(certificate, password);
-        PKCS7 pkcs7 = await Native.createPKCS7(certificate, password, digest);
-        String signedAttributes = pkcs7.signedAttributes;
+        PKCS7 pkcs7 = PKCS7(certificate, digest);
+        String signedAttributes = pkcs7.signerInfo.content;
         DigestResult signedAttributesDigest = await Native.digest(certificate, password, signedAttributes);
         SignResult signResult = await Native.sign(certificate, password, signedAttributesDigest.digest);
-        pkcs7 = await Native.addSignatureToPKCS7(pkcs7, signResult.signature);
-        return PKCS7SignResult.from(PKCS7(content: pkcs7.content, signedAttributes: signedAttributes), signResult, initialDigest: digest);
+        pkcs7.attachSignature(signResult.signature);
+        return PKCS7SignResult.from(pkcs7, signResult, initialDigest: digest);
       };
 
-  Signer get iosSigner => (Certificate certificate, String password) async {
-        assert(getSignedAttributes != null);
-        String digest = await _getDigest(certificate, password);
-        String signedAttributes = await getSignedAttributes!(certificate, digest);
-        DigestResult signedAttributesDigest = await Native.digest(certificate, password, signedAttributes);
-        SignResult signResult = await Native.sign(certificate, password, signedAttributesDigest.digest);
-        return PKCS7SignResult.from(PKCS7(content: "", signedAttributes: signedAttributes), signResult, initialDigest: digest);
-      };
+  // Signer get iosSigner => (Certificate certificate, String password) async {
+  //       assert(getSignedAttributes != null);
+  //       String digest = await _getDigest(certificate, password);
+  //       String signedAttributes = await getSignedAttributes!(certificate, digest);
+  //       DigestResult signedAttributesDigest = await Native.digest(certificate, password, signedAttributes);
+  //       SignResult signResult = await Native.sign(certificate, password, signedAttributesDigest.digest);
+  //       return PKCS7SignResult.from(PKCS7(content: "", signedAttributes: signedAttributes), signResult, initialDigest: digest);
+  //     };
 }
 
 /// Класс для получения сигнатуры от хэша аттрибутов подписи PKCS7 на основе сообщения

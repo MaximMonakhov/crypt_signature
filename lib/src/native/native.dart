@@ -7,7 +7,6 @@ import 'dart:io';
 import 'package:crypt_signature/src/models/certificate.dart';
 import 'package:crypt_signature/src/models/digest_result.dart';
 import 'package:crypt_signature/src/models/license.dart';
-import 'package:crypt_signature/src/models/pkcs7.dart';
 import 'package:crypt_signature/src/models/sign_result.dart';
 import 'package:crypt_signature/src/utils/exceptions/api_response_exception.dart';
 import 'package:flutter/services.dart';
@@ -79,19 +78,19 @@ class Native {
         throw ApiResponseException(map["message"] as String?, map["exception"].toString());
       }(), "Не удалось выполнить подпись");
 
-  static Future<PKCS7> createPKCS7(Certificate certificate, String password, String digest) => _invokeWithExceptionHandler(() async {
-        String? response = await _channel.invokeMethod("createPKCS7", {"certificateUUID": certificate.storageID, "password": password, "digest": digest});
-        Map<String, dynamic> map = json.decode(response!) as Map<String, dynamic>;
-        if (map["success"] as bool) return PKCS7(content: map["pkcs7"] as String, signedAttributes: map["signedAttributes"] as String);
-        throw ApiResponseException(map["message"] as String?, map["exception"].toString());
-      }(), "Не удалось создать PKCS7");
+  // static Future<PKCS7> createPKCS7(Certificate certificate, String password, String digest) => _invokeWithExceptionHandler(() async {
+  //       String? response = await _channel.invokeMethod("createPKCS7", {"certificateUUID": certificate.storageID, "password": password, "digest": digest});
+  //       Map<String, dynamic> map = json.decode(response!) as Map<String, dynamic>;
+  //       if (map["success"] as bool) return PKCS7(content: map["pkcs7"] as String, signedAttributes: map["signedAttributes"] as String);
+  //       throw ApiResponseException(map["message"] as String?, map["exception"].toString());
+  //     }(), "Не удалось создать PKCS7");
 
-  static Future<PKCS7> addSignatureToPKCS7(PKCS7 pkcs7, String signature) => _invokeWithExceptionHandler(() async {
-        String? response = await _channel.invokeMethod("addSignatureToPKCS7", {"pkcs7": pkcs7.content, "signature": signature});
-        Map<String, dynamic> map = json.decode(response!) as Map<String, dynamic>;
-        if (map["success"] as bool) return PKCS7(content: map["pkcs7"] as String, signedAttributes: "");
-        throw ApiResponseException(map["message"] as String?, map["exception"].toString());
-      }(), "Не удалось добавить сигнатуру к PKCS7");
+  // static Future<PKCS7> addSignatureToPKCS7(PKCS7 pkcs7, String signature) => _invokeWithExceptionHandler(() async {
+  //       String? response = await _channel.invokeMethod("addSignatureToPKCS7", {"pkcs7": pkcs7.content, "signature": signature});
+  //       Map<String, dynamic> map = json.decode(response!) as Map<String, dynamic>;
+  //       if (map["success"] as bool) return PKCS7(content: map["pkcs7"] as String, signedAttributes: "");
+  //       throw ApiResponseException(map["message"] as String?, map["exception"].toString());
+  //     }(), "Не удалось добавить сигнатуру к PKCS7");
 }
 
 Future<T> _invokeWithExceptionHandler<T>(Future<T> future, String errorMessage) async {

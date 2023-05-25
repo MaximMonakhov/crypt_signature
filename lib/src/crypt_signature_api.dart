@@ -6,7 +6,6 @@ import 'package:crypt_signature/src/models/certificate.dart';
 import 'package:crypt_signature/src/models/digest_result.dart';
 import 'package:crypt_signature/src/models/interface_request.dart';
 import 'package:crypt_signature/src/models/license.dart';
-import 'package:crypt_signature/src/models/pkcs7.dart';
 import 'package:crypt_signature/src/models/sign_result.dart';
 import 'package:crypt_signature/src/native/native.dart';
 import 'package:crypt_signature/src/ui/home_widget.dart';
@@ -64,11 +63,11 @@ class CryptSignature {
   /// Вычислить подпись хэша
   static Future<SignResult> sign(Certificate certificate, String password, String digest) => Native.sign(certificate, password, digest);
 
-  /// Создать [PKCS7] и атрибуты подписи на основе [digest]
-  static Future<PKCS7> createPKCS7(Certificate certificate, String password, String digest) => Native.createPKCS7(certificate, password, digest);
+  // /// Создать [PKCS7] и атрибуты подписи на основе [digest]
+  // static Future<PKCS7> createPKCS7(Certificate certificate, String password, String digest) => Native.createPKCS7(certificate, password, digest);
 
-  /// Прикрепить к [pkcs7] сигнатуру [signature]
-  static Future<PKCS7> addSignatureToPKCS7(PKCS7 pkcs7, String signature) => Native.addSignatureToPKCS7(pkcs7, signature);
+  // /// Прикрепить к [pkcs7] сигнатуру [signature]
+  // static Future<PKCS7> addSignatureToPKCS7(PKCS7 pkcs7, String signature) => Native.addSignatureToPKCS7(pkcs7, signature);
 
   /// Получить список сертификатов, добавленных пользователем
   static Future<List<Certificate>> getCertificates() async {

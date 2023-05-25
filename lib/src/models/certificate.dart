@@ -23,7 +23,9 @@ class Certificate {
   final Algorithm algorithm;
   final Map<String, dynamic> parameterMap;
   final String certificateDescription;
-  final X509Certificate? x509certificate;
+
+  String get pem => PEM_START_STRING + certificate + PEM_END_STRING;
+  X509Certificate get x509certificate => X509Certificate.fromPem(pem);
 
   Certificate({
     required this.uuid,
@@ -35,7 +37,6 @@ class Certificate {
     required this.algorithm,
     required this.parameterMap,
     required this.certificateDescription,
-    this.x509certificate,
   });
 
   String get storageID => Platform.isIOS ? alias : uuid;
@@ -82,7 +83,6 @@ class Certificate {
       notAfterDate: notAfterDate,
       serialNumber: serialNumber,
       algorithm: algorithm,
-      x509certificate: cert,
       parameterMap: getParameterMap(cert, serialNumber, algorithm),
       certificateDescription: getCertificateDescription(cert, serialNumber, algorithm),
     );
