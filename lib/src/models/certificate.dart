@@ -1,11 +1,10 @@
-import 'dart:io';
+import 'dart:io' show Platform;
 import 'dart:typed_data';
 
 import 'package:asn1lib/asn1lib.dart';
 import 'package:crypt_signature/src/models/algorithm.dart';
 import 'package:crypt_signature/src/models/storage.dart';
-import 'package:crypt_signature/src/utils/X509Certificate/certificate.dart' as x509_certificate;
-import 'package:crypt_signature/src/utils/X509Certificate/x509_base.dart' as x509_base;
+import 'package:crypt_signature/src/utils/X509Certificate/x509_certificate.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
@@ -24,7 +23,7 @@ class Certificate {
   final Algorithm algorithm;
   final Map<String, dynamic> parameterMap;
   final String certificateDescription;
-  final x509_certificate.X509Certificate? x509certificate;
+  final X509Certificate? x509certificate;
 
   Certificate({
     required this.uuid,
@@ -67,7 +66,7 @@ class Certificate {
 
   factory Certificate.fromBase64(Map<String, dynamic> data) {
     final String pem = PEM_START_STRING + (data["certificate"] as String) + PEM_END_STRING;
-    final x509_certificate.X509Certificate cert = x509_base.parsePem(pem).first as x509_certificate.X509Certificate;
+    final X509Certificate cert = X509Certificate.fromPem(pem);
 
     String publicKeyOID = cert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm!.name!;
     Algorithm algorithm = Algorithm.findAlgorithmByPublicKeyOID(publicKeyOID);
@@ -103,7 +102,7 @@ class Certificate {
   @override
   int get hashCode => Object.hash(certificate, serialNumber);
 
-  static Map<String, String> getParameterMap(x509_certificate.X509Certificate x509certificate, String serialNumber, Algorithm algorithm) => {
+  static Map<String, String> getParameterMap(X509Certificate x509certificate, String serialNumber, Algorithm algorithm) => {
         "validFromDate": x509certificate.tbsCertificate.validity.notBefore.toString(),
         "validToDate": x509certificate.tbsCertificate.validity.notAfter.toString(),
         "issuer": x509certificate.tbsCertificate.issuer.toString(),
@@ -116,7 +115,7 @@ class Certificate {
         "hashAlgoritm[alias]": algorithm.hashOID,
       };
 
-  static String getCertificateDescription(x509_certificate.X509Certificate x509certificate, String serialNumber, Algorithm algorithm) {
+  static String getCertificateDescription(X509Certificate x509certificate, String serialNumber, Algorithm algorithm) {
     const String DESCRIPTION_SEPARATOR = "\n";
     StringBuffer stringBuffer = StringBuffer();
 
