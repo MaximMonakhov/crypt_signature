@@ -1,6 +1,5 @@
 import 'package:asn1lib/asn1lib.dart';
-import 'package:quiver/collection.dart';
-import 'package:quiver/core.dart';
+import 'package:flutter/foundation.dart';
 
 class ObjectIdentifier {
   final List<int> nodes;
@@ -50,10 +49,10 @@ class ObjectIdentifier {
   }
 
   @override
-  int get hashCode => hashObjects(nodes);
+  int get hashCode => Object.hashAll(nodes);
 
   @override
-  bool operator ==(dynamic other) => other is ObjectIdentifier && listsEqual(nodes, other.nodes);
+  bool operator ==(dynamic other) => other is ObjectIdentifier && listEquals(nodes, other.nodes);
 
   String? get name {
     try {

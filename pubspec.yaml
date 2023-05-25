@@ -18,8 +18,6 @@ dependencies:
   file_picker: ^5.2.6
   mask_text_input_formatter: ^2.0.0
   asn1lib: ^1.0.0
-  crypto_keys: '>=0.2.0 <0.4.0'
-  quiver: ^3.0.0
   xml: ^6.1.0
   flutter_c14n:
     git:
