@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:asn1lib/asn1lib.dart';
-import 'package:crypt_signature/src/utils/X509Certificate/dart_convertes.dart';
+import 'package:crypt_signature/src/utils/X509Certificate/dart_converters.dart';
 import 'package:crypt_signature/src/utils/X509Certificate/identifiers/algorithm_identifier.dart';
 import 'package:crypt_signature/src/utils/X509Certificate/tbs_certificate.dart';
 

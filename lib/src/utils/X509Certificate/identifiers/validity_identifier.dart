@@ -1,5 +1,5 @@
 import 'package:asn1lib/asn1lib.dart';
-import 'package:crypt_signature/src/utils/X509Certificate/dart_convertes.dart';
+import 'package:crypt_signature/src/utils/X509Certificate/dart_converters.dart';
 
 class ValidityIdentifier {
   final DateTime? notBefore;
