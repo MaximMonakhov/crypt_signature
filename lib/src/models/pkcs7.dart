@@ -12,7 +12,8 @@ class PKCS7 {
   final SignerInfo signerInfo;
   String? signature;
 
-  PKCS7(this.certificate, this.digest) : signerInfo = SignerInfo(certificate.algorithm, certificate.x509certificate.tbsCertificate.issuer.toAsn1(), digest);
+  PKCS7(this.certificate, this.digest)
+      : signerInfo = SignerInfo(certificate.serialNumber, certificate.algorithm, certificate.x509certificate.tbsCertificate.issuer.toAsn1(), digest);
 
   void attachSignature(String signature) => this.signature = signature;
 

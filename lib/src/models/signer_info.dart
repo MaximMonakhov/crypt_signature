@@ -5,6 +5,7 @@ import 'package:crypt_signature/crypt_signature.dart';
 import 'package:crypt_signature/src/models/pkcs7.dart';
 
 class SignerInfo {
+  final String serialNumber;
   final Algorithm algorithm;
   final ASN1Sequence issuer;
   final String digest;
@@ -13,7 +14,7 @@ class SignerInfo {
   final DateTime signTime;
   String? signature;
 
-  SignerInfo(this.algorithm, this.issuer, this.digest)
+  SignerInfo(this.serialNumber, this.algorithm, this.issuer, this.digest)
       : digestIdentifier = ASN1ObjectIdentifier(algorithm.hashOID.split(".").map((e) => int.parse(e)).toList()),
         signatureIdentifier = ASN1ObjectIdentifier(algorithm.signatureOID.split(".").map((e) => int.parse(e)).toList()),
         signTime = DateTime.now().toUtc();
@@ -23,7 +24,11 @@ class SignerInfo {
     // Версия
     root.add(ASN1Integer.fromInt(1));
     // Издатель
-    root.add(issuer); // TODO: здесь serial возможно отсутствует
+    root.add(
+      ASN1Sequence()
+        ..add(issuer)
+        ..add(ASN1Integer.fromBytes(base64.decode(serialNumber))),
+    );
     // Digest Algorithm
     root.add(
       ASN1Sequence()
