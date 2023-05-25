@@ -40,4 +40,7 @@ class Algorithm {
 
   @override
   bool operator ==(Object other) => other is Algorithm && other.hashCode == hashCode;
+
+  @override
+  String toString() => name;
 }
