@@ -1,6 +1,6 @@
 import 'package:asn1lib/asn1lib.dart';
-import 'package:crypt_signature/src/utils/X509Certificate/dart_converters.dart';
-import 'package:crypt_signature/src/utils/X509Certificate/identifiers/object_identifier.dart';
+import 'package:crypt_signature/src/models/x509certificate/identifiers/object_identifier.dart';
+import 'package:crypt_signature/src/utils/dart_converters.dart';
 
 class AlgorithmIdentifier {
   final ObjectIdentifier? algorithm;

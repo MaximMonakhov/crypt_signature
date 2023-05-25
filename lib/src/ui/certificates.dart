@@ -3,13 +3,13 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:crypt_signature/src/exceptions/api_response_exception.dart';
 import 'package:crypt_signature/src/models/certificate.dart';
 import 'package:crypt_signature/src/native/native.dart';
 import 'package:crypt_signature/src/ui/certificate.dart';
 import 'package:crypt_signature/src/ui/dialogs.dart';
 import 'package:crypt_signature/src/ui/loading_widget.dart';
 import 'package:crypt_signature/src/ui/locker/inherited_locker.dart';
+import 'package:crypt_signature/src/utils/exceptions/api_response_exception.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';

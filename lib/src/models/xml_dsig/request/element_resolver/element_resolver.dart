@@ -3,7 +3,7 @@
 import 'package:crypt_signature/crypt_signature.dart';
 import 'package:crypt_signature/src/models/xml_dsig/request/element_resolver/target_node.dart';
 import 'package:xml/xml.dart';
-import 'package:crypt_signature/src/exceptions/xml_sign_exception.dart';
+import 'package:crypt_signature/src/utils/extensions/xml_sign_exception.dart';
 
 /// Делигирует обязанности по нахождению узла для подписи
 abstract class XmlElementResolver {

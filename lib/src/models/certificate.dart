@@ -4,7 +4,7 @@ import 'dart:typed_data';
 import 'package:asn1lib/asn1lib.dart';
 import 'package:crypt_signature/src/models/algorithm.dart';
 import 'package:crypt_signature/src/models/storage.dart';
-import 'package:crypt_signature/src/utils/X509Certificate/x509_certificate.dart';
+import 'package:crypt_signature/src/models/x509certificate/x509_certificate.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 

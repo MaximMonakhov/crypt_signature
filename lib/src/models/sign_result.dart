@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:crypt_signature/src/models/certificate.dart';
 import 'package:crypt_signature/src/models/pkcs7.dart';
-import 'package:crypt_signature/src/utils/extensions.dart';
+import 'package:crypt_signature/src/utils/extensions/extensions.dart';
 
 /// Результат подписи
 class SignResult {

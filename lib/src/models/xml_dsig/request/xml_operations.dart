@@ -1,4 +1,3 @@
-import 'package:crypt_signature/src/exceptions/xml_sign_exception.dart';
 import 'package:crypt_signature/src/models/certificate.dart';
 import 'package:crypt_signature/src/models/xml_dsig/operation/xml_canonicalization_operation.dart';
 import 'package:crypt_signature/src/models/xml_dsig/operation/xml_digest_operation.dart';
@@ -6,6 +5,7 @@ import 'package:crypt_signature/src/models/xml_dsig/operation/xml_operation.dart
 import 'package:crypt_signature/src/models/xml_dsig/operation/xml_sign_operation.dart';
 import 'package:crypt_signature/src/models/xml_dsig/request/xml_sign_options.dart';
 import 'package:crypt_signature/src/models/xml_dsig/xml_sign_transformer.dart';
+import 'package:crypt_signature/src/utils/extensions/xml_sign_exception.dart';
 
 /// Хранит операции, необходимые для подписи xml - документа
 abstract class XmlOperations {
@@ -15,7 +15,7 @@ abstract class XmlOperations {
   XmlSignTransformer get transformer;
 
   factory XmlOperations.fromOptions(
-    XmlSignOptions options, { 
+    XmlSignOptions options, {
     List<XmlTransformOperation> transforms = const [],
   }) {
     final XmlCanonicalizationOperation canonicalization = XmlCanonicalizationOperation(options.canonicalizationType);
@@ -38,14 +38,14 @@ class XmlOperationsGostImpl implements XmlOperations {
   /// В случае ошибки инициализации выбрасывает [XmlInitializeOperationException]
   @override
   XmlDigestOperation get digest {
-    if(_digest != null) return _digest!;
+    if (_digest != null) return _digest!;
     throw XmlInitializeOperationException('Операция вычисления хэша документа не была инициализирована');
   }
 
   /// В случае ошибки инициализации выбрасывает [XmlInitializeOperationException]
   @override
   XmlSignOperation get sign {
-    if(_sign != null) return _sign!;
+    if (_sign != null) return _sign!;
     throw XmlInitializeOperationException('Операция подписи документа не была инициализирована');
   }
 

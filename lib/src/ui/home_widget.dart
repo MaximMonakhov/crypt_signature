@@ -1,4 +1,3 @@
-import 'package:crypt_signature/src/exceptions/api_response_exception.dart';
 import 'package:crypt_signature/src/inherited_crypt_signature.dart';
 import 'package:crypt_signature/src/native/native.dart';
 import 'package:crypt_signature/src/ui/certificates.dart';
@@ -8,6 +7,7 @@ import 'package:crypt_signature/src/ui/license/license_wrapper.dart';
 import 'package:crypt_signature/src/ui/loading_widget.dart';
 import 'package:crypt_signature/src/ui/locker/locker_widget.dart';
 import 'package:crypt_signature/src/ui/locker/locker_wrapper.dart';
+import 'package:crypt_signature/src/utils/exceptions/api_response_exception.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 

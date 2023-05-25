@@ -1,5 +1,5 @@
 import 'package:asn1lib/asn1lib.dart';
-import 'package:crypt_signature/src/utils/X509Certificate/identifiers/algorithm_identifier.dart';
+import 'package:crypt_signature/src/models/x509certificate/identifiers/algorithm_identifier.dart';
 
 class SubjectPublicKeyInfo {
   final AlgorithmIdentifier algorithm;

@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:asn1lib/asn1lib.dart';
-import 'package:crypt_signature/src/utils/X509Certificate/dart_converters.dart';
-import 'package:crypt_signature/src/utils/X509Certificate/identifiers/algorithm_identifier.dart';
-import 'package:crypt_signature/src/utils/X509Certificate/tbs_certificate.dart';
+import 'package:crypt_signature/src/models/x509certificate/identifiers/algorithm_identifier.dart';
+import 'package:crypt_signature/src/models/x509certificate/tbs_certificate.dart';
+import 'package:crypt_signature/src/utils/dart_converters.dart';
 
 /// A X.509 Certificate
 class X509Certificate {

@@ -2,7 +2,7 @@ import 'package:crypt_signature/src/models/xml_dsig/operation/xml_canonicalizati
 import 'package:crypt_signature/src/models/xml_dsig/operation/xml_operation.dart';
 import 'package:crypt_signature/src/models/xml_dsig/operation/xml_sign_exclude_operation.dart';
 import 'package:crypt_signature/src/models/xml_dsig/xml_sign_transformer.dart';
-import 'package:crypt_signature/src/utils/xml_extentions.dart';
+import 'package:crypt_signature/src/utils/extensions/xml_extentions.dart';
 import 'package:xml/xml.dart';
 
 part 'detached.dart';
@@ -12,7 +12,7 @@ part 'enveloping.dart';
 /// Тип подписи
 abstract class XmlSignatureType {
   const XmlSignatureType();
-  
+
   /// Внешняя по отношению к `target` - узлу
   static const XmlSignatureType ENVELOPING = _EnvelopingSignature();
 
@@ -27,7 +27,7 @@ abstract class XmlSignatureType {
 
   /// Возвращает [XmlSignTransformer], соответствующий типу подписи
   XmlSignTransformer getTransformer(
-    XmlCanonicalizationOperation canonicalization, 
+    XmlCanonicalizationOperation canonicalization,
     List<XmlTransformOperation> transforms,
   ) {
     final List<XmlTransformOperation> fixedTransforms = _getTransforms(transforms.toList());

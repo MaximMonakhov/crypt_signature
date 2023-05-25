@@ -1,13 +1,13 @@
-import 'package:crypt_signature/src/utils/xml_extentions.dart';
+import 'package:crypt_signature/src/utils/extensions/xml_extentions.dart';
 import 'package:xml/xml.dart';
 
 extension XmlBuildCopy on XmlBuilder {
   static void Function(XmlBuilder, XmlNode) _getExecutor<T>(
-      void Function(XmlBuilder b, T t) executor,
-  ) => (XmlBuilder b, XmlNode n) => executor(b, n as T);
+    void Function(XmlBuilder b, T t) executor,
+  ) =>
+      (XmlBuilder b, XmlNode n) => executor(b, n as T);
 
-  static final _typeCopyExecutorMap =
-      <XmlNodeType, void Function(XmlBuilder, XmlNode)>{
+  static final _typeCopyExecutorMap = <XmlNodeType, void Function(XmlBuilder, XmlNode)>{
     XmlNodeType.ATTRIBUTE: _getExecutor(
       (b, XmlAttribute a) => b.attribute(
         a.name.qualified,
@@ -18,17 +18,12 @@ extension XmlBuildCopy on XmlBuilder {
     ),
     XmlNodeType.CDATA: _getExecutor((b, XmlCDATA n) => b.cdata(n.text)),
     XmlNodeType.COMMENT: _getExecutor((b, XmlComment c) => b.comment(c.text)),
-    XmlNodeType.DECLARATION:
-        _getExecutor((b, XmlDeclaration d) => b._copyDeclaration(d)),
-    XmlNodeType.DOCUMENT_TYPE:
-        _getExecutor((b, XmlDoctype dt) => b.doctype(dt.text)),
-    XmlNodeType.DOCUMENT:
-        _getExecutor((b, XmlDocument d) => b._copyDocOrFragment(d)),
-    XmlNodeType.DOCUMENT_FRAGMENT:
-        _getExecutor((b, XmlDocumentFragment d) => b._copyDocOrFragment(d)),
+    XmlNodeType.DECLARATION: _getExecutor((b, XmlDeclaration d) => b._copyDeclaration(d)),
+    XmlNodeType.DOCUMENT_TYPE: _getExecutor((b, XmlDoctype dt) => b.doctype(dt.text)),
+    XmlNodeType.DOCUMENT: _getExecutor((b, XmlDocument d) => b._copyDocOrFragment(d)),
+    XmlNodeType.DOCUMENT_FRAGMENT: _getExecutor((b, XmlDocumentFragment d) => b._copyDocOrFragment(d)),
     XmlNodeType.ELEMENT: _getExecutor((b, XmlElement el) => b._copyElement(el)),
-    XmlNodeType.PROCESSING:
-        _getExecutor((b, XmlProcessing p) => b.processing(p.target, p.text)),
+    XmlNodeType.PROCESSING: _getExecutor((b, XmlProcessing p) => b.processing(p.target, p.text)),
     XmlNodeType.TEXT: _getExecutor((b, XmlText t) => b.text(t.text)),
   };
 
@@ -46,7 +41,7 @@ extension XmlBuildCopy on XmlBuilder {
     final Map<String, String> attributes = Map.fromEntries(
       d.attributes.map((a) => MapEntry(a.name.local, a.value)),
     );
-    
+
     declaration(
       version: d.version ?? '1.0',
       encoding: d.encoding,
