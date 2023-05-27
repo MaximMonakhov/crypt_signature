@@ -10,12 +10,11 @@ class PKCS7 {
   final Certificate certificate;
   final String digest;
   final SignerInfo signerInfo;
-  String? signature;
 
   PKCS7(this.certificate, this.digest)
       : signerInfo = SignerInfo(certificate.serialNumber, certificate.algorithm, certificate.x509certificate.tbsCertificate.issuer.toAsn1(), digest);
 
-  void attachSignature(String signature) => this.signature = signature;
+  void attachSignature(String signature) => signerInfo.signature = signature;
 
   String get content {
     ASN1Sequence root = ASN1Sequence();
@@ -25,7 +24,14 @@ class PKCS7 {
     // Версия
     data.add(ASN1Integer.fromInt(1));
     // DigestAlgorithms
-    data.add(ASN1Set()..add(ASN1Sequence()..add(signerInfo.digestIdentifier)));
+    data.add(
+      ASN1Set()
+        ..add(
+          ASN1Sequence()
+            ..add(signerInfo.digestIdentifier)
+            ..add(ASN1Null()),
+        ),
+    );
     // ContentInfo
     data.add(ASN1Sequence()..add(ASN1ObjectIdentifier([1, 2, 840, 113549, 1, 7, 1])));
     // Certificate
