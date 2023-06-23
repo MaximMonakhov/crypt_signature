@@ -14,10 +14,10 @@ class SignerInfo {
   final DateTime signTime;
   String? signature;
 
-  SignerInfo(this.serialNumber, this.algorithm, this.issuer, this.digest)
+  SignerInfo(this.serialNumber, this.algorithm, this.issuer, this.digest, {this.signature, DateTime? signTime})
       : digestIdentifier = ASN1ObjectIdentifier(algorithm.hashOID.split(".").map((e) => int.parse(e)).toList()),
         signatureIdentifier = ASN1ObjectIdentifier(algorithm.signatureOID.split(".").map((e) => int.parse(e)).toList()),
-        signTime = DateTime.now().toUtc();
+        signTime = signTime ?? DateTime.now().toUtc();
 
   ASN1Sequence get sequence {
     ASN1Sequence root = ASN1Sequence();
@@ -27,7 +27,7 @@ class SignerInfo {
     root.add(
       ASN1Sequence()
         ..add(issuer)
-        ..add(ASN1Integer.fromBytes(base64.decode(serialNumber))),
+        ..add(ASN1Integer(BigInt.parse(serialNumber, radix: 16))),
     );
     // Digest Algorithm
     root.add(

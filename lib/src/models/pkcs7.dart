@@ -3,22 +3,29 @@ import 'dart:convert';
 import 'package:asn1lib/asn1lib.dart';
 import 'package:crypt_signature/crypt_signature.dart';
 import 'package:crypt_signature/src/models/signer_info.dart';
+import 'package:crypt_signature/src/utils/extensions/extensions.dart';
 
 const int CONTEXT_SPECIFIC_TYPE = 0xA0;
 
 class PKCS7 {
   final Certificate certificate;
-  final String digest;
   final SignerInfo signerInfo;
+  final String digest;
+  final String? signature;
 
-  PKCS7(this.certificate, this.digest)
-      : signerInfo = SignerInfo(certificate.serialNumber, certificate.algorithm, certificate.x509certificate.tbsCertificate.issuer.toAsn1(), digest);
+  PKCS7(this.certificate, this.digest, {this.signature, DateTime? signTime})
+      : signerInfo = SignerInfo(
+          certificate.serialNumber,
+          certificate.algorithm,
+          certificate.x509certificate.tbsCertificate.issuer.toAsn1(),
+          digest,
+          signature: signature,
+          signTime: signTime,
+        );
 
-  void attachSignature(String signature) => signerInfo.signature = signature;
-
-  String get content {
+  ASN1Sequence get root {
     ASN1Sequence root = ASN1Sequence();
-    root.add(ASN1ObjectIdentifier([1, 2, 840, 113549, 1, 7, 2]));
+    root.add(ASN1ObjectIdentifier([1, 2, 840, 113549, 1, 7, 2], identifier: "ROOT"));
 
     ASN1Sequence data = ASN1Sequence();
     // Версия
@@ -41,6 +48,14 @@ class PKCS7 {
 
     root.add(ASN1OctetString(data.encodedBytes, tag: CONTEXT_SPECIFIC_TYPE));
 
-    return base64.encode(root.encodedBytes);
+    return root;
   }
+
+  void attachSignature(String signature) => signerInfo.signature = signature;
+
+  String get content => base64.encode(root.encodedBytes);
+
+  @override
+  String toString() =>
+      "PKCS7:\nCertificate: ${certificate.certificate.truncate()}\nDigest: ${digest.truncate()}\nSignature: ${(signature ?? '-').truncate()}\nRoot: $root";
 }

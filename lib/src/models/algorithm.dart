@@ -33,6 +33,8 @@ class Algorithm {
 
   ASN1ObjectIdentifier toAsn(String value) => ASN1ObjectIdentifier(value.split(".").map((e) => int.parse(e)).toList());
 
+  Algorithm get unknown => algorithms.last;
+
   Algorithm.fromJson(Map<String, dynamic> json)
       : name = json['name'] as String,
         hashOID = json['hashOID'] as String,
