@@ -1,0 +1,85 @@
+{
+    "branches": [
+        "main"
+    ],
+    "plugins": [
+        "@semantic-release/commit-analyzer",
+        [
+            "@semantic-release/release-notes-generator",
+            {
+                "preset": "conventionalcommits",
+                "presetConfig": {
+                    "parserOpts": {
+                        "noteKeywords": [
+                            "BREAKING CHANGE",
+                            "BREAKING CHANGES",
+                            "BREAKING"
+                        ]
+                    },
+                    "types": [
+                        {
+                            "type": "feat",
+                            "section": "Features"
+                        },
+                        {
+                            "type": "fix",
+                            "section": "Bug Fixes"
+                        },
+                        {
+                            "type": "chore",
+                            "section": "Other Changes",
+                            "hidden": false
+                        },
+                        {
+                            "type": "docs",
+                            "section": "Docs",
+                            "hidden": false
+                        },
+                        {
+                            "type": "style",
+                            "section": "Style",
+                            "hidden": false
+                        },
+                        {
+                            "type": "refactor",
+                            "section": "Code Improvements",
+                            "hidden": false
+                        },
+                        {
+                            "type": "perf",
+                            "section": "Performance Improvements",
+                            "hidden": false
+                        },
+                        {
+                            "type": "test",
+                            "section": "Test",
+                            "hidden": false
+                        },
+                        {
+                            "type": "remove",
+                            "section": "Removed",
+                            "hidden": false
+                        }
+                    ]
+                }
+            }
+        ],
+        "@semantic-release/changelog",
+        [
+            "semantic-release-flutter-plugin",
+            {
+                "pubspecPath": "pubspec.yaml"
+            }
+        ],
+        [
+            "@semantic-release/git",
+            {
+                "assets": [
+                    "CHANGELOG.md",
+                    "pubspec.yaml"
+                ],
+                "message": "chore: ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+            }
+        ]
+    ]
+}
