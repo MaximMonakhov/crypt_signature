@@ -80,8 +80,8 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             OutlinedButton(
               onPressed: () async {
-                SignResult? result = await CryptSignature.interface(context, MessageInterfaceRequest(base64.encode(utf8.encode("Данные на подпись"))),
-                    title: "Войти по сертификату", hint: "Выберите сертификат");
+                CryptSignature cryptSignature = await CryptSignature.getInstance();
+                SignResult? result = await cryptSignature.interface(context, MessageInterfaceRequest(base64.encode(utf8.encode("Данные на подпись"))));
 
                 showResultDialog(result.toString());
               },
@@ -89,8 +89,9 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             OutlinedButton(
               onPressed: () async {
+                CryptSignature cryptSignature = await CryptSignature.getInstance();
                 PKCS7SignResult? result =
-                    await CryptSignature.interface(context, PKCS7MessageInterfaceRequest(getMessage, getSignedAttributes: getSignedAttributes));
+                    await cryptSignature.interface(context, PKCS7MessageInterfaceRequest(getMessage, getSignedAttributes: getSignedAttributes));
 
                 showResultDialog(result.toString());
               },
@@ -98,8 +99,9 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             OutlinedButton(
               onPressed: () async {
+                CryptSignature cryptSignature = await CryptSignature.getInstance();
                 PKCS7SignResult? result =
-                    await CryptSignature.interface(context, PKCS7HASHInterfaceRequest(getDigest, getSignedAttributes: getSignedAttributes));
+                    await cryptSignature.interface(context, PKCS7HASHInterfaceRequest(getDigest, getSignedAttributes: getSignedAttributes));
 
                 showResultDialog(result.toString());
               },

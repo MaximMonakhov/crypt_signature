@@ -1,18 +1,11 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'dart:io';
 
-import 'package:crypt_signature/src/inherited_crypt_signature.dart';
 import 'package:crypt_signature/src/models/certificate.dart';
-import 'package:crypt_signature/src/models/interface_request.dart';
-import 'package:crypt_signature/src/models/sign_result.dart';
-import 'package:crypt_signature/src/ui/dialogs.dart';
-import 'package:crypt_signature/src/ui/license/inherited_license.dart';
-import 'package:crypt_signature/src/ui/locker/inherited_locker.dart';
+import 'package:crypt_signature/src/services/certificate_service.dart';
 import 'package:crypt_signature/src/utils/crypt_signature_icons_icons.dart';
-import 'package:crypt_signature/src/utils/exceptions/api_response_exception.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class CertificateWidget extends StatelessWidget {
   final Certificate certificate;
@@ -20,48 +13,10 @@ class CertificateWidget extends StatelessWidget {
 
   const CertificateWidget(this.certificate, this.removeCallback, {super.key});
 
-  Future<String?> _askPassword(BuildContext context) => showInputDialog(
-        context,
-        "Введите пароль для\n доступа к контейнеру приватного ключа",
-        "Пароль",
-        TextInputType.visiblePassword,
-        obscureText: true,
-      );
-
-  bool? getLicenseStatus(BuildContext context) => InheritedLicense.of(context).license?.status;
-
-  Future<void> _sign(BuildContext context) async {
-    // Проверка, если лицензия не установлена, то дальше не пускаем
-    // bool licenseStatus = getLicenseStatus(context);
-    // if (licenseStatus == null || !licenseStatus) {
-    //   await showError(context, "Лицензия не установлена");
-    //   InheritedLicense.of(context).setNewLicenseSheet();
-    //   return;
-    // }
-
-    String? password = await _askPassword(context);
-    if (password == null || password.isEmpty) return;
-
-    InheritedLocker.of(context).lockScreen();
-
-    final InheritedCryptSignature inherit = InheritedCryptSignature.of(context);
-    final InterfaceRequest request = inherit.interfaceRequest;
-    try {
-      final SignResult result = await request.signer(certificate, password);
-      Navigator.of(inherit.rootContext).pop(result);
-    } on ApiResponseException catch (e) {
-      showError(context, e.message, details: e.details);
-    } on Exception catch (e) {
-      showError(context, "Возникла ошибка при выполнении ЭП", details: e.toString());
-    } finally {
-      InheritedLocker.of(context).unlockScreen();
-    }
-  }
-
   @override
   Widget build(BuildContext context) => GestureDetector(
         onTap: () {
-          _sign(context);
+          context.read<CertificateService>().sign(context, certificate);
         },
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5.0),

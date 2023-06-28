@@ -1,10 +1,11 @@
 import 'dart:io';
 
 import 'package:crypt_signature/src/models/license.dart';
-import 'package:crypt_signature/src/ui/license/inherited_license.dart';
+import 'package:crypt_signature/src/services/license_service.dart';
 import 'package:crypt_signature/src/ui/loading_widget.dart';
 import 'package:crypt_signature/src/utils/crypt_signature_icons_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class LicenseWidget extends StatelessWidget {
   const LicenseWidget({super.key});
@@ -23,7 +24,7 @@ class LicenseWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (Platform.isIOS) return Container();
-    License? license = InheritedLicense.of(context).license;
+    License? license = Provider.of<LicenseService>(context).license;
 
     if (license == null) return const LoadingWidget();
 
@@ -56,7 +57,7 @@ class LicenseWidget extends StatelessWidget {
                     const Padding(padding: EdgeInsets.symmetric(horizontal: 5.0)),
                     TextButton(
                       onPressed: () {
-                        InheritedLicense.of(context).setNewLicenseSheet();
+                        context.read<LicenseService>().setNewLicenseSheet(context);
                       },
                       child: const Text(
                         "Изменить",
@@ -108,7 +109,7 @@ class LicenseWidget extends StatelessWidget {
                 const Padding(padding: EdgeInsets.symmetric(horizontal: 5.0)),
                 TextButton(
                   onPressed: () {
-                    InheritedLicense.of(context).setNewLicenseSheet();
+                    context.read<LicenseService>().setNewLicenseSheet(context);
                   },
                   child: const Text(
                     "Изменить",

@@ -3,7 +3,6 @@ import 'dart:typed_data';
 
 import 'package:asn1lib/asn1lib.dart';
 import 'package:crypt_signature/src/models/algorithm.dart';
-import 'package:crypt_signature/src/models/storage.dart';
 import 'package:crypt_signature/src/models/x509certificate/x509_certificate.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
@@ -11,8 +10,6 @@ import 'package:uuid/uuid.dart';
 class Certificate {
   static const String PEM_START_STRING = "-----BEGIN CERTIFICATE-----\n";
   static const String PEM_END_STRING = "\n-----END CERTIFICATE-----\n";
-
-  static final Storage<Certificate> storage = Storage<Certificate>(parser: Certificate.fromJson);
 
   final String uuid;
   final String certificate;
