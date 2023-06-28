@@ -1,5 +1,6 @@
 import 'package:crypt_signature/src/core/interface/smooth_button.dart';
 import 'package:crypt_signature/src/providers/crypt_signature_provider.dart';
+import 'package:crypt_signature/src/utils/exceptions/api_response_exception.dart';
 import 'package:figma_squircle/figma_squircle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +29,9 @@ class ErrorViewWidget extends StatelessWidget {
 
   Object _resolveError(Object? error) {
     switch (error.runtimeType) {
+      case ApiResponseException:
+        ApiResponseException exception = error as ApiResponseException;
+        return "${exception.message ?? "Неизвестная ошибка"}${exception.details != null ? "\n${exception.details!}" : ""}";
       case Null:
         return "Неизвестная ошибка";
       default:

@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:crypt_signature/src/core/repositories/services/base_change_notifier.dart';
+import 'package:crypt_signature/src/core/services/base_change_notifier.dart';
 import 'package:crypt_signature/src/models/certificate.dart';
 import 'package:crypt_signature/src/models/interface_request.dart';
 import 'package:crypt_signature/src/models/sign_result.dart';
@@ -31,6 +31,7 @@ class CertificateService extends BaseChangeNotifier<Certificate> {
     if (password == null || password.isEmpty) return;
 
     context.read<LockService>().lockScreen();
+    await Future.delayed(const Duration(milliseconds: 500));
 
     final InterfaceRequest request = cryptSignatureProvider.interfaceRequest;
     try {

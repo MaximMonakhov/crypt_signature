@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:crypt_signature/src/core/interface/smooth_button.dart';
 import 'package:crypt_signature/src/models/license.dart';
 import 'package:crypt_signature/src/services/license_service.dart';
 import 'package:crypt_signature/src/ui/loading_widget.dart';
@@ -26,7 +27,7 @@ class LicenseWidget extends StatelessWidget {
     if (Platform.isIOS) return Container();
     License? license = Provider.of<LicenseService>(context).license;
 
-    if (license == null) return const LoadingWidget();
+    if (license == null) return const SizedBox.shrink();
 
     String successMessage;
     try {
@@ -37,8 +38,8 @@ class LicenseWidget extends StatelessWidget {
     }
 
     return Container(
-      padding: EdgeInsets.only(left: 20.0, right: 15.0, bottom: license.status ? 15.0 : 0),
-      color: const Color.fromRGBO(243, 241, 247, 1),
+      padding: EdgeInsets.only(left: 20.0, right: 10.0, bottom: 10.0, top: 10.0),
+      color: Theme.of(context).colorScheme.background,
       child: license.status
           ? Column(
               children: [
@@ -50,22 +51,29 @@ class LicenseWidget extends StatelessWidget {
                         alignment: Alignment.centerLeft,
                         child: SelectableText(
                           license.serialNumber,
-                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black87),
+                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                         ),
                       ),
                     ),
                     const Padding(padding: EdgeInsets.symmetric(horizontal: 5.0)),
-                    TextButton(
-                      onPressed: () {
+                    SmoothButton(
+                      onTap: () {
                         context.read<LicenseService>().setNewLicenseSheet(context);
                       },
-                      child: const Text(
-                        "Изменить",
-                        style: TextStyle(color: Color.fromRGBO(106, 147, 245, 1)),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
+                        child: Text(
+                          "Изменить",
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.secondary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
-                    )
+                    ),
                   ],
                 ),
+                Padding(padding: EdgeInsets.symmetric(vertical: 2.5)),
                 Row(
                   children: [
                     const Icon(
@@ -80,7 +88,7 @@ class LicenseWidget extends StatelessWidget {
                         alignment: Alignment.centerLeft,
                         child: Text(
                           successMessage,
-                          style: const TextStyle(fontSize: 14, color: Colors.black87),
+                          style: const TextStyle(fontSize: 14),
                         ),
                       ),
                     ),
@@ -102,20 +110,35 @@ class LicenseWidget extends StatelessWidget {
                     alignment: Alignment.centerLeft,
                     child: Text(
                       license.message,
-                      style: const TextStyle(fontSize: 14, color: Colors.black87),
+                      style: const TextStyle(fontSize: 14),
                     ),
                   ),
                 ),
                 const Padding(padding: EdgeInsets.symmetric(horizontal: 5.0)),
-                TextButton(
-                  onPressed: () {
+                SmoothButton(
+                  onTap: () {
                     context.read<LicenseService>().setNewLicenseSheet(context);
                   },
-                  child: const Text(
-                    "Изменить",
-                    style: TextStyle(color: Color.fromRGBO(106, 147, 245, 1)),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
+                    child: Text(
+                      "Изменить",
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.secondary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
-                )
+                ),
+                // TextButton(
+                //   onPressed: () {
+                //     context.read<LicenseService>().setNewLicenseSheet(context);
+                //   },
+                //   child: const Text(
+                //     "Изменить",
+                //     style: TextStyle(color: Color.fromRGBO(106, 147, 245, 1)),
+                //   ),
+                // )
               ],
             ),
     );

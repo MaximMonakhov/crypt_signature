@@ -1,3 +1,4 @@
+import 'package:crypt_signature/src/core/interface/smooth_card.dart';
 import 'package:crypt_signature/src/services/lock_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -12,17 +13,16 @@ class LockerWidget extends StatelessWidget {
           height: double.infinity,
           color: Colors.black.withOpacity(0.5),
           child: Center(
-            child: Container(
-              width: 50,
-              height: 50,
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: const Color.fromRGBO(106, 147, 245, 1),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                strokeWidth: 1,
+            child: SmoothCard(
+              padding: EdgeInsets.zero,
+              child: Container(
+                width: 50,
+                height: 50,
+                padding: const EdgeInsets.all(20),
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
+                  strokeWidth: 1,
+                ),
               ),
             ),
           ),

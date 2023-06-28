@@ -16,3 +16,4 @@ export 'src/models/xml_dsig/request/element_resolver/element_resolver_id_impl.da
 export 'src/models/xml_dsig/request/xml_sign_options.dart' show XmlSignOptions;
 export 'src/models/xml_dsig/request/xml_sign_result.dart' show XMLDSIGSignResult, XmlSignAlgorithmResult;
 export 'src/models/xml_dsig/signature_type/xml_signature_type.dart' show XmlSignatureType;
+export 'src/utils/crypt_signature_theme.dart' show CryptSignatureTheme;

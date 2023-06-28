@@ -1,11 +1,12 @@
 import 'package:crypt_signature/src/core/builder/async_builder.dart';
+import 'package:crypt_signature/src/core/interface/smooth_button.dart';
 import 'package:crypt_signature/src/models/certificate.dart';
 import 'package:crypt_signature/src/providers/crypt_signature_provider.dart';
 import 'package:crypt_signature/src/repositories/certificate_repository.dart';
 import 'package:crypt_signature/src/services/certificate_service.dart';
 import 'package:crypt_signature/src/services/license_service.dart';
 import 'package:crypt_signature/src/services/lock_service.dart';
-import 'package:crypt_signature/src/ui/certificate.dart';
+import 'package:crypt_signature/src/ui/certificate_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -22,22 +23,28 @@ class CertificatesView extends StatelessWidget {
         ),
         builder: (context, _) => Column(
           children: [
-            GestureDetector(
-              onTap: () {
-                context.read<CertificateService>().addCertificate(context);
-              },
-              child: Container(
-                margin: const EdgeInsets.only(bottom: 10.0, top: 10.0),
-                padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 10.0),
-                decoration: BoxDecoration(
-                  color: const Color.fromRGBO(106, 147, 245, 1),
-                  borderRadius: BorderRadius.circular(10.0),
+            Padding(
+              padding: const EdgeInsets.only(top: 10.0),
+              child: SmoothButton(
+                color: Theme.of(context).colorScheme.secondary,
+                onTap: () {
+                  context.read<CertificateService>().addCertificate(context);
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 10.0),
+                  child: const Text(
+                    "Добавить сертификат (.pfx)",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
                 ),
-                child: const Text(
-                  "Добавить сертификат (.pfx)",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.white),
-                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10.0),
+              child: Text(
+                context.read<CryptSignatureProvider>().theme.hint,
+                textAlign: TextAlign.center,
               ),
             ),
             Expanded(

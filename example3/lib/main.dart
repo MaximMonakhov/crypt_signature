@@ -81,7 +81,34 @@ class _MyHomePageState extends State<MyHomePage> {
             OutlinedButton(
               onPressed: () async {
                 CryptSignature cryptSignature = await CryptSignature.getInstance();
-                SignResult? result = await cryptSignature.interface(context, MessageInterfaceRequest(base64.encode(utf8.encode("Данные на подпись"))));
+                SignResult? result = await cryptSignature.interface(context, MessageInterfaceRequest(base64.encode(utf8.encode("Данные на подпись"))),
+                    cryptSignatureTheme: CryptSignatureTheme(
+                        themeData: ThemeData(
+                      androidOverscrollIndicator: AndroidOverscrollIndicator.stretch,
+                      brightness: Brightness.dark,
+                      splashFactory: InkRipple.splashFactory,
+                      splashColor: const Color.fromARGB(255, 230, 230, 230).withOpacity(0.10),
+                      appBarTheme: const AppBarTheme(
+                        elevation: 0,
+                        color: Color.fromRGBO(53, 66, 95, 1),
+                      ),
+                      fontFamily: 'SegoeUI',
+                      colorScheme: const ColorScheme.dark(
+                        background: Color.fromRGBO(60, 79, 116, 1),
+                        primary: Colors.white,
+                        secondary: Color.fromRGBO(106, 147, 245, 1),
+                      ),
+                      dividerColor: Colors.black45,
+                      scaffoldBackgroundColor: const Color.fromRGBO(53, 66, 95, 1),
+                      primaryColor: Colors.white,
+                      bottomAppBarTheme: const BottomAppBarTheme(color: Color.fromRGBO(73, 93, 135, 1)),
+                      dialogBackgroundColor: const Color.fromRGBO(60, 79, 116, 1),
+                      textSelectionTheme: const TextSelectionThemeData(
+                        cursorColor: Colors.white,
+                        selectionColor: Colors.grey,
+                        selectionHandleColor: Color.fromRGBO(73, 93, 135, 1),
+                      ),
+                    )));
 
                 showResultDialog(result.toString());
               },

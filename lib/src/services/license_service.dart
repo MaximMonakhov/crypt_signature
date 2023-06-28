@@ -33,6 +33,7 @@ class LicenseService extends ChangeNotifier {
   Future<License?> setLicense(BuildContext context, String licenseNumber) async {
     try {
       lockService.lockScreen();
+      await Future.delayed(const Duration(milliseconds: 500));
       License license = await Native.setLicense(licenseNumber);
       if (!license.status) throw ApiResponseException(license.message, null);
       this.license = license;

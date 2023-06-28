@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 class CryptSignatureTheme {
+  final ThemeData? themeData;
   final String title;
   final String hint;
   final Color backgroundColor;
@@ -9,7 +10,7 @@ class CryptSignatureTheme {
   final ScrollPhysics scrollPhysics;
 
   CryptSignatureTheme({
-    ThemeData? themeData,
+    this.themeData,
     this.title = "Подпись",
     this.hint = "Выберите сертификат",
     Color? backgroundColor,

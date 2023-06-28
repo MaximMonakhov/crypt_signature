@@ -1,3 +1,4 @@
+import 'package:crypt_signature/src/core/interface/smooth_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -14,13 +15,13 @@ Future<String?> showInputDialog(
     builder: (BuildContext context) {
       TextEditingController controller = TextEditingController();
       return AlertDialog(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         titlePadding: const EdgeInsets.symmetric(vertical: 20.0),
         contentPadding: const EdgeInsets.only(left: 20, right: 20.0, bottom: 5.0),
         shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10))),
         title: Text(
           message,
-          style: const TextStyle(fontSize: 12, color: Colors.black),
+          style: const TextStyle(fontSize: 14),
           textAlign: TextAlign.center,
           maxLines: 10,
         ),
@@ -39,7 +40,7 @@ Future<String?> showInputDialog(
                 isDense: true,
                 contentPadding: const EdgeInsets.only(left: 15, right: 15, top: 5, bottom: 5),
                 filled: true,
-                fillColor: const Color.fromRGBO(230, 236, 240, 1),
+                fillColor: Theme.of(context).brightness == Brightness.light ? const Color.fromRGBO(230, 236, 240, 1) : Theme.of(context).colorScheme.background,
                 hintMaxLines: 1,
                 hintText: hintText,
                 hintStyle: const TextStyle(color: Color.fromRGBO(134, 145, 173, 1), fontSize: 14.0),
@@ -47,17 +48,13 @@ Future<String?> showInputDialog(
               ),
             ),
             const Padding(padding: EdgeInsets.symmetric(vertical: 5.0)),
-            TextButton(
-              child: const Text(
-                "Подтвердить",
-                style: TextStyle(
-                  color: Color.fromRGBO(106, 147, 245, 1),
-                ),
-              ),
-              onPressed: () {
+            SmoothButton(
+              onTap: () {
                 Navigator.of(context).pop(controller.text);
               },
-            )
+              title: "Подтвердить",
+            ),
+            const Padding(padding: EdgeInsets.symmetric(vertical: 2.5)),
           ],
         ),
       );
@@ -70,12 +67,13 @@ Future<String?> showInputDialog(
 Future<void> showError(BuildContext context, String? message, {String? details}) => showDialog(
       context: context,
       builder: (BuildContext context) => AlertDialog(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         titlePadding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 10.0),
         contentPadding: const EdgeInsets.only(left: 20, right: 20.0, bottom: 5.0),
         shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10))),
         title: Text(
           message ?? "Ошибка",
-          style: const TextStyle(fontSize: 12),
+          style: const TextStyle(fontSize: 14),
           textAlign: TextAlign.center,
           maxLines: 10,
         ),
@@ -83,30 +81,21 @@ Future<void> showError(BuildContext context, String? message, {String? details})
           mainAxisSize: MainAxisSize.min,
           children: [
             if (details != null)
-              TextButton(
-                child: const Text(
-                  "Показать подробности",
-                  style: TextStyle(
-                    color: Color.fromRGBO(106, 147, 245, 1),
-                  ),
-                ),
-                onPressed: () {
+              SmoothButton(
+                onTap: () {
                   showError(context, details);
                 },
+                title: "Показать подробности",
               )
             else
               Container(),
-            TextButton(
-              child: const Text(
-                "Ок",
-                style: TextStyle(
-                  color: Color.fromRGBO(106, 147, 245, 1),
-                ),
-              ),
-              onPressed: () {
+            SmoothButton(
+              onTap: () {
                 Navigator.of(context).pop();
               },
-            )
+              title: "Ок",
+            ),
+            const Padding(padding: EdgeInsets.symmetric(vertical: 5.0)),
           ],
         ),
       ),
