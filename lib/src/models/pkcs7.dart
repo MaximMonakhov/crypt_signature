@@ -11,21 +11,15 @@ class PKCS7 {
   final Certificate certificate;
   final SignerInfo signerInfo;
   final String digest;
+  final String certificateDigest;
   final String? signature;
 
-  PKCS7(this.certificate, this.digest, {this.signature, DateTime? signTime})
-      : signerInfo = SignerInfo(
-          certificate.serialNumber,
-          certificate.algorithm,
-          certificate.x509certificate.tbsCertificate.issuer.toAsn1(),
-          digest,
-          signature: signature,
-          signTime: signTime,
-        );
+  PKCS7(this.certificate, this.digest, this.certificateDigest, {this.signature, DateTime? signTime})
+      : signerInfo = SignerInfo(certificate, digest, certificateDigest, signature: signature, signTime: signTime);
 
   ASN1Sequence get root {
     ASN1Sequence root = ASN1Sequence();
-    root.add(ASN1ObjectIdentifier([1, 2, 840, 113549, 1, 7, 2], identifier: "ROOT"));
+    root.add(ASN1ObjectIdentifier([1, 2, 840, 113549, 1, 7, 2]));
 
     ASN1Sequence data = ASN1Sequence();
     // Версия

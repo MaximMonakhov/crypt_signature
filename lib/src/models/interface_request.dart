@@ -42,7 +42,8 @@ abstract class PKCS7InterfaceRequest extends InterfaceRequest<PKCS7SignResult> {
 
   Signer get androidSigner => (Certificate certificate, String password) async {
         String digest = await _getDigest(certificate, password);
-        PKCS7 pkcs7 = PKCS7(certificate, digest);
+        String certificateDigest = (await Native.digest(certificate, password, certificate.certificate)).digest;
+        PKCS7 pkcs7 = PKCS7(certificate, digest, certificateDigest);
         String signedAttributes = pkcs7.signerInfo.content;
         DigestResult signedAttributesDigest = await Native.digest(certificate, password, signedAttributes);
         SignResult signResult = await Native.sign(certificate, password, signedAttributesDigest.digest);

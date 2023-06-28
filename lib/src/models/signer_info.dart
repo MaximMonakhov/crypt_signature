@@ -5,18 +5,17 @@ import 'package:crypt_signature/crypt_signature.dart';
 import 'package:crypt_signature/src/models/pkcs7.dart';
 
 class SignerInfo {
-  final String serialNumber;
-  final Algorithm algorithm;
-  final ASN1Sequence issuer;
+  final Certificate certificate;
   final String digest;
+  final String certificateDigest;
   final ASN1ObjectIdentifier digestIdentifier;
   final ASN1ObjectIdentifier signatureIdentifier;
   final DateTime signTime;
   String? signature;
 
-  SignerInfo(this.serialNumber, this.algorithm, this.issuer, this.digest, {this.signature, DateTime? signTime})
-      : digestIdentifier = ASN1ObjectIdentifier(algorithm.hashOID.split(".").map((e) => int.parse(e)).toList()),
-        signatureIdentifier = ASN1ObjectIdentifier(algorithm.signatureOID.split(".").map((e) => int.parse(e)).toList()),
+  SignerInfo(this.certificate, this.digest, this.certificateDigest, {this.signature, DateTime? signTime})
+      : digestIdentifier = ASN1ObjectIdentifier(certificate.algorithm.hashOID.split(".").map((e) => int.parse(e)).toList()),
+        signatureIdentifier = ASN1ObjectIdentifier(certificate.algorithm.publicKeyOID.split(".").map((e) => int.parse(e)).toList()),
         signTime = signTime ?? DateTime.now().toUtc();
 
   ASN1Sequence get sequence {
@@ -26,8 +25,8 @@ class SignerInfo {
     // Издатель
     root.add(
       ASN1Sequence()
-        ..add(issuer)
-        ..add(ASN1Integer(BigInt.parse(serialNumber, radix: 16))),
+        ..add(certificate.x509certificate.tbsCertificate.issuer)
+        ..add(ASN1Integer(BigInt.parse(certificate.serialNumber, radix: 16))),
     );
     // Digest Algorithm
     root.add(
@@ -46,6 +45,39 @@ class SignerInfo {
       ASN1Sequence()
         ..add(ASN1ObjectIdentifier([1, 2, 840, 113549, 1, 9, 4])) // MessageDigest
         ..add(ASN1Set()..add(ASN1OctetString(base64.decode(digest)))),
+      ASN1Sequence()
+        ..add(ASN1ObjectIdentifier([1, 2, 840, 113549, 1, 9, 16, 2, 47])) // Signed Certificate
+        ..add(
+          ASN1Set()
+            ..add(
+              ASN1Sequence()
+                ..add(
+                  ASN1Sequence()
+                    ..add(
+                      ASN1Sequence()
+                        ..add(
+                          ASN1Sequence()
+                            ..add(digestIdentifier)
+                            ..add(ASN1Null()),
+                        )
+                        ..add(ASN1OctetString(base64.decode(certificateDigest)))
+                        ..add(
+                          ASN1Sequence()
+                            ..add(
+                              ASN1Sequence()
+                                ..add(
+                                  ASN1OctetString(
+                                    certificate.x509certificate.tbsCertificate.issuer.encodedBytes,
+                                    tag: CONTEXT_SPECIFIC_TYPE,
+                                  ),
+                                ),
+                            )
+                            ..add(ASN1Integer(BigInt.parse(certificate.serialNumber, radix: 16))),
+                        ),
+                    ),
+                ),
+            ),
+        ),
     ];
     root.add(ASN1OctetString(authenticatedAttributes.map((e) => e.encodedBytes).expand((x) => x).toList(), tag: CONTEXT_SPECIFIC_TYPE));
     // Signature Algorithm
