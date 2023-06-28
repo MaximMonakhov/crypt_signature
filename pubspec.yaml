@@ -1,13 +1,11 @@
 name: crypt_signature
 description: crypt
-version: 5.1.0
+version: 5.1.1+500101000
 homepage: https://github.com/MaximMonakhov/crypt_signature
 publish_to: none
-
 environment:
-  sdk: '>=2.19.5 <3.0.0'
+  sdk: ">=2.19.5 <3.0.0"
   flutter: ">=1.20.0"
-
 dependencies:
   flutter:
     sdk: flutter
@@ -23,12 +21,10 @@ dependencies:
     git:
       url: https://ntp-gitlab.krista.ru/mobile/utils/flutter-c14n.git
       ref: 0.0.2
-
 dev_dependencies:
   flutter_test:
     sdk: flutter
   lints: ^2.0.1
-
 flutter:
   uses-material-design: true
   assets:
