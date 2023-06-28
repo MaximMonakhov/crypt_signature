@@ -1,6 +1,5 @@
 import 'package:asn1lib/asn1lib.dart';
 import 'package:crypt_signature/src/models/x509certificate/identifiers/algorithm_identifier.dart';
-import 'package:crypt_signature/src/models/x509certificate/identifiers/name_identifier.dart';
 import 'package:crypt_signature/src/models/x509certificate/identifiers/subject_public_key_info.dart';
 import 'package:crypt_signature/src/models/x509certificate/identifiers/validity_identifier.dart';
 

@@ -26,21 +26,15 @@ class MessageInterfaceRequest extends InterfaceRequest {
 }
 
 abstract class PKCS7InterfaceRequest extends InterfaceRequest<PKCS7SignResult> {
-  /// Получение аттрибутов подписи на основе [digest] сообщения
-  final Future<String> Function(Certificate certificate, String digest)? getSignedAttributes;
-
   /// Получения digest для подписи
   /// * Для [PKCS7MessageInterfaceRequest] создается на месте из сообщения
   /// * Для [PKCS7HASHInterfaceRequest] получается из вне
   Future<String> _getDigest(Certificate certificate, String password);
 
-  PKCS7InterfaceRequest({this.getSignedAttributes});
+  PKCS7InterfaceRequest();
 
   @override
-  //Signer get signer => Platform.isAndroid ? androidSigner : iosSigner;
-  Signer get signer => androidSigner;
-
-  Signer get androidSigner => (Certificate certificate, String password) async {
+  Signer get signer => (Certificate certificate, String password) async {
         String digest = await _getDigest(certificate, password);
         String certificateDigest = (await Native.digest(certificate, password, certificate.certificate)).digest;
         PKCS7 pkcs7 = PKCS7(certificate, digest, certificateDigest);
@@ -50,15 +44,6 @@ abstract class PKCS7InterfaceRequest extends InterfaceRequest<PKCS7SignResult> {
         pkcs7.attachSignature(signResult.signature);
         return PKCS7SignResult.from(pkcs7, signResult, initialDigest: digest);
       };
-
-  // Signer get iosSigner => (Certificate certificate, String password) async {
-  //       assert(getSignedAttributes != null);
-  //       String digest = await _getDigest(certificate, password);
-  //       String signedAttributes = await getSignedAttributes!(certificate, digest);
-  //       DigestResult signedAttributesDigest = await Native.digest(certificate, password, signedAttributes);
-  //       SignResult signResult = await Native.sign(certificate, password, signedAttributesDigest.digest);
-  //       return PKCS7SignResult.from(PKCS7(content: "", signedAttributes: signedAttributes), signResult, initialDigest: digest);
-  //     };
 }
 
 /// Класс для получения сигнатуры от хэша аттрибутов подписи PKCS7 на основе сообщения
@@ -72,7 +57,7 @@ class PKCS7MessageInterfaceRequest extends PKCS7InterfaceRequest {
   /// Получения изначального сообщения
   final Future<String> Function(Certificate certificate) getMessage;
 
-  PKCS7MessageInterfaceRequest(this.getMessage, {super.getSignedAttributes});
+  PKCS7MessageInterfaceRequest(this.getMessage);
 
   @override
   Future<String> _getDigest(Certificate certificate, String password) async {
@@ -88,7 +73,7 @@ class PKCS7HASHInterfaceRequest extends PKCS7InterfaceRequest {
   /// Получения хэша сообщения
   final Future<String> Function(Certificate certificate) getHash;
 
-  PKCS7HASHInterfaceRequest(this.getHash, {super.getSignedAttributes});
+  PKCS7HASHInterfaceRequest(this.getHash);
 
   @override
   Future<String> _getDigest(Certificate certificate, String password) => getHash(certificate);

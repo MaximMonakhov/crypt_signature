@@ -63,12 +63,6 @@ class CryptSignature {
   /// Вычислить подпись хэша
   static Future<SignResult> sign(Certificate certificate, String password, String digest) => Native.sign(certificate, password, digest);
 
-  // /// Создать [PKCS7] и атрибуты подписи на основе [digest]
-  // static Future<PKCS7> createPKCS7(Certificate certificate, String password, String digest) => Native.createPKCS7(certificate, password, digest);
-
-  // /// Прикрепить к [pkcs7] сигнатуру [signature]
-  // static Future<PKCS7> addSignatureToPKCS7(PKCS7 pkcs7, String signature) => Native.addSignatureToPKCS7(pkcs7, signature);
-
   /// Получить список сертификатов, добавленных пользователем
   static Future<List<Certificate>> getCertificates() async {
     sharedPreferences ??= await SharedPreferences.getInstance();

@@ -43,11 +43,6 @@ class _MyHomePageState extends State<MyHomePage> {
     return base64.encode(utf8.encode("Хэш"));
   }
 
-  Future<String> getSignedAttributes(Certificate certificate, String digest) async {
-    await Future.delayed(const Duration(seconds: 1));
-    return base64.encode(utf8.encode("Аттрибуты подписи"));
-  }
-
   void showResultDialog(String data) {
     showDialog(
       context: context,
@@ -89,8 +84,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             OutlinedButton(
               onPressed: () async {
-                PKCS7SignResult? result =
-                    await CryptSignature.interface(context, PKCS7MessageInterfaceRequest(getMessage, getSignedAttributes: getSignedAttributes));
+                PKCS7SignResult? result = await CryptSignature.interface(context, PKCS7MessageInterfaceRequest(getMessage));
 
                 showResultDialog(result.toString());
               },
@@ -98,8 +92,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             OutlinedButton(
               onPressed: () async {
-                PKCS7SignResult? result =
-                    await CryptSignature.interface(context, PKCS7HASHInterfaceRequest(getDigest, getSignedAttributes: getSignedAttributes));
+                PKCS7SignResult? result = await CryptSignature.interface(context, PKCS7HASHInterfaceRequest(getDigest));
 
                 showResultDialog(result.toString());
               },

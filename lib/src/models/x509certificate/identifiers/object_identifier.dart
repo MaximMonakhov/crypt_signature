@@ -30,23 +30,7 @@ class ObjectIdentifier {
     return ObjectIdentifier(nodes);
   }
 
-  ASN1ObjectIdentifier toAsn1() {
-    // var bytes = <int>[];
-    // bytes.add(nodes.first * 40 + nodes[1]);
-    // for (var v in nodes.skip(2)) {
-    //   List<int> w = [];
-    //   while (v > 128) {
-    //     var u = v % 128;
-    //     v -= u;
-    //     v ~/= 128;
-    //     w.add(u);
-    //   }
-    //   w.add(v);
-    //   bytes.addAll(w.skip(1).toList().reversed.map((v) => v + 128));
-    //   bytes.add(w.first);
-    // }
-    return ASN1ObjectIdentifier(nodes);
-  }
+  ASN1ObjectIdentifier toAsn1() => ASN1ObjectIdentifier(nodes);
 
   @override
   int get hashCode => Object.hashAll(nodes);
