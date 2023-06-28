@@ -82,9 +82,8 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () async {
                 CryptSignature cryptSignature = await CryptSignature.getInstance();
                 SignResult? result = await cryptSignature.interface(context, MessageInterfaceRequest(base64.encode(utf8.encode("Данные на подпись"))),
-                    cryptSignatureTheme: CryptSignatureTheme(
+                    theme: CryptSignatureTheme(
                         themeData: ThemeData(
-                      androidOverscrollIndicator: AndroidOverscrollIndicator.stretch,
                       brightness: Brightness.dark,
                       splashFactory: InkRipple.splashFactory,
                       splashColor: const Color.fromARGB(255, 230, 230, 230).withOpacity(0.10),

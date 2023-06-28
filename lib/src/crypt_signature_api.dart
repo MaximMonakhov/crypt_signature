@@ -35,12 +35,7 @@ class CryptSignature {
   /// В случает подписи PKCS7 на Android возвращает [PKCS7SignResult]
   /// В случает подписи XML возвращает [XMLDSIGSignResult]
   /// Возвращает [SignResult] для всеъ остальных
-  Future<T?> interface<T extends SignResult>(
-    BuildContext context,
-    InterfaceRequest<T> interfaceRequest, {
-    CryptSignatureTheme? cryptSignatureTheme,
-  }) async {
-    CryptSignatureTheme theme = cryptSignatureTheme ??= CryptSignatureTheme(themeData: Theme.of(context));
+  Future<T?> interface<T extends SignResult>(BuildContext context, InterfaceRequest<T> interfaceRequest, {CryptSignatureTheme? theme}) async {
     NavigatorState navigator = Navigator.of(context);
     Directory directory = await getApplicationDocumentsDirectory();
     await Directory('${directory.path}/certificates').create();
@@ -49,7 +44,7 @@ class CryptSignature {
       FadePageRoute(
         builder: (context) => MultiProvider(
           providers: [
-            Provider<CryptSignatureProvider>(create: (context) => CryptSignatureProvider(context, theme, interfaceRequest)),
+            Provider<CryptSignatureProvider>(create: (context) => CryptSignatureProvider(context, theme ?? CryptSignatureTheme(), interfaceRequest)),
             Provider<CertificateRepository>(create: (context) => certificateRepository),
             ChangeNotifierProvider<LockService>(create: (context) => LockService()),
             ChangeNotifierProvider<LicenseService>(create: (context) => LicenseService(context.read<LockService>())),

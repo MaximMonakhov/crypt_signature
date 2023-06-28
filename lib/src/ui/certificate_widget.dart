@@ -128,7 +128,7 @@ class CertificateWidget extends StatelessWidget {
                     );
                   },
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+                    padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
                     child: Text(
                       "Просмотреть идентифицирующие сведения",
                       style: TextStyle(

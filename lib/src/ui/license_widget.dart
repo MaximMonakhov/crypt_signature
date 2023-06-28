@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:crypt_signature/src/core/interface/smooth_button.dart';
 import 'package:crypt_signature/src/models/license.dart';
 import 'package:crypt_signature/src/services/license_service.dart';
-import 'package:crypt_signature/src/ui/loading_widget.dart';
 import 'package:crypt_signature/src/utils/crypt_signature_icons_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -38,8 +37,11 @@ class LicenseWidget extends StatelessWidget {
     }
 
     return Container(
-      padding: EdgeInsets.only(left: 20.0, right: 10.0, bottom: 10.0, top: 10.0),
-      color: Theme.of(context).colorScheme.background,
+      padding: const EdgeInsets.only(left: 20.0, right: 10.0, bottom: 10.0, top: 10.0),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.background,
+        border: Border.symmetric(horizontal: BorderSide(color: Colors.grey.withOpacity(0.2))),
+      ),
       child: license.status
           ? Column(
               children: [
@@ -73,7 +75,7 @@ class LicenseWidget extends StatelessWidget {
                     ),
                   ],
                 ),
-                Padding(padding: EdgeInsets.symmetric(vertical: 2.5)),
+                const Padding(padding: EdgeInsets.symmetric(vertical: 2.5)),
                 Row(
                   children: [
                     const Icon(
