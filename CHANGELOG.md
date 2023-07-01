@@ -1,3 +1,10 @@
+## [5.1.2](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/compare/v5.1.1...v5.1.2) (2023-07-01)
+
+
+### Bug Fixes
+
+* тестовый фикс для semver ([c442bc5](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/c442bc553b1ccfe06d2e921ca2a6d5e56d95286a))
+
 ## [5.1.1](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/compare/v5.1.0...v5.1.1) (2023-06-28)
 
 
