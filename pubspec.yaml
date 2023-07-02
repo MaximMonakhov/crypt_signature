@@ -28,6 +28,8 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   lints: ^2.0.1
+  crypto: ^3.0.3
+  file: ^6.1.4
 
 flutter:
   uses-material-design: true
