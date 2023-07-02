@@ -122,5 +122,9 @@ void main() {
       expect(signResult.signature, "SIGNATURE");
       expect(signResult.signatureAlgorithm, "SIGNATURE_ALGORITHM");
     });
+
+    test('XMLInterfaceRequest', () async {
+      // TODO: добавить тест для XMLInterfaceRequest
+    });
   });
 }
