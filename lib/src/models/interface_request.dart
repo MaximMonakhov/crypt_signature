@@ -38,10 +38,10 @@ abstract class PKCS7InterfaceRequest extends InterfaceRequest<PKCS7SignResult> {
         String digest = await _getDigest(certificate, password);
         String certificateDigest = (await Native.digest(certificate, password, certificate.certificate)).digest;
         PKCS7 pkcs7 = PKCS7(certificate, digest, certificateDigest);
-        String signedAttributes = pkcs7.signerInfo.content;
+        String signedAttributes = pkcs7.signerInfo.signedAttribute.message;
         DigestResult signedAttributesDigest = await Native.digest(certificate, password, signedAttributes);
         SignResult signResult = await Native.sign(certificate, password, signedAttributesDigest.digest);
-        pkcs7.attachSignature(signResult.signature);
+        pkcs7.signerInfo.attachSignature(signResult.signature);
         return PKCS7SignResult.from(pkcs7, signResult, initialDigest: digest);
       };
 }

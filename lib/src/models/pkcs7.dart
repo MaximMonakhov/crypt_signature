@@ -15,7 +15,7 @@ class PKCS7 {
   final String? signature;
 
   PKCS7(this.certificate, this.digest, this.certificateDigest, {this.signature, DateTime? signTime})
-      : signerInfo = SignerInfo(certificate, digest, certificateDigest, signature: signature, signTime: signTime);
+      : signerInfo = SignerInfo(certificate, digest: digest, certificateDigest: certificateDigest, signature: signature, signTime: signTime);
 
   ASN1Sequence get root {
     ASN1Sequence root = ASN1Sequence();
@@ -45,9 +45,7 @@ class PKCS7 {
     return root;
   }
 
-  void attachSignature(String signature) => signerInfo.signature = signature;
-
-  String get content => base64.encode(root.encodedBytes);
+  String get encoded => base64.encode(root.encodedBytes);
 
   @override
   String toString() =>
