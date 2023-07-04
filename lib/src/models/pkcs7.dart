@@ -7,14 +7,18 @@ import 'package:crypt_signature/src/utils/extensions/extensions.dart';
 
 const int CONTEXT_SPECIFIC_TYPE = 0xA0;
 
+/// В данном процессе возникает ошибка:
+/// 1. Получить байты
+/// 2. Прикрепить сигнатуру
+/// 3. Получить байты
+/// Из-за того, что ASN1 пакет зачем-то запоминает байты
 class PKCS7 {
   final Certificate certificate;
   final SignerInfo signerInfo;
   final String digest;
   final String certificateDigest;
-  final String? signature;
 
-  PKCS7(this.certificate, this.digest, this.certificateDigest, {this.signature, DateTime? signTime})
+  PKCS7(this.certificate, this.digest, this.certificateDigest, {String? signature, DateTime? signTime})
       : signerInfo = SignerInfo(certificate, digest: digest, certificateDigest: certificateDigest, signature: signature, signTime: signTime);
 
   ASN1Sequence get root {
@@ -49,5 +53,5 @@ class PKCS7 {
 
   @override
   String toString() =>
-      "PKCS7:\nCertificate: ${certificate.certificate.truncate()}\nDigest: ${digest.truncate()}\nSignature: ${(signature ?? '-').truncate()}\nRoot: $root";
+      "PKCS7:\nCertificate: ${certificate.certificate.truncate()}\nDigest: ${digest.truncate()}\nSignature: ${(signerInfo.signature ?? '-').truncate()}\nRoot: $root";
 }

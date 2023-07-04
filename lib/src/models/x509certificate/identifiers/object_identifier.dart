@@ -38,24 +38,29 @@ class ObjectIdentifier {
   @override
   bool operator ==(dynamic other) => other is ObjectIdentifier && listEquals(nodes, other.nodes);
 
-  String? get name {
-    try {
-      dynamic tree = _tree;
-      for (final int n in nodes) {
-        // ignore: avoid_dynamic_calls
-        tree = tree[n];
-      }
-      if (tree is Map) return tree[null] != null ? tree[null] as String? : "Unknown $nodes";
-      return tree.toString();
-      // ignore: avoid_catches_without_on_clauses
-    } catch (_) {
-      return nodes.toString();
-    }
-  }
+  String? get name => nodes.toString();
+  // {
+  //   return nodes.toString();
+  //   // Поиск узла по имени
+  //   // try {
+  //   //   dynamic tree = _tree;
+  //   //   for (final int n in nodes) {
+  //   //     // ignore: avoid_dynamic_calls
+  //   //     tree = tree[n];
+  //   //   }
+  //   //   if (tree is Map) return tree[null] != null ? tree[null] as String? : nodes.toString();
+
+  //   //   return tree.toString();
+  //   //   // ignore: avoid_catches_without_on_clauses
+  //   // } catch (_) {
+  //   //   return nodes.toString();
+  //   // }
+  // }
 
   @override
   String toString() => name!;
 
+  // ignore: unused_field
   static const _tree = {
     0: {
       null: 'itu-t',

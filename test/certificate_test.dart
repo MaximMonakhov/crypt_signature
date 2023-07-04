@@ -14,7 +14,7 @@ void main() {
       expect(certificate.certificate, TestData.cryptoProRawCertificate);
       expect(certificate.notAfterDate, "10:57 21-03-2023");
       expect(certificate.serialNumber, "120060c2d79261fba6e855977c00010060c2d7");
-      expect(certificate.subjectDN.contains("email"), true);
+      expect(certificate.subjectDN.contains("qwerty"), true);
       expect(base64.encode(utf8.encode(json.encode(certificate.parameterMap))), TestData.cryptoProParameters);
       expect(base64.encode(utf8.encode(certificate.certificateDescription)), TestData.cryptoProDescription);
     });

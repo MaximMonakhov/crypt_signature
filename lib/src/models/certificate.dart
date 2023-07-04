@@ -4,7 +4,9 @@ import 'dart:typed_data';
 import 'package:asn1lib/asn1lib.dart';
 import 'package:crypt_signature/src/models/algorithm.dart';
 import 'package:crypt_signature/src/models/storage.dart';
+import 'package:crypt_signature/src/models/x509certificate/identifiers/object_identifier.dart';
 import 'package:crypt_signature/src/models/x509certificate/x509_certificate.dart';
+import 'package:crypt_signature/src/utils/dart_converters.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
@@ -75,11 +77,26 @@ class Certificate {
     String notAfterDate = DateFormat('HH:mm dd-MM-yyyy').format(cert.tbsCertificate.validity.notAfter!);
     String serialNumber = parseSerialNumberToHex(cert.tbsCertificate.serialNumber);
 
+    List<String> subjectFields = [];
+    for (final ASN1Object element in cert.tbsCertificate.subject.elements) {
+      if (element is ASN1Set) {
+        final ASN1Object object = element.elements.first;
+        dynamic objectValue = toDart(object);
+        if (objectValue != null) {
+          if (objectValue is List && objectValue.length == 2 && objectValue[0] is ObjectIdentifier && objectValue[1] is String) {
+            subjectFields.add("${(objectValue[0] as ObjectIdentifier).nodes.join(".")}: ${objectValue[1] as String}");
+          } else {
+            subjectFields.add("$objectValue");
+          }
+        }
+      }
+    }
+
     Certificate certificate = Certificate(
       uuid: const Uuid().v4(),
       certificate: data["certificate"] as String,
       alias: data["alias"] as String,
-      subjectDN: cert.tbsCertificate.subject.toString(),
+      subjectDN: subjectFields.join("\n"),
       notAfterDate: notAfterDate,
       serialNumber: serialNumber,
       algorithm: algorithm,
