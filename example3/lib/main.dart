@@ -40,7 +40,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<String> getDigest(Certificate certificate) async {
     await Future.delayed(const Duration(seconds: 1));
-    return base64.encode(utf8.encode("Хэш"));
+    return "CXjNBON6v7foWjJ+mFXglgiPvXbcqYsQiErTnftDGRY="; // ХЭШ 2012 256 от "VEVTVA==" или "TEST"
   }
 
   void showResultDialog(String data) {
