@@ -1,3 +1,20 @@
+## [5.2.0](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/compare/v5.1.2...v5.2.0) (2023-07-05)
+
+
+### Features
+
+* добавил возможность установки темы ([70db840](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/70db8401b0bc8e7925153fe3a1c3e8e974634d0f))
+
+
+### Bug Fixes
+
+* поправил установку темы ([450e6f5](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/450e6f52d670760070365824fe860ae2b5871e9b))
+
+
+### Code Improvements
+
+* изменил систему состояния плагина ([51e9c97](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/51e9c977c10b235f948a91e087bbdcaa82e8960d))
+
 ## [5.1.2](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/compare/v5.1.1...v5.1.2) (2023-07-01)
 
 
