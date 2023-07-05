@@ -1,4 +1,5 @@
 stages:
+  - test
   - deploy
 
 default:
@@ -8,9 +9,17 @@ default:
     - export DART_VM_OPTIONS="--root-certs-file=/usr/local/share/ca-certificates/cert.crt"
     - update-ca-certificates -f
 
+test:
+  stage: test
+  image: ghcr.io/cirruslabs/flutter:3.7.8
+  script:
+    - flutter test
+
+
 release:
   stage: deploy
   image: node:latest
+  when: on_success
   script:
     - export GITLAB_TOKEN=$BOT_TOKEN
     - export GIT_AUTHOR_NAME=platform-mobile-ci-bot
