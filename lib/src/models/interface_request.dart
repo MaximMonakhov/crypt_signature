@@ -31,8 +31,6 @@ abstract class PKCS7InterfaceRequest extends InterfaceRequest<PKCS7SignResult> {
   /// * Для [PKCS7HASHInterfaceRequest] получается из вне
   Future<String> _getDigest(Certificate certificate, String password);
 
-  PKCS7InterfaceRequest();
-
   @override
   Signer get signer => (Certificate certificate, String password) async {
         String digest = await _getDigest(certificate, password);
