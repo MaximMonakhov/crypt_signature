@@ -9,7 +9,7 @@ import 'package:xml/xml.dart';
 typedef Signer<T extends SignResult> = Future<T> Function(Certificate certificate, String password);
 
 abstract class SignRequest<T extends SignResult> {
-  Signer get signer;
+  Signer<T> get signer;
 }
 
 /// Класс для получение сигнатуры от сообщения
@@ -32,7 +32,7 @@ abstract class PKCS7SignRequest extends SignRequest<PKCS7SignResult> {
   Future<String> _getDigest(Certificate certificate, String password);
 
   @override
-  Signer get signer => (Certificate certificate, String password) async {
+  Signer<PKCS7SignResult> get signer => (Certificate certificate, String password) async {
         String digest = await _getDigest(certificate, password);
         String certificateDigest = (await Native.digest(certificate, password, certificate.certificate)).digest;
         PKCS7 pkcs7 = PKCS7(certificate, digest, certificateDigest);
@@ -80,12 +80,12 @@ class PKCS7HASHSignRequest extends PKCS7SignRequest {
 /// Класс для своей логики подписи
 class CustomSignRequest<T extends SignResult> extends SignRequest<T> {
   /// Вызывается при выборе сертификата, пользовательская логика подписи
-  final Signer onCertificateSelected;
+  final Signer<T> onCertificateSelected;
 
   CustomSignRequest(this.onCertificateSelected);
 
   @override
-  Signer get signer => onCertificateSelected;
+  Signer<T> get signer => onCertificateSelected;
 }
 
 /// Подписывает xml - документ по стандарту `XmlDSig`
