@@ -20,7 +20,7 @@ dependencies:
   xml: ^6.1.0
   flutter_c14n:
     git:
-      url: https://ntp-gitlab.krista.ru/mobile/utils/flutter-c14n.git
+      url: ssh://git@ntp-gitlab.krista.ru:2222/mobile/utils/flutter-c14n.git
       ref: 0.0.2
   pull_to_refresh: ^2.0.0
   device_info_plus: ^9.0.2

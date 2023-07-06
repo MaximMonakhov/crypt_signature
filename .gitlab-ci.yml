@@ -4,6 +4,12 @@ stages:
 
 default:
   before_script:
+    - printenv
+    - mkdir -m 700 "${HOME}/.ssh"
+    - ssh-keyscan -p 2222 -H "${CI_SERVER_HOST}" >> ~/.ssh/known_hosts
+    - eval $(ssh-agent -s)
+    - tr -d '\r' < "${GIT_PRIVATE_KEY}" | ssh-add -
+
     - printf "%sn" "$DEFAULT_CA_CERTS" > /usr/local/share/ca-certificates/cert.crt
     - export NODE_EXTRA_CA_CERTS="/usr/local/share/ca-certificates/cert.crt"
     - export DART_VM_OPTIONS="--root-certs-file=/usr/local/share/ca-certificates/cert.crt"
@@ -15,13 +21,12 @@ test:
   script:
     - flutter test
 
-
 release:
   stage: deploy
   image: node:latest
   when: on_success
   script:
-    - export GITLAB_TOKEN=$BOT_TOKEN
+    - export GITLAB_TOKEN=$BOT_ACCESS_TOKEN
     - export GIT_AUTHOR_NAME=platform-mobile-ci-bot
     - export GIT_COMMITTER_NAME=platform-mobile-ci-bot
     - export GIT_AUTHOR_EMAIL=bot@noreply.ntp-gitlab.krista.ru
