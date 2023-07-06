@@ -20,7 +20,7 @@ class CryptSignature {
   /// Открыть экран выбора сертификата и подписать
   /// В случает подписи PKCS7 на Android возвращает [PKCS7SignResult]
   /// В случает подписи XML возвращает [XMLDSIGSignResult]
-  /// Возвращает [SignResult] для всеъ остальных
+  /// Возвращает [SignResult] для всех остальных
   static Future<T?> interface<T extends SignResult>(
     BuildContext context,
     SignRequest<T> signRequest, {
