@@ -19,7 +19,10 @@ test:
   stage: test
   image: ghcr.io/cirruslabs/flutter:3.7.8
   script:
+    - cp pubspec.yaml pubspec_https.yaml
+    - sed -i 's#https://ntp-gitlab.krista.ru/#ssh://git@ntp-gitlab.krista.ru:2222/#g' pubspec.yaml
     - flutter test
+    - cp pubspec_https.yaml pubspec.yaml
 
 release:
   stage: deploy
