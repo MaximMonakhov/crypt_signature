@@ -4,7 +4,7 @@ import 'dart:io';
 
 import 'package:crypt_signature/src/inherited_crypt_signature.dart';
 import 'package:crypt_signature/src/models/certificate.dart';
-import 'package:crypt_signature/src/models/interface_request.dart';
+import 'package:crypt_signature/src/models/sign_request.dart';
 import 'package:crypt_signature/src/models/sign_result.dart';
 import 'package:crypt_signature/src/ui/dialogs.dart';
 import 'package:crypt_signature/src/ui/license/inherited_license.dart';
@@ -45,7 +45,7 @@ class CertificateWidget extends StatelessWidget {
     InheritedLocker.of(context).lockScreen();
 
     final InheritedCryptSignature inherit = InheritedCryptSignature.of(context);
-    final InterfaceRequest request = inherit.interfaceRequest;
+    final SignRequest request = inherit.signRequest;
     try {
       final SignResult result = await request.signer(certificate, password);
       Navigator.of(inherit.rootContext).pop(result);

@@ -4,8 +4,8 @@ import 'dart:io';
 import 'package:crypt_signature/src/inherited_crypt_signature.dart';
 import 'package:crypt_signature/src/models/certificate.dart';
 import 'package:crypt_signature/src/models/digest_result.dart';
-import 'package:crypt_signature/src/models/interface_request.dart';
 import 'package:crypt_signature/src/models/license.dart';
+import 'package:crypt_signature/src/models/sign_request.dart';
 import 'package:crypt_signature/src/models/sign_result.dart';
 import 'package:crypt_signature/src/native/native.dart';
 import 'package:crypt_signature/src/ui/home_widget.dart';
@@ -23,7 +23,7 @@ class CryptSignature {
   /// Возвращает [SignResult] для всеъ остальных
   static Future<T?> interface<T extends SignResult>(
     BuildContext context,
-    InterfaceRequest<T> interfaceRequest, {
+    SignRequest<T> signRequest, {
     String title = "Подпись",
     String hint = "Выберите сертификат",
   }) async {
@@ -35,7 +35,7 @@ class CryptSignature {
     T? result = await navigator.push(
       FadePageRoute(
         builder: (context) => InheritedCryptSignature(
-          interfaceRequest,
+          signRequest,
           context,
           child: HomeWidget(title: title, hint: hint),
         ),

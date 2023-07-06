@@ -12,7 +12,7 @@ import 'test_data.dart';
 void main() {
   const channel = MethodChannel('crypt_signature');
 
-  group('Тестирование класса InterfaceRequest.', () {
+  group('Тестирование класса SignRequest.', () {
     setUpAll(() {
       TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -61,20 +61,20 @@ void main() {
       TestDefaultBinaryMessengerBinding.instance!.defaultBinaryMessenger.setMockMethodCallHandler(channel, handler);
     });
 
-    test('MessageInterfaceRequest', () async {
-      MessageInterfaceRequest interfaceRequest = MessageInterfaceRequest("MESSAGE");
+    test('MessageSignRequest', () async {
+      MessageSignRequest signRequest = MessageSignRequest("MESSAGE");
       Certificate certificate = Certificate.fromBase64({"alias": TestData.kristaCertificateAlias, "certificate": TestData.kristaRawCertificate});
-      SignResult signResult = await interfaceRequest.signer(certificate, "PASSWORD");
+      SignResult signResult = await signRequest.signer(certificate, "PASSWORD");
       expect(signResult.certificate, certificate);
       expect(signResult.digest, "sZTZIBjWB0I0KAxfW4hknI2xTvTyw3RtiiOJag9vO2Y=");
       expect(signResult.signature.length, 44);
       expect(signResult.signatureAlgorithm, "SIGNATURE_ALGORITHM");
     });
 
-    test('PKCS7MessageInterfaceRequest', () async {
-      PKCS7MessageInterfaceRequest interfaceRequest = PKCS7MessageInterfaceRequest((certificate) async => "MESSAGE");
+    test('PKCS7MessageSignRequest', () async {
+      PKCS7MessageSignRequest signRequest = PKCS7MessageSignRequest((certificate) async => "MESSAGE");
       Certificate certificate = Certificate.fromBase64({"alias": TestData.kristaCertificateAlias, "certificate": TestData.kristaRawCertificate});
-      SignResult signResult = await interfaceRequest.signer(certificate, "PASSWORD");
+      SignResult signResult = await signRequest.signer(certificate, "PASSWORD");
       expect(signResult.certificate, certificate);
       expect(signResult.digest.length, 44);
       expect(signResult.signature.length, 44);
@@ -88,11 +88,10 @@ void main() {
       expect(signResult.pkcs7.certificate.algorithm, Algorithm.algorithms[1]);
     });
 
-    test('PKCS7HASHInterfaceRequest', () async {
-      PKCS7HASHInterfaceRequest interfaceRequest =
-          PKCS7HASHInterfaceRequest((certificate) async => base64.encode(sha256.convert(utf8.encode("MESSAGE")).bytes));
+    test('PKCS7HASHSignRequest', () async {
+      PKCS7HASHSignRequest signRequest = PKCS7HASHSignRequest((certificate) async => base64.encode(sha256.convert(utf8.encode("MESSAGE")).bytes));
       Certificate certificate = Certificate.fromBase64({"alias": TestData.kristaCertificateAlias, "certificate": TestData.kristaRawCertificate});
-      SignResult signResult = await interfaceRequest.signer(certificate, "PASSWORD");
+      SignResult signResult = await signRequest.signer(certificate, "PASSWORD");
       expect(signResult.certificate, certificate);
       expect(signResult.digest.length, 44);
       expect(signResult.signature.length, 44);
@@ -106,8 +105,8 @@ void main() {
       expect(signResult.pkcs7.certificate.algorithm, Algorithm.algorithms[1]);
     });
 
-    test('CustomInterfaceRequest', () async {
-      CustomInterfaceRequest interfaceRequest = CustomInterfaceRequest(
+    test('CustomSignRequest', () async {
+      CustomSignRequest signRequest = CustomSignRequest(
         (certificate, password) async => SignResult(
           certificate,
           digest: "DIGEST",
@@ -116,15 +115,15 @@ void main() {
         ),
       );
       Certificate certificate = Certificate.fromBase64({"alias": TestData.kristaCertificateAlias, "certificate": TestData.kristaRawCertificate});
-      SignResult signResult = await interfaceRequest.signer(certificate, "PASSWORD");
+      SignResult signResult = await signRequest.signer(certificate, "PASSWORD");
       expect(signResult.certificate, certificate);
       expect(signResult.digest, "DIGEST");
       expect(signResult.signature, "SIGNATURE");
       expect(signResult.signatureAlgorithm, "SIGNATURE_ALGORITHM");
     });
 
-    test('XMLInterfaceRequest', () async {
-      // TODO: добавить тест для XMLInterfaceRequest
+    test('XMLSignRequest', () async {
+      // TODO: добавить тест для XMLSignRequest
     });
   });
 }

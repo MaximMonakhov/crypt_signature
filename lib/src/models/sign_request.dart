@@ -8,15 +8,15 @@ import 'package:xml/xml.dart';
 
 typedef Signer<T extends SignResult> = Future<T> Function(Certificate certificate, String password);
 
-abstract class InterfaceRequest<T extends SignResult> {
+abstract class SignRequest<T extends SignResult> {
   Signer get signer;
 }
 
 /// Класс для получение сигнатуры от сообщения
-class MessageInterfaceRequest extends InterfaceRequest {
+class MessageSignRequest extends SignRequest {
   final String message;
 
-  MessageInterfaceRequest(this.message);
+  MessageSignRequest(this.message);
 
   @override
   Signer get signer => (certificate, password) async {
@@ -25,10 +25,10 @@ class MessageInterfaceRequest extends InterfaceRequest {
       };
 }
 
-abstract class PKCS7InterfaceRequest extends InterfaceRequest<PKCS7SignResult> {
+abstract class PKCS7SignRequest extends SignRequest<PKCS7SignResult> {
   /// Получения digest для подписи
-  /// * Для [PKCS7MessageInterfaceRequest] создается на месте из сообщения
-  /// * Для [PKCS7HASHInterfaceRequest] получается из вне
+  /// * Для [PKCS7MessageSignRequest] создается на месте из сообщения
+  /// * Для [PKCS7HASHSignRequest] получается из вне
   Future<String> _getDigest(Certificate certificate, String password);
 
   @override
@@ -51,11 +51,11 @@ abstract class PKCS7InterfaceRequest extends InterfaceRequest<PKCS7SignResult> {
 /// * Высчитывает хэш от атрибутов подписи
 /// * Подписание атрибутов подписи
 /// * Вставка сигнатуры в PKCS7
-class PKCS7MessageInterfaceRequest extends PKCS7InterfaceRequest {
+class PKCS7MessageSignRequest extends PKCS7SignRequest {
   /// Получения изначального сообщения
   final Future<String> Function(Certificate certificate) getMessage;
 
-  PKCS7MessageInterfaceRequest(this.getMessage);
+  PKCS7MessageSignRequest(this.getMessage);
 
   @override
   Future<String> _getDigest(Certificate certificate, String password) async {
@@ -66,23 +66,23 @@ class PKCS7MessageInterfaceRequest extends PKCS7InterfaceRequest {
 }
 
 /// Класс для получения сигнатуры от хэша аттрибутов подписи PKCS7 на основе хэша сообщения.
-/// Работает как [PKCS7MessageInterfaceRequest], но не высчитывает хэш от изначального сообщения
-class PKCS7HASHInterfaceRequest extends PKCS7InterfaceRequest {
+/// Работает как [PKCS7MessageSignRequest], но не высчитывает хэш от изначального сообщения
+class PKCS7HASHSignRequest extends PKCS7SignRequest {
   /// Получения хэша сообщения
   final Future<String> Function(Certificate certificate) getHash;
 
-  PKCS7HASHInterfaceRequest(this.getHash);
+  PKCS7HASHSignRequest(this.getHash);
 
   @override
   Future<String> _getDigest(Certificate certificate, String password) => getHash(certificate);
 }
 
 /// Класс для своей логики подписи
-class CustomInterfaceRequest<T extends SignResult> extends InterfaceRequest<T> {
+class CustomSignRequest<T extends SignResult> extends SignRequest<T> {
   /// Вызывается при выборе сертификата, пользовательская логика подписи
   final Signer onCertificateSelected;
 
-  CustomInterfaceRequest(this.onCertificateSelected);
+  CustomSignRequest(this.onCertificateSelected);
 
   @override
   Signer get signer => onCertificateSelected;
@@ -97,8 +97,8 @@ class CustomInterfaceRequest<T extends SignResult> extends InterfaceRequest<T> {
 /// * От целевого узла вычисляется хэш и формируется узел `SignedInfo`
 /// * `SignedInfo` канонизируется и подвергается подписи (хэш + подпись)
 /// * В зависимости от типа подписи формируется результат подписи
-class XMLInterfaceRequest extends InterfaceRequest<XMLDSIGSignResult> {
-  XMLInterfaceRequest(
+class XMLSignRequest extends SignRequest<XMLDSIGSignResult> {
+  XMLSignRequest(
     FutureOr<XmlDocument> Function(Certificate certificate) getDocument, {
     XmlSignOptions? options,
   }) {
@@ -110,7 +110,7 @@ class XMLInterfaceRequest extends InterfaceRequest<XMLDSIGSignResult> {
     );
   }
 
-  factory XMLInterfaceRequest.rawDocument(
+  factory XMLSignRequest.rawDocument(
     FutureOr<String> Function(Certificate certificate) getRawDocument, {
     XmlSignOptions? options,
   }) {
@@ -119,7 +119,7 @@ class XMLInterfaceRequest extends InterfaceRequest<XMLDSIGSignResult> {
       return XmlDocument.parse(rawDocument);
     }
 
-    return XMLInterfaceRequest(getDocument, options: options);
+    return XMLSignRequest(getDocument, options: options);
   }
 
   late XmlSigner _signer;

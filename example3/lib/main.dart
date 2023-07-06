@@ -75,37 +75,37 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             OutlinedButton(
               onPressed: () async {
-                SignResult? result = await CryptSignature.interface(context, MessageInterfaceRequest(base64.encode(utf8.encode("Данные на подпись"))),
+                SignResult? result = await CryptSignature.interface(context, MessageSignRequest(base64.encode(utf8.encode("Данные на подпись"))),
                     title: "Войти по сертификату", hint: "Выберите сертификат");
 
                 showResultDialog(result.toString());
               },
-              child: const Text("MessageInterfaceRequest"),
+              child: const Text("MessageSignRequest"),
             ),
             OutlinedButton(
               onPressed: () async {
-                PKCS7SignResult? result = await CryptSignature.interface(context, PKCS7MessageInterfaceRequest(getMessage));
+                PKCS7SignResult? result = await CryptSignature.interface(context, PKCS7MessageSignRequest(getMessage));
 
                 showResultDialog(result.toString());
               },
-              child: const Text("PKCS7MessageInterfaceRequest"),
+              child: const Text("PKCS7MessageSignRequest"),
             ),
             OutlinedButton(
               onPressed: () async {
-                PKCS7SignResult? result = await CryptSignature.interface(context, PKCS7HASHInterfaceRequest(getDigest));
+                PKCS7SignResult? result = await CryptSignature.interface(context, PKCS7HASHSignRequest(getDigest));
 
                 showResultDialog(result.toString());
               },
-              child: const Text("PKCS7HASHInterfaceRequest"),
+              child: const Text("PKCS7HASHSignRequest"),
             ),
             OutlinedButton(
               onPressed: () async {
                 // TODO: доделать пример
-                // XMLDSIGSignResult? result = await CryptSignature.interface(context, XMLInterfaceRequest());
+                // XMLDSIGSignResult? result = await CryptSignature.interface(context, XMLSignRequest());
 
                 // showResultDialog(result.toString());
               },
-              child: const Text("XMLInterfaceRequest"),
+              child: const Text("XMLSignRequest"),
             ),
           ],
         ),
