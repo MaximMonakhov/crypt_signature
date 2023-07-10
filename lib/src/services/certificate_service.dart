@@ -69,7 +69,7 @@ class CertificateService extends BaseChangeNotifier<Certificate> {
           if (!added) {
             showError(context, "Сертификат уже добавлен");
           } else {
-            await getEntities();
+            entities = null;
             return certificate;
           }
         } on ApiResponseException catch (e) {
@@ -90,6 +90,6 @@ class CertificateService extends BaseChangeNotifier<Certificate> {
     file.delete();
 
     await (repository as CertificateRepository).remove(certificate);
-    await getEntities();
+    entities = null;
   }
 }
