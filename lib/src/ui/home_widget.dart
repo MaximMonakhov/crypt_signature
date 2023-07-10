@@ -18,7 +18,7 @@ class HomeWidget extends StatelessWidget {
           elevation: 0,
           title: Text(
             context.read<CryptSignatureProvider>().theme.title,
-            style: TextStyle(color: Theme.of(context).brightness == Brightness.light ? Colors.white : Colors.black87),
+            style: TextStyle(color: context.read<CryptSignatureProvider>().theme.themeData?.brightness == Brightness.dark ? Colors.white : Colors.black87),
           ),
           actions: [
             Center(
