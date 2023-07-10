@@ -1,3 +1,20 @@
+## [5.2.1](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/compare/v5.2.0...v5.2.1) (2023-07-10)
+
+
+### Bug Fixes
+
+* добавил padding у заголовка окна с паролем ([b84e938](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/b84e93816a4079a34fa940a2c6d371bfec4b0607))
+* добавил забытый padding между карточками ([348f663](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/348f6631cfb46b1de22287e57bd4f3291dba0d88))
+* исправил импорт цвета AppBar из пользовательской темы ([51608b6](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/51608b6edd9d2e691f540880e478a4598f36c108))
+* исправил ошибку из-за которой не обновлялся список сертификатов при добавлении/удалении ([0d1c6a9](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/0d1c6a9eb81eda70e16832ca593bbb5da9644063))
+
+
+### Other Changes
+
+* вернул https зависимости для возможности работать из дома ([a448f3b](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/a448f3b34be7f9aa89a9427379d1c3280402d1d4))
+* добавил SSH для клонирование внутренних пакетов с GitLab ([db1d53c](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/db1d53c1aa3ca3397d41085d92d93dac492b7b47))
+* добавил запуск тестов для CI ([4a390c5](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/4a390c503ac79608607d75d63a2969f9b801046c))
+
 ## [5.2.0](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/compare/v5.1.2...v5.2.0) (2023-07-05)
 
 
