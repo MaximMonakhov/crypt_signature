@@ -40,12 +40,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<String> getDigest(Certificate certificate) async {
     await Future.delayed(const Duration(seconds: 1));
-    return base64.encode(utf8.encode("Хэш"));
-  }
-
-  Future<String> getSignedAttributes(Certificate certificate, String digest) async {
-    await Future.delayed(const Duration(seconds: 1));
-    return base64.encode(utf8.encode("Аттрибуты подписи"));
+    return "CXjNBON6v7foWjJ+mFXglgiPvXbcqYsQiErTnftDGRY="; // ХЭШ 2012 256 от "VEVTVA==" или "TEST"
   }
 
   void showResultDialog(String data) {
@@ -81,7 +76,7 @@ class _MyHomePageState extends State<MyHomePage> {
             OutlinedButton(
               onPressed: () async {
                 CryptSignature cryptSignature = await CryptSignature.getInstance();
-                SignResult? result = await cryptSignature.interface(context, MessageInterfaceRequest(base64.encode(utf8.encode("Данные на подпись"))),
+                SignResult? result = await cryptSignature.interface(context, MessageSignRequest(base64.encode(utf8.encode("Данные на подпись"))),
                     theme: CryptSignatureTheme(
                         themeData: ThemeData(
                       brightness: Brightness.dark,
@@ -111,36 +106,34 @@ class _MyHomePageState extends State<MyHomePage> {
 
                 showResultDialog(result.toString());
               },
-              child: const Text("MessageInterfaceRequest"),
+              child: const Text("MessageSignRequest"),
             ),
             OutlinedButton(
               onPressed: () async {
                 CryptSignature cryptSignature = await CryptSignature.getInstance();
-                PKCS7SignResult? result =
-                    await cryptSignature.interface(context, PKCS7MessageInterfaceRequest(getMessage, getSignedAttributes: getSignedAttributes));
+                PKCS7SignResult? result = await cryptSignature.interface(context, PKCS7MessageSignRequest(getMessage));
 
                 showResultDialog(result.toString());
               },
-              child: const Text("PKCS7MessageInterfaceRequest"),
+              child: const Text("PKCS7MessageSignRequest"),
             ),
             OutlinedButton(
               onPressed: () async {
                 CryptSignature cryptSignature = await CryptSignature.getInstance();
-                PKCS7SignResult? result =
-                    await cryptSignature.interface(context, PKCS7HASHInterfaceRequest(getDigest, getSignedAttributes: getSignedAttributes));
+                PKCS7SignResult? result = await cryptSignature.interface(context, PKCS7HASHSignRequest(getDigest));
 
                 showResultDialog(result.toString());
               },
-              child: const Text("PKCS7HASHInterfaceRequest"),
+              child: const Text("PKCS7HASHSignRequest"),
             ),
             OutlinedButton(
               onPressed: () async {
-                // TODO: доделать пример
-                // XMLDSIGSignResult? result = await CryptSignature.interface(context, XMLInterfaceRequest());
+                // TODO: доделать пример для XMLSignRequest
+                // XMLDSIGSignResult? result = await CryptSignature.interface(context, XMLSignRequest());
 
                 // showResultDialog(result.toString());
               },
-              child: const Text("XMLInterfaceRequest"),
+              child: const Text("XMLSignRequest"),
             ),
           ],
         ),

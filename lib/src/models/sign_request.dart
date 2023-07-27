@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:crypt_signature/crypt_signature.dart';
 import 'package:crypt_signature/src/models/xml_dsig/request/xml_operations.dart';
@@ -9,15 +8,15 @@ import 'package:xml/xml.dart';
 
 typedef Signer<T extends SignResult> = Future<T> Function(Certificate certificate, String password);
 
-abstract class InterfaceRequest<T extends SignResult> {
-  Signer get signer;
+abstract class SignRequest<T extends SignResult> {
+  Signer<T> get signer;
 }
 
 /// Класс для получение сигнатуры от сообщения
-class MessageInterfaceRequest extends InterfaceRequest {
+class MessageSignRequest extends SignRequest {
   final String message;
 
-  MessageInterfaceRequest(this.message);
+  MessageSignRequest(this.message);
 
   @override
   Signer get signer => (certificate, password) async {
@@ -26,52 +25,37 @@ class MessageInterfaceRequest extends InterfaceRequest {
       };
 }
 
-abstract class PKCS7InterfaceRequest extends InterfaceRequest<PKCS7SignResult> {
-  /// Получение аттрибутов подписи на основе [digest] сообщения
-  final Future<String> Function(Certificate certificate, String digest)? getSignedAttributes;
-
+abstract class PKCS7SignRequest extends SignRequest<PKCS7SignResult> {
   /// Получения digest для подписи
-  /// * Для [PKCS7MessageInterfaceRequest] создается на месте из сообщения
-  /// * Для [PKCS7HASHInterfaceRequest] получается из вне
+  /// * Для [PKCS7MessageSignRequest] создается на месте из сообщения
+  /// * Для [PKCS7HASHSignRequest] получается из вне
   Future<String> _getDigest(Certificate certificate, String password);
 
-  PKCS7InterfaceRequest({this.getSignedAttributes});
-
   @override
-  Signer get signer => Platform.isAndroid ? androidSigner : iosSigner;
-
-  Signer get androidSigner => (Certificate certificate, String password) async {
+  Signer<PKCS7SignResult> get signer => (Certificate certificate, String password) async {
         String digest = await _getDigest(certificate, password);
-        PKCS7 pkcs7 = await Native.createPKCS7(certificate, password, digest);
-        String signedAttributes = pkcs7.signedAttributes;
+        String certificateDigest = (await Native.digest(certificate, password, certificate.certificate)).digest;
+        PKCS7 pkcs7 = PKCS7(certificate, digest, certificateDigest);
+        String signedAttributes = pkcs7.signerInfo.signedAttribute.message;
         DigestResult signedAttributesDigest = await Native.digest(certificate, password, signedAttributes);
         SignResult signResult = await Native.sign(certificate, password, signedAttributesDigest.digest);
-        pkcs7 = await Native.addSignatureToPKCS7(pkcs7, signResult.signature);
-        return PKCS7SignResult.from(PKCS7(content: pkcs7.content, signedAttributes: signedAttributes), signResult, initialDigest: digest);
-      };
-
-  Signer get iosSigner => (Certificate certificate, String password) async {
-        assert(getSignedAttributes != null);
-        String digest = await _getDigest(certificate, password);
-        String signedAttributes = await getSignedAttributes!(certificate, digest);
-        DigestResult signedAttributesDigest = await Native.digest(certificate, password, signedAttributes);
-        SignResult signResult = await Native.sign(certificate, password, signedAttributesDigest.digest);
-        return PKCS7SignResult.from(PKCS7(content: "", signedAttributes: signedAttributes), signResult, initialDigest: digest);
+        pkcs7.signerInfo.attachSignature(signResult.signature);
+        return PKCS7SignResult.from(pkcs7, signResult, initialDigest: digest);
       };
 }
 
 /// Класс для получения сигнатуры от хэша аттрибутов подписи PKCS7 на основе сообщения
 /// * Получает сообщение [getMessage] на основе выбранного сертификата
 /// * Высчитывает хэш от сообщения
-/// * Формирует PKCS7 и атрибуты подписи (для iOS не реализовано, используется метод [getSignedAttributes])
+/// * Формирует PKCS7 и атрибуты подписи
 /// * Высчитывает хэш от атрибутов подписи
 /// * Подписание атрибутов подписи
 /// * Вставка сигнатуры в PKCS7
-class PKCS7MessageInterfaceRequest extends PKCS7InterfaceRequest {
+class PKCS7MessageSignRequest extends PKCS7SignRequest {
   /// Получения изначального сообщения
   final Future<String> Function(Certificate certificate) getMessage;
 
-  PKCS7MessageInterfaceRequest(this.getMessage, {super.getSignedAttributes});
+  PKCS7MessageSignRequest(this.getMessage);
 
   @override
   Future<String> _getDigest(Certificate certificate, String password) async {
@@ -82,26 +66,26 @@ class PKCS7MessageInterfaceRequest extends PKCS7InterfaceRequest {
 }
 
 /// Класс для получения сигнатуры от хэша аттрибутов подписи PKCS7 на основе хэша сообщения.
-/// Работает как [PKCS7MessageInterfaceRequest], но не высчитывает хэш от изначального сообщения
-class PKCS7HASHInterfaceRequest extends PKCS7InterfaceRequest {
+/// Работает как [PKCS7MessageSignRequest], но не высчитывает хэш от изначального сообщения
+class PKCS7HASHSignRequest extends PKCS7SignRequest {
   /// Получения хэша сообщения
   final Future<String> Function(Certificate certificate) getHash;
 
-  PKCS7HASHInterfaceRequest(this.getHash, {super.getSignedAttributes});
+  PKCS7HASHSignRequest(this.getHash);
 
   @override
   Future<String> _getDigest(Certificate certificate, String password) => getHash(certificate);
 }
 
 /// Класс для своей логики подписи
-class CustomInterfaceRequest<T extends SignResult> extends InterfaceRequest<T> {
+class CustomSignRequest<T extends SignResult> extends SignRequest<T> {
   /// Вызывается при выборе сертификата, пользовательская логика подписи
-  final Signer onCertificateSelected;
+  final Signer<T> onCertificateSelected;
 
-  CustomInterfaceRequest(this.onCertificateSelected);
+  CustomSignRequest(this.onCertificateSelected);
 
   @override
-  Signer get signer => onCertificateSelected;
+  Signer<T> get signer => onCertificateSelected;
 }
 
 /// Подписывает xml - документ по стандарту `XmlDSig`
@@ -113,8 +97,8 @@ class CustomInterfaceRequest<T extends SignResult> extends InterfaceRequest<T> {
 /// * От целевого узла вычисляется хэш и формируется узел `SignedInfo`
 /// * `SignedInfo` канонизируется и подвергается подписи (хэш + подпись)
 /// * В зависимости от типа подписи формируется результат подписи
-class XMLInterfaceRequest extends InterfaceRequest<XMLDSIGSignResult> {
-  XMLInterfaceRequest(
+class XMLSignRequest extends SignRequest<XMLDSIGSignResult> {
+  XMLSignRequest(
     FutureOr<XmlDocument> Function(Certificate certificate) getDocument, {
     XmlSignOptions? options,
   }) {
@@ -126,7 +110,7 @@ class XMLInterfaceRequest extends InterfaceRequest<XMLDSIGSignResult> {
     );
   }
 
-  factory XMLInterfaceRequest.rawDocument(
+  factory XMLSignRequest.rawDocument(
     FutureOr<String> Function(Certificate certificate) getRawDocument, {
     XmlSignOptions? options,
   }) {
@@ -135,7 +119,7 @@ class XMLInterfaceRequest extends InterfaceRequest<XMLDSIGSignResult> {
       return XmlDocument.parse(rawDocument);
     }
 
-    return XMLInterfaceRequest(getDocument, options: options);
+    return XMLSignRequest(getDocument, options: options);
   }
 
   late XmlSigner _signer;

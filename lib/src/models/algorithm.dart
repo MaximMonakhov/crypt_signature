@@ -1,3 +1,5 @@
+import 'package:asn1lib/asn1lib.dart';
+
 class Algorithm {
   static List<Algorithm> algorithms = [
     Algorithm("ГОСТ Р 34.10-2001", "1.2.643.2.2.9", "1.2.643.2.2.19", "1.2.643.2.2.3"),
@@ -28,6 +30,10 @@ class Algorithm {
         'publicKeyOID': publicKeyOID,
         'signatureOID': signatureOID,
       };
+
+  ASN1ObjectIdentifier toAsn(String value) => ASN1ObjectIdentifier(value.split(".").map((e) => int.parse(e)).toList());
+
+  Algorithm get unknown => algorithms.last;
 
   Algorithm.fromJson(Map<String, dynamic> json)
       : name = json['name'] as String,

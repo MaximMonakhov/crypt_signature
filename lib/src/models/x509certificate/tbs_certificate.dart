@@ -1,6 +1,5 @@
 import 'package:asn1lib/asn1lib.dart';
 import 'package:crypt_signature/src/models/x509certificate/identifiers/algorithm_identifier.dart';
-import 'package:crypt_signature/src/models/x509certificate/identifiers/name_identifier.dart';
 import 'package:crypt_signature/src/models/x509certificate/identifiers/subject_public_key_info.dart';
 import 'package:crypt_signature/src/models/x509certificate/identifiers/validity_identifier.dart';
 
@@ -16,13 +15,13 @@ class TbsCertificate {
   final AlgorithmIdentifier signature;
 
   /// The issuer of the certificate.
-  final NameIdentifier issuer;
+  final ASN1Sequence issuer;
 
   /// The time interval for which this certificate is valid.
   final ValidityIdentifier validity;
 
   /// The subject of the certificate.
-  final NameIdentifier subject;
+  final ASN1Sequence subject;
 
   final SubjectPublicKeyInfo subjectPublicKeyInfo;
 
@@ -49,9 +48,9 @@ class TbsCertificate {
       version: version,
       serialNumber: (elements[0] as ASN1Integer).valueAsBigInteger!,
       signature: AlgorithmIdentifier.fromAsn1(elements[1] as ASN1Sequence),
-      issuer: NameIdentifier.fromAsn1(elements[2] as ASN1Sequence),
+      issuer: elements[2] as ASN1Sequence,
       validity: ValidityIdentifier.fromAsn1(elements[3] as ASN1Sequence),
-      subject: NameIdentifier.fromAsn1(elements[4] as ASN1Sequence),
+      subject: elements[4] as ASN1Sequence,
       subjectPublicKeyInfo: SubjectPublicKeyInfo.fromAsn1(elements[5] as ASN1Sequence),
     );
   }

@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:crypt_signature/src/core/services/base_change_notifier.dart';
 import 'package:crypt_signature/src/models/certificate.dart';
-import 'package:crypt_signature/src/models/interface_request.dart';
+import 'package:crypt_signature/src/models/sign_request.dart';
 import 'package:crypt_signature/src/models/sign_result.dart';
 import 'package:crypt_signature/src/native/native.dart';
 import 'package:crypt_signature/src/providers/crypt_signature_provider.dart';
@@ -33,7 +33,7 @@ class CertificateService extends BaseChangeNotifier<Certificate> {
     context.read<LockService>().lockScreen();
     await Future.delayed(const Duration(milliseconds: 500));
 
-    final InterfaceRequest request = cryptSignatureProvider.interfaceRequest;
+    final SignRequest request = cryptSignatureProvider.signRequest;
     try {
       final SignResult result = await request.signer(certificate, password);
       Navigator.of(cryptSignatureProvider.rootContext).pop(result);

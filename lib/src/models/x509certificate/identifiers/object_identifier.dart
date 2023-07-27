@@ -30,23 +30,7 @@ class ObjectIdentifier {
     return ObjectIdentifier(nodes);
   }
 
-  ASN1ObjectIdentifier toAsn1() {
-    var bytes = <int>[];
-    bytes.add(nodes.first * 40 + nodes[1]);
-    for (var v in nodes.skip(2)) {
-      List<int> w = [];
-      while (v > 128) {
-        var u = v % 128;
-        v -= u;
-        v ~/= 128;
-        w.add(u);
-      }
-      w.add(v);
-      bytes.addAll(w.skip(1).toList().reversed.map((v) => v + 128));
-      bytes.add(w.first);
-    }
-    return ASN1ObjectIdentifier(bytes);
-  }
+  ASN1ObjectIdentifier toAsn1() => ASN1ObjectIdentifier(nodes);
 
   @override
   int get hashCode => Object.hashAll(nodes);
@@ -54,24 +38,29 @@ class ObjectIdentifier {
   @override
   bool operator ==(dynamic other) => other is ObjectIdentifier && listEquals(nodes, other.nodes);
 
-  String? get name {
-    try {
-      dynamic tree = _tree;
-      for (final int n in nodes) {
-        // ignore: avoid_dynamic_calls
-        tree = tree[n];
-      }
-      if (tree is Map) return tree[null] != null ? tree[null] as String? : "Unknown $nodes";
-      return tree.toString();
-      // ignore: avoid_catches_without_on_clauses
-    } catch (_) {
-      return nodes.toString();
-    }
-  }
+  String? get name => nodes.toString();
+  // {
+  //   return nodes.toString();
+  //   // Поиск узла по имени
+  //   // try {
+  //   //   dynamic tree = _tree;
+  //   //   for (final int n in nodes) {
+  //   //     // ignore: avoid_dynamic_calls
+  //   //     tree = tree[n];
+  //   //   }
+  //   //   if (tree is Map) return tree[null] != null ? tree[null] as String? : nodes.toString();
+
+  //   //   return tree.toString();
+  //   //   // ignore: avoid_catches_without_on_clauses
+  //   // } catch (_) {
+  //   //   return nodes.toString();
+  //   // }
+  // }
 
   @override
   String toString() => name!;
 
+  // ignore: unused_field
   static const _tree = {
     0: {
       null: 'itu-t',
