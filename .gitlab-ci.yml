@@ -4,7 +4,6 @@ stages:
 
 default:
   before_script:
-    - printenv
     - mkdir -m 700 "${HOME}/.ssh"
     - ssh-keyscan -p 2222 -H "${CI_SERVER_HOST}" >> ~/.ssh/known_hosts
     - eval $(ssh-agent -s)
