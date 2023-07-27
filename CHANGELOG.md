@@ -1,3 +1,52 @@
+## [5.3.0](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/compare/v5.2.1...v5.3.0) (2023-07-27)
+
+
+### Features
+
+* реализовать формирование PKCS7 ([d22d8e7](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/d22d8e7c3afda3121288279c63bfc454bb97b7ad))
+
+
+### Bug Fixes
+
+* hotfix ([a6d11ee](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/a6d11ee8b18232e77644671ae1b9352b86ce400a))
+
+
+### Other Changes
+
+* добавил описание для примера ([543ef14](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/543ef14cdb1a2037a163885193938cafc78c39f3))
+
+
+### Docs
+
+* обновил документацию примером использования через SignRequest ([9b24614](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/9b24614c844e8bbabdc567c451954840387a8c37))
+* поправил комментарий под новую реализ. PKCS7 ([7ace82a](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/7ace82af697a5e7702849a2b436e888fc73e514e))
+* убрал устаревшее API ([7e1b05b](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/7e1b05bb5c0f02d8a36c955cfc7916ec290a34ae))
+
+
+### Style
+
+* убрал ненужный конструктор ([ce8ca0f](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/ce8ca0fa26960c2ab0c2429ec247bbc5384f5f79))
+
+
+### Code Improvements
+
+* добавил дженерики на SignResult ([5436c21](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/5436c219da57f880c5fb9df97e34ed188892a45d))
+* изменения для тестов ([1c3de11](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/1c3de11054be2a238b04a9dd685733aff177fb7b))
+* переименовал InterfaceRequest в SignRequest, т.к. им будут пользоваться без вызова интерфейса ([77c10e5](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/77c10e5df9e000e5f6dc67c4683453f3c03e492f))
+
+
+### Test
+
+* вторая попытка поправить ошибку с разными временными зонами локально и в CI ([b86d779](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/b86d779b49ebc7ca105fce202f9823322928c82b))
+* добавил TODO для XMLInterfaceRequest ([6280e46](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/6280e46d5def58ec563af3312c8e521a4517cf11))
+* добавил тесты для PKCS7 ([fcd350b](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/fcd350bbd36297b718231a37aa55e7d43d8fe2e8))
+* изменил ошибочное название файла с тестом ([53c7569](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/53c75695bd266a7af9199f4fb953f5ce179496ba))
+* исключение при добавлении сигнатуры к pkcs7 ([ebb7f7d](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/ebb7f7d52731d96203967c557dc6158d0717f5cb))
+* исправил ошибку в тесте, связанную с разным временем при локальном выполнении и в CI ([9ae35d4](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/9ae35d4d3a31572a9830cd0f4931d16035b3086e))
+* поправил тестовые данные ([f309475](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/f3094750d7b8601827ef8ecafc49218263fcf54c))
+* тест добавления и сохранения сертификата ([553a39c](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/553a39c19bb67ba88c650164b8cee30ca3b121f5))
+* тесты для InterfaceRequest и потомков ([78338e0](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/78338e0118a19fd13a3ddcfac69f7c26c1aba3c2))
+
 ## [5.2.1](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/compare/v5.2.0...v5.2.1) (2023-07-10)
 
 
