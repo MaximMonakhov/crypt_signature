@@ -11,7 +11,7 @@ void main() {
           Certificate.fromBase64({"certificate": certificate, "alias": "CERT_ALIAS"}),
           base64.encode(utf8.encode("DIGEST")),
           base64.encode(utf8.encode("CERTIFICATE_DIGEST")),
-          signTime: DateTime.parse("2012-02-27 13:27:00"),
+          signTime: DateTime.utc(1986),
           signature: signature,
         );
 
