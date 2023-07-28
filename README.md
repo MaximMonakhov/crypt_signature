@@ -51,15 +51,10 @@ dependencies {
 Это нужно для того, чтобы эти файлы нашел КриптоПРО для проверки целостности. Это ресурсы копируются в папку с плагином, а КриптоПРО ищет их в корневой папке приложения.
 
 ## __Использование__
-Работа с плагином выполнятся через собственный интерфейс плагина или его методы.
-
-### __Использование через интерфейс__
-```dart
-CryptSignature.interface
-```
-При вызове данного метода открывается экран с возможностью добавления/выбора/хранения сертификатов.
-
-<br><img src="crypt_signature.jpg" alt="crypt signature example image" width="400"/><br>
+Работать с плагином можно:
+- Используя собственный интерфейс плагина
+- Через классы по нужному типу подписи (MessageSignRequest, PKCS7MessageSignRequest, ...)
+- Напрямую через методы
 
 Описание режимов работы:
 * ```MessageSignRequest```
@@ -90,7 +85,15 @@ __Иными словами. ```PKCS7MessageSignRequest``` считает хэш
     <br>
     Применяется, когда с сервера нецелесообразно передавать изначальное сообщение (из-за его большого размера к примеру). Тогда на выполнение ЭП передается уже готовый хэш от этого сообщения. Например, ЭП документов.
 
-### __Использование через методы__
+### __Использование через интерфейс__
+```dart
+CryptSignature.interface
+```
+При вызове данного метода открывается экран с возможностью добавления/выбора/хранения сертификатов.
+
+<br><img src="crypt_signature.jpg" alt="crypt signature example image" width="400"/><br>
+
+### __Методы плагина__
 * Инициализировать провайдер
     ```dart
     CryptSignature.initCSP()
@@ -127,37 +130,66 @@ __Иными словами. ```PKCS7MessageSignRequest``` считает хэш
 ## __Пример__
 ### Пример использования плагина через интерфейс
 ```dart
-SignResult result = await CryptSignature.interface(context, MessageSignRequest("СООБЩЕНИЕ_В_BASE64"));
+/// MessageSignRequest
+CryptSignature crypt = await CryptSignature.getInstance();
+SignResult? result = await crypt.interface(context, MessageSignRequest("СООБЩЕНИЕ_В_BASE64"));
+print(result?.signature); // Сигнатура в формате Base64
 ```
-
 ```dart
-Future<String> getMessage(Certificate certificate) async {
-    // Запрос на сервер с выбранным сертификатом для формирования сообщения
-    return message;
-}
-PKCS7SignResult? result = await CryptSignature.interface(context, PKCS7MessageSignRequest(getMessage));
-String rawPKCS7 = result.pkcs7.encoded; // PKCS7 в формате Base64
+/// PKCS7MessageSignRequest
+CryptSignature crypt = await CryptSignature.getInstance();
+Future<String> getMessage(Certificate certificate) async => message; // Callback для запроса на сервер с выбранным пользователем сертификатом для формирования сообщения
+PKCS7SignResult? result = await crypt.interface(context, PKCS7MessageSignRequest(getMessage));
+print(result?.pkcs7.encoded); // PKCS7 в формате Base64
+```
+```dart
+/// PKCS7HASHSignRequest
+CryptSignature crypt = await CryptSignature.getInstance();
+Future<String> getDigest(Certificate certificate) async => digest; // Callback для запроса на сервер с выбранным пользователем сертификатом для формирования хэша
+PKCS7SignResult? result = await crypt.interface(context, PKCS7HASHSignRequest(getDigest));
+print(result?.pkcs7.encoded); // PKCS7 в формате Base64
 ```
 ### Пример использования плагина через SignRequest
 
+**Рекомендуется**, если не пользуетесь интерфейсом. PKCS7SignRequest сам создаст PKCS7 и подпишет его атрибуты подписи.
 ```dart
-await CryptSignature.initCSP();
+/// MessageSignRequest
+CryptSignature crypt = await CryptSignature.getInstance();
 // Получение файла .pfx и запрос пароля
-Certificate certificate = await CryptSignature.addCertificate(file, password);
-Future<String> getMessage(Certificate certificate) async => message;
+MessageSignRequest request = MessageSignRequest("СООБЩЕНИЕ_В_BASE64");
+SignResult result = await request.signer(certificate, password);
+print(result.signature); // Сигнатура в формате Base64
+```
+```dart
+/// PKCS7MessageSignRequest
+CryptSignature crypt = await CryptSignature.getInstance();
+// Получение файла .pfx и запрос пароля
+Certificate certificate = await crypt.addCertificate(file, password);
+Future<String> getMessage(Certificate certificate) async => message; // Callback для запроса на сервер с выбранным пользователем сертификатом для формирования сообщения
 PKCS7MessageSignRequest request = PKCS7MessageSignRequest(getMessage);
 PKCS7SignResult result = await request.signer(certificate, password);
-print(result.pkcs7.encoded);
+print(result.pkcs7.encoded); // PKCS7 в формате Base64
+```
+```dart
+/// PKCS7HASHSignRequest
+CryptSignature crypt = await CryptSignature.getInstance();
+// Получение файла .pfx и запрос пароля
+Certificate certificate = await crypt.addCertificate(file, password);
+Future<String> getDigest(Certificate certificate) async => digest; // Callback для запроса на сервер с выбранным пользователем сертификатом для формирования сообщения
+PKCS7HASHSignRequest request = PKCS7HASHSignRequest(getDigest);
+PKCS7SignResult result = await request.signer(certificate, password);
+print(result.pkcs7.encoded); // PKCS7 в формате Base64
 ```
 
 ### Пример использования плагина через методы
-
 ```dart
-await CryptSignature.initCSP();
+/// Стандартная подпись данных
+CryptSignature crypt = await CryptSignature.getInstance();
 // Получение файла .pfx и запрос пароля
-Certificate certificate = await CryptSignature.addCertificate(file, password);
+Certificate certificate = await crypt.addCertificate(file, password);
 // Получение сообщения для ЭП
-DigestResult digestResult = await CryptSignature.digest(certificate, password, message);
-SignResult signResult = await CryptSignature.sign(certificate, password, digestResult.digest);
+DigestResult digestResult = await crypt.digest(certificate, password, message);
+SignResult signResult = await crypt.sign(certificate, password, digestResult.digest);
 print(signResult.signature);
 ```
+В случае PKCS7 подписи, PKCS7 нужно будет сформировать самому и подписывать атрибуты подписи. Как пример можно посмотреть как работает Signer в PKCS7MessageSignRequest или PKCS7HASHSignRequest.
