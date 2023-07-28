@@ -193,3 +193,7 @@ SignResult signResult = await crypt.sign(certificate, password, digestResult.dig
 print(signResult.signature);
 ```
 В случае PKCS7 подписи, PKCS7 нужно будет сформировать самому и подписывать атрибуты подписи. Как пример можно посмотреть как работает Signer в PKCS7MessageSignRequest или PKCS7HASHSignRequest.
+
+## Известные проблемы
+- Ошибка при вызове encode у PKCS7 второй раз после прикрепления сигнатуры. Возникает из-за того, что пакет ASN1 зачем-то кэширует результат первого кодирования без сигнатуры.
+- Отсутствует поддержка GOST R 34.10-2001, GOST R 34.10-2012 Strong для iOS
