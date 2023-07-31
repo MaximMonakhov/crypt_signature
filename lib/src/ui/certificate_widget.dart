@@ -3,26 +3,23 @@ import 'dart:io';
 import 'package:crypt_signature/src/core/interface/smooth_button.dart';
 import 'package:crypt_signature/src/core/interface/smooth_card.dart';
 import 'package:crypt_signature/src/models/certificate.dart';
-import 'package:crypt_signature/src/services/certificate_service.dart';
 import 'package:crypt_signature/src/utils/crypt_signature_icons_icons.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class CertificateWidget extends StatelessWidget {
   final Certificate certificate;
+  final void Function(Certificate) onTap;
   final void Function(Certificate) removeCallback;
 
-  const CertificateWidget(this.certificate, this.removeCallback, {super.key});
+  const CertificateWidget(this.certificate, this.onTap, this.removeCallback, {super.key});
 
   @override
   Widget build(BuildContext context) => Padding(
         padding: const EdgeInsets.symmetric(vertical: 5.0),
         child: SmoothCard(
           padding: const EdgeInsets.only(left: 10.0, right: 10.0, top: 5.0),
-          onTap: () {
-            context.read<CertificateService>().sign(context, certificate);
-          },
+          onTap: () => onTap(certificate),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[

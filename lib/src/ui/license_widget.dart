@@ -132,15 +132,6 @@ class LicenseWidget extends StatelessWidget {
                     ),
                   ),
                 ),
-                // TextButton(
-                //   onPressed: () {
-                //     context.read<LicenseService>().setNewLicenseSheet(context);
-                //   },
-                //   child: const Text(
-                //     "Изменить",
-                //     style: TextStyle(color: Color.fromRGBO(106, 147, 245, 1)),
-                //   ),
-                // )
               ],
             ),
     );

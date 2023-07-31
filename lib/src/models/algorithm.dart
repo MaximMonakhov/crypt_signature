@@ -1,7 +1,7 @@
 import 'package:asn1lib/asn1lib.dart';
 
 class Algorithm {
-  static List<Algorithm> algorithms = [
+  static const List<Algorithm> algorithms = [
     Algorithm("ГОСТ Р 34.10-2001", "1.2.643.2.2.9", "1.2.643.2.2.19", "1.2.643.2.2.3"),
     Algorithm("ГОСТ Р 34.10-2012", "1.2.643.7.1.1.2.2", "1.2.643.7.1.1.1.1", "1.2.643.7.1.1.3.2"),
     Algorithm("ГОСТ Р 34.10-2012 Strong", "1.2.643.7.1.1.2.3", "1.2.643.7.1.1.1.2", "1.2.643.7.1.1.3.3"),
@@ -13,7 +13,7 @@ class Algorithm {
   final String publicKeyOID;
   final String signatureOID;
 
-  Algorithm(this.name, this.hashOID, this.publicKeyOID, this.signatureOID);
+  const Algorithm(this.name, this.hashOID, this.publicKeyOID, this.signatureOID);
 
   static Algorithm findAlgorithmByPublicKeyOID(String? publicKeyOID) {
     if (publicKeyOID == null) return algorithms.last;

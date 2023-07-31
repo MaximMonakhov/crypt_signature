@@ -26,7 +26,7 @@ class Certificate {
   String get pem => PEM_START_STRING + certificate + PEM_END_STRING;
   X509Certificate get x509certificate => X509Certificate.fromPem(pem);
 
-  Certificate({
+  const Certificate({
     required this.uuid,
     required this.certificate,
     required this.alias,

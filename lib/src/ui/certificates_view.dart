@@ -56,6 +56,7 @@ class CertificatesView extends StatelessWidget {
                   emptyListCaption: "Список сертификатов пуст",
                   builder: (context, entity) => CertificateWidget(
                     entity,
+                    (certificate) => context.read<CertificateService>().sign(context, certificate),
                     (certificate) => context.read<CertificateService>().removeCertificate(certificate),
                   ),
                 ),
