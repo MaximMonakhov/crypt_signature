@@ -9,7 +9,7 @@ import 'package:file/memory.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'test_data.dart';
+import 'utils/test_data.dart';
 
 void main() {
   const channel = MethodChannel('crypt_signature');
