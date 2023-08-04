@@ -71,7 +71,7 @@ void main() {
       expect(signResult.signatureAlgorithm, "SIGNATURE_ALGORITHM");
     });
 
-    test('PKCS7MessageSignRequest', () async {
+    test('PKCS7MessageSignRequest Detached', () async {
       PKCS7MessageSignRequest signRequest = PKCS7MessageSignRequest((certificate) async => "MESSAGE");
       Certificate certificate = Certificate.fromBase64({"alias": TestData.kristaCertificateAlias, "certificate": TestData.kristaRawCertificate});
       SignResult signResult = await signRequest.signer(certificate, "PASSWORD");
@@ -86,6 +86,14 @@ void main() {
       expect(signResult.pkcs7.digest, signResult.initialDigest);
       expect(signResult.pkcs7.signerInfo.signature, signResult.signature);
       expect(signResult.pkcs7.certificate.algorithm, Algorithm.algorithms[1]);
+    });
+
+    test('PKCS7MessageSignRequest Attached', () async {
+      PKCS7MessageSignRequest signRequest = PKCS7MessageSignRequest((certificate) async => "VEVTVF9NRVNTQUdFXzEyMzQ1", detached: false);
+      Certificate certificate = Certificate.fromBase64({"alias": TestData.kristaCertificateAlias, "certificate": TestData.kristaRawCertificate});
+      SignResult signResult = await signRequest.signer(certificate, "PASSWORD");
+      signResult as PKCS7SignResult;
+      expect(signResult.pkcs7.toString().contains("TEST_MESSAGE_12345"), true);
     });
 
     test('PKCS7HASHSignRequest', () async {

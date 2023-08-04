@@ -17,9 +17,12 @@ class PKCS7 {
   final SignerInfo signerInfo;
   final String digest;
   final String certificateDigest;
+  final String? message;
+  final bool detached;
 
-  PKCS7(this.certificate, this.digest, this.certificateDigest, {String? signature, DateTime? signTime})
-      : signerInfo = SignerInfo(certificate, digest: digest, certificateDigest: certificateDigest, signature: signature, signTime: signTime);
+  PKCS7(this.certificate, this.digest, this.certificateDigest, {String? signature, DateTime? signTime, this.message})
+      : signerInfo = SignerInfo(certificate, digest: digest, certificateDigest: certificateDigest, signature: signature, signTime: signTime),
+        detached = message == null;
 
   ASN1Sequence get root {
     ASN1Sequence root = ASN1Sequence();
@@ -38,7 +41,9 @@ class PKCS7 {
         ),
     );
     // ContentInfo
-    data.add(ASN1Sequence()..add(ASN1ObjectIdentifier([1, 2, 840, 113549, 1, 7, 1])));
+    ASN1Sequence encapsulatedContentInfo = ASN1Sequence()..add(ASN1ObjectIdentifier([1, 2, 840, 113549, 1, 7, 1]));
+    if (!detached) encapsulatedContentInfo.add(ASN1Sequence(tag: CONTEXT_SPECIFIC_TYPE)..add(ASN1OctetString(base64.decode(message!))));
+    data.add(encapsulatedContentInfo);
     // Certificate
     data.add(ASN1OctetString(base64.decode(certificate.certificate), tag: CONTEXT_SPECIFIC_TYPE));
     // SignerInfo
