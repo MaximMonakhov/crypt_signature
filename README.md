@@ -1,5 +1,7 @@
 # Плагин Flutter для формирования электронной цифровой подписи с помощью алгоритмов ГОСТ по стандарту PKCS7 Cryptographic Message Syntax (CMS)
 
+[![pub package](https://img.shields.io/pub/v/crypt_signature.svg)](https://pub.dev/packages/crypt_signature)
+
 ## __Описание__
 Плагин принимает сертификаты в формате __PKCS12__ ```.pfx```
 
