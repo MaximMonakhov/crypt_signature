@@ -1,10 +1,7 @@
 import 'dart:async';
 
 import 'package:crypt_signature/crypt_signature.dart';
-import 'package:crypt_signature/src/models/xml_dsig/request/xml_operations.dart';
-import 'package:crypt_signature/src/models/xml_dsig/xml_signer.dart';
 import 'package:crypt_signature/src/native/native.dart';
-import 'package:xml/xml.dart';
 
 typedef Signer<T extends SignResult> = Future<T> Function(Certificate certificate, String password);
 
@@ -86,44 +83,4 @@ class CustomSignRequest<T extends SignResult> extends SignRequest<T> {
 
   @override
   Signer<T> get signer => onCertificateSelected;
-}
-
-/// Подписывает xml - документ по стандарту `XmlDSig`
-/// * Функция [getDocument] возвращает документ
-/// * `XmlElementResolver` находит целевой узел в документе
-/// * В зависимости от типа подписи выполняются предварительные преобразования
-/// * На последнем этапе целевой узел подвергается канонизации
-/// * На основании выбранного [certificate] определяются алгоритмы хеширования и подписи
-/// * От целевого узла вычисляется хэш и формируется узел `SignedInfo`
-/// * `SignedInfo` канонизируется и подвергается подписи (хэш + подпись)
-/// * В зависимости от типа подписи формируется результат подписи
-class XMLSignRequest extends SignRequest<XMLDSIGSignResult> {
-  XMLSignRequest(
-    FutureOr<XmlDocument> Function(Certificate certificate) getDocument, {
-    XmlSignOptions? options,
-  }) {
-    final XmlSignOptions targetOptions = options ?? XmlSignOptions();
-    _signer = XmlSigner(
-      getDocument,
-      targetOptions,
-      XmlOperations.fromOptions(targetOptions),
-    );
-  }
-
-  factory XMLSignRequest.rawDocument(
-    FutureOr<String> Function(Certificate certificate) getRawDocument, {
-    XmlSignOptions? options,
-  }) {
-    FutureOr<XmlDocument> getDocument(Certificate certificate) async {
-      final String rawDocument = await getRawDocument(certificate);
-      return XmlDocument.parse(rawDocument);
-    }
-
-    return XMLSignRequest(getDocument, options: options);
-  }
-
-  late XmlSigner _signer;
-
-  @override
-  Signer<XMLDSIGSignResult> get signer => _signer.sign;
 }

@@ -17,11 +17,6 @@ dependencies:
   file_picker: ^5.2.6
   mask_text_input_formatter: ^2.0.0
   asn1lib: ^1.0.0
-  xml: ^6.1.0
-  flutter_c14n:
-    git:
-      url: https://ntp-gitlab.krista.ru/mobile/utils/flutter-c14n.git
-      ref: 0.0.2
   pull_to_refresh: ^2.0.0
   device_info_plus: ^9.0.2
   figma_squircle: ^0.5.3

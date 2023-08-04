@@ -126,15 +126,6 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               child: const Text("PKCS7HASHSignRequest"),
             ),
-            OutlinedButton(
-              onPressed: () async {
-                // TODO: доделать пример для XMLSignRequest
-                // XMLDSIGSignResult? result = await CryptSignature.interface(context, XMLSignRequest());
-
-                // showResultDialog(result.toString());
-              },
-              child: const Text("XMLSignRequest"),
-            ),
           ],
         ),
       ),
