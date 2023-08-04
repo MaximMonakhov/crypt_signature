@@ -31,11 +31,15 @@ abstract class PKCS7SignRequest extends SignRequest<PKCS7SignResult> {
   /// * Для [PKCS7HASHSignRequest] получается из вне
   Future<String> _getDigest(Certificate certificate, String password);
 
+  /// Создание PKCS7
+  PKCS7 _createPKCS7(Certificate certificate, String digest, String certificateDigest, {String? message}) =>
+      PKCS7(certificate, digest, certificateDigest, message: message);
+
   @override
   Signer<PKCS7SignResult> get signer => (Certificate certificate, String password) async {
         String digest = await _getDigest(certificate, password);
         String certificateDigest = (await Native.digest(certificate, password, certificate.certificate)).digest;
-        PKCS7 pkcs7 = PKCS7(certificate, digest, certificateDigest);
+        PKCS7 pkcs7 = _createPKCS7(certificate, digest, certificateDigest);
         String signedAttributes = pkcs7.signerInfo.signedAttribute.message;
         DigestResult signedAttributesDigest = await Native.digest(certificate, password, signedAttributes);
         SignResult signResult = await Native.sign(certificate, password, signedAttributesDigest.digest);
@@ -52,14 +56,24 @@ abstract class PKCS7SignRequest extends SignRequest<PKCS7SignResult> {
 /// * Подписание атрибутов подписи
 /// * Вставка сигнатуры в PKCS7
 class PKCS7MessageSignRequest extends PKCS7SignRequest {
+  /// Изначальное сообщение
+  late final String message;
+
+  /// Формат подписи (DETACHED/ATTACHED)
+  final bool detached;
+
   /// Получения изначального сообщения
   final Future<String> Function(Certificate certificate) getMessage;
 
-  PKCS7MessageSignRequest(this.getMessage);
+  PKCS7MessageSignRequest(this.getMessage, {this.detached = true});
+
+  @override
+  PKCS7 _createPKCS7(certificate, digest, certificateDigest, {message}) =>
+      super._createPKCS7(certificate, digest, certificateDigest, message: detached ? null : this.message);
 
   @override
   Future<String> _getDigest(Certificate certificate, String password) async {
-    String message = await getMessage(certificate);
+    message = await getMessage(certificate);
     DigestResult digestResult = await Native.digest(certificate, password, message);
     return digestResult.digest;
   }
