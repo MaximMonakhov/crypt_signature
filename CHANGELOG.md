@@ -1,3 +1,41 @@
+## [5.4.0](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/compare/v5.3.0...v5.4.0) (2023-08-15)
+
+
+### Features
+
+* добавил возможность прикрепить подписываемые данные к PKCS7 (detached/attached CMS) ([a4d5ba9](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/a4d5ba906df3f566dbcac7c09fcbe90612ed2acb))
+
+
+### Other Changes
+
+* убрал printenv из before_script в .gitlab-ci.yml ([6dd1a75](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/6dd1a759426912e5010f9a7fe5eaf2dc16cb18d9))
+
+
+### Docs
+
+* изменения в документации ([72c683f](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/72c683f99852cf01bc878d434cafac6125e86731))
+* изменения в документации ([8b63945](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/8b639458e8b856a32ff96d1190bf62188a94826f))
+* обновил примеры в документации ([be4b961](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/be4b9613b11cade0822d1b73b101fba6df2dfae0))
+* описал detached pkcs7 в документации ([c3d47a0](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/c3d47a04843c38861502ee4caa0940c42368cb98))
+
+
+### Code Improvements
+
+* изменения дл тестов ([722a774](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/722a77416e5d250bdd664f32d93bfc2bb6aa8740))
+
+
+### Test
+
+* добавил widget тесты для сертификатов и лицензии ([7ec88cc](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/7ec88cce7d95742c4ee59c4e6b52ac153ef0d8d2))
+* добавил тест на разворот сигнатуры для win32api ([cc5b321](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/cc5b321d5042c90760085e12c8fe15ca98eb50ac))
+* добавил тесты для attached CMS формата ([66d0ab9](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/66d0ab9ea978149bd71b0f27579a2b9322d10bdb))
+
+
+### Removed
+
+* удалил настройки CI для GitHub ([e6cc01c](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/e6cc01c95985e7d39b0cc8dbc27137f6696ad617))
+* удалил файл с номером версии КриптоПРО CSP, так как он отображается в AppBar ([1236cd9](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/1236cd9a467afe96d984714bc1f09b46e2ed2a76))
+
 ## [5.3.0](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/compare/v5.2.1...v5.3.0) (2023-07-27)
 
 
