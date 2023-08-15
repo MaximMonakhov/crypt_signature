@@ -154,7 +154,7 @@ print(result?.pkcs7.encoded); // PKCS7 в формате Base64
 ```
 ### Пример использования плагина через SignRequest
 
-**Рекомендуется**, если не пользуетесь интерфейсом. PKCS7SignRequest сам создаст PKCS7 и подпишет его атрибуты подписи.
+**Рекомендуется**, если не пользуетесь интерфейсом. CMSSignRequest сам создаст PKCS7 и подпишет его атрибуты подписи.
 ```dart
 /// MessageSignRequest
 CryptSignature crypt = await CryptSignature.getInstance();
