@@ -76,6 +76,42 @@ class _MyHomePageState extends State<MyHomePage> {
             OutlinedButton(
               onPressed: () async {
                 CryptSignature cryptSignature = await CryptSignature.getInstance();
+                SignResult? result = await cryptSignature.interface(context, MessageSignRequest(base64.encode(utf8.encode("Данные на подпись"))));
+
+                showResultDialog(result.toString());
+              },
+              child: const Text("MessageSignRequest"),
+            ),
+            OutlinedButton(
+              onPressed: () async {
+                CryptSignature cryptSignature = await CryptSignature.getInstance();
+                CMSSignResult? result = await cryptSignature.interface(context, CMSMessageSignRequest(getMessage));
+
+                showResultDialog(result.toString());
+              },
+              child: const Text("CMSMessageSignRequest Detached"),
+            ),
+            OutlinedButton(
+              onPressed: () async {
+                CryptSignature cryptSignature = await CryptSignature.getInstance();
+                CMSSignResult? result = await cryptSignature.interface(context, CMSMessageSignRequest(getMessage, detached: false));
+
+                showResultDialog(result.toString());
+              },
+              child: const Text("CMSMessageSignRequest Attached"),
+            ),
+            OutlinedButton(
+              onPressed: () async {
+                CryptSignature cryptSignature = await CryptSignature.getInstance();
+                CMSSignResult? result = await cryptSignature.interface(context, CMSHashSignRequest(getDigest));
+
+                showResultDialog(result.toString());
+              },
+              child: const Text("CMSHashSignRequest"),
+            ),
+            OutlinedButton(
+              onPressed: () async {
+                CryptSignature cryptSignature = await CryptSignature.getInstance();
                 SignResult? result = await cryptSignature.interface(context, MessageSignRequest(base64.encode(utf8.encode("Данные на подпись"))),
                     theme: CryptSignatureTheme(
                         themeData: ThemeData(
@@ -106,25 +142,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
                 showResultDialog(result.toString());
               },
-              child: const Text("MessageSignRequest"),
-            ),
-            OutlinedButton(
-              onPressed: () async {
-                CryptSignature cryptSignature = await CryptSignature.getInstance();
-                PKCS7SignResult? result = await cryptSignature.interface(context, PKCS7MessageSignRequest(getMessage));
-
-                showResultDialog(result.toString());
-              },
-              child: const Text("PKCS7MessageSignRequest"),
-            ),
-            OutlinedButton(
-              onPressed: () async {
-                CryptSignature cryptSignature = await CryptSignature.getInstance();
-                PKCS7SignResult? result = await cryptSignature.interface(context, PKCS7HASHSignRequest(getDigest));
-
-                showResultDialog(result.toString());
-              },
-              child: const Text("PKCS7HASHSignRequest"),
+              child: const Text("Theme"),
             ),
           ],
         ),

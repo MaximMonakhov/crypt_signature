@@ -11,6 +11,7 @@ import 'package:crypt_signature/src/models/sign_result.dart';
 import 'package:crypt_signature/src/utils/exceptions/api_response_exception.dart';
 // ignore: depend_on_referenced_packages
 import 'package:file/file.dart' as file;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -69,12 +70,17 @@ class Native {
   static Future<SignResult> sign(Certificate certificate, String password, String digest) => _invokeWithExceptionHandler(() async {
         String? response = await _channel.invokeMethod("sign", {"certificateUUID": certificate.storageID, "password": password, "digest": digest});
         Map<String, dynamic> map = json.decode(response!) as Map<String, dynamic>;
+
+        // Нативные функции win32 возвращают развернутую сигнатуру
+        String reverseSignature(String signature) => base64.encode(base64.decode(signature.replaceAll("\n", "")).reversed.toList());
+        String signature = defaultTargetPlatform == TargetPlatform.iOS ? reverseSignature(map["signature"] as String) : map["signature"] as String;
+
         if (map["success"] as bool) {
           return SignResult(
             certificate,
             digest: map["digest"] as String,
             signatureAlgorithm: map["signatureAlgorithm"] as String,
-            signature: map["signature"] as String,
+            signature: signature,
           );
         }
         throw ApiResponseException(map["message"] as String?, map["exception"].toString());

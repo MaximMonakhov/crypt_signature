@@ -26,14 +26,12 @@ abstract class BaseChangeNotifier<T> extends ChangeNotifier {
   }
 
   Future<List<T>> getEntities({Map<String, String>? queryParams}) async {
-    debugPrint("Получение списка $T");
     await Future.delayed(const Duration(milliseconds: 50));
     entities = await repository.getEntities();
     return entities!;
   }
 
   Future<T> getEntity(int id) async {
-    debugPrint("Получение $T");
     entity = await repository.getEntity(id);
     return entity!;
   }

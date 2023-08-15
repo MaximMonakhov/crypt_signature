@@ -71,16 +71,16 @@ void main() {
       expect(signResult.signatureAlgorithm, "SIGNATURE_ALGORITHM");
     });
 
-    test('PKCS7MessageSignRequest Detached', () async {
-      PKCS7MessageSignRequest signRequest = PKCS7MessageSignRequest((certificate) async => "MESSAGE");
+    test('CMSMessageSignRequest Detached', () async {
+      CMSMessageSignRequest signRequest = CMSMessageSignRequest((certificate) async => "MESSAGE");
       Certificate certificate = Certificate.fromBase64({"alias": TestData.kristaCertificateAlias, "certificate": TestData.kristaRawCertificate});
       SignResult signResult = await signRequest.signer(certificate, "PASSWORD");
       expect(signResult.certificate, certificate);
       expect(signResult.digest.length, 44);
       expect(signResult.signature.length, 44);
       expect(signResult.signatureAlgorithm, "SIGNATURE_ALGORITHM");
-      expect(signResult, isA<PKCS7SignResult>());
-      signResult as PKCS7SignResult;
+      expect(signResult, isA<CMSSignResult>());
+      signResult as CMSSignResult;
       expect(signResult.initialDigest, base64.encode(sha256.convert(utf8.encode("MESSAGE")).bytes));
       expect(signResult.pkcs7.certificate, certificate);
       expect(signResult.pkcs7.digest, signResult.initialDigest);
@@ -88,24 +88,24 @@ void main() {
       expect(signResult.pkcs7.certificate.algorithm, Algorithm.algorithms[1]);
     });
 
-    test('PKCS7MessageSignRequest Attached', () async {
-      PKCS7MessageSignRequest signRequest = PKCS7MessageSignRequest((certificate) async => "VEVTVF9NRVNTQUdFXzEyMzQ1", detached: false);
+    test('CMSMessageSignRequest Attached', () async {
+      CMSMessageSignRequest signRequest = CMSMessageSignRequest((certificate) async => "VEVTVF9NRVNTQUdFXzEyMzQ1", detached: false);
       Certificate certificate = Certificate.fromBase64({"alias": TestData.kristaCertificateAlias, "certificate": TestData.kristaRawCertificate});
       SignResult signResult = await signRequest.signer(certificate, "PASSWORD");
-      signResult as PKCS7SignResult;
+      signResult as CMSSignResult;
       expect(signResult.pkcs7.toString().contains("TEST_MESSAGE_12345"), true);
     });
 
-    test('PKCS7HASHSignRequest', () async {
-      PKCS7HASHSignRequest signRequest = PKCS7HASHSignRequest((certificate) async => base64.encode(sha256.convert(utf8.encode("MESSAGE")).bytes));
+    test('CMSHashSignRequest', () async {
+      CMSHashSignRequest signRequest = CMSHashSignRequest((certificate) async => base64.encode(sha256.convert(utf8.encode("MESSAGE")).bytes));
       Certificate certificate = Certificate.fromBase64({"alias": TestData.kristaCertificateAlias, "certificate": TestData.kristaRawCertificate});
       SignResult signResult = await signRequest.signer(certificate, "PASSWORD");
       expect(signResult.certificate, certificate);
       expect(signResult.digest.length, 44);
       expect(signResult.signature.length, 44);
       expect(signResult.signatureAlgorithm, "SIGNATURE_ALGORITHM");
-      expect(signResult, isA<PKCS7SignResult>());
-      signResult as PKCS7SignResult;
+      expect(signResult, isA<CMSSignResult>());
+      signResult as CMSSignResult;
       expect(signResult.initialDigest, base64.encode(sha256.convert(utf8.encode("MESSAGE")).bytes));
       expect(signResult.pkcs7.certificate, certificate);
       expect(signResult.pkcs7.digest, signResult.initialDigest);

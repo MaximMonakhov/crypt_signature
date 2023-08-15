@@ -9,10 +9,12 @@ abstract class SignRequest<T extends SignResult> {
   Signer<T> get signer;
 }
 
-/// Класс для получение сигнатуры от сообщения
 class MessageSignRequest extends SignRequest {
   final String message;
 
+  /// Высчитывает хэш от сообщения и подписывает его.
+  ///
+  /// Возвращает объект [SignResult], который содержит результат подписи в формате Base64.
   MessageSignRequest(this.message);
 
   @override
@@ -22,18 +24,19 @@ class MessageSignRequest extends SignRequest {
       };
 }
 
-abstract class PKCS7SignRequest extends SignRequest<PKCS7SignResult> {
-  /// Получения digest для подписи
-  /// * Для [PKCS7MessageSignRequest] создается на месте из сообщения
-  /// * Для [PKCS7HASHSignRequest] получается из вне
+/// Создание подписи по стандарту CMS.
+abstract class CMSSignRequest extends SignRequest<CMSSignResult> {
+  /// Получение хэша:
+  /// * Для [CMSMessageSignRequest] создается на месте из сообщения.
+  /// * Для [CMSHashSignRequest] получается из вне.
   Future<String> _getDigest(Certificate certificate, String password);
 
-  /// Создание PKCS7
+  /// Создание PKCS#7
   PKCS7 _createPKCS7(Certificate certificate, String digest, String certificateDigest, {String? message}) =>
       PKCS7(certificate, digest, certificateDigest, message: message);
 
   @override
-  Signer<PKCS7SignResult> get signer => (Certificate certificate, String password) async {
+  Signer<CMSSignResult> get signer => (Certificate certificate, String password) async {
         String digest = await _getDigest(certificate, password);
         String certificateDigest = (await Native.digest(certificate, password, certificate.certificate)).digest;
         PKCS7 pkcs7 = _createPKCS7(certificate, digest, certificateDigest);
@@ -41,56 +44,53 @@ abstract class PKCS7SignRequest extends SignRequest<PKCS7SignResult> {
         DigestResult signedAttributesDigest = await Native.digest(certificate, password, signedAttributes);
         SignResult signResult = await Native.sign(certificate, password, signedAttributesDigest.digest);
         pkcs7.signerInfo.attachSignature(signResult.signature);
-        return PKCS7SignResult.from(pkcs7, signResult, initialDigest: digest);
+        return CMSSignResult.from(pkcs7, signResult, initialDigest: digest);
       };
 }
 
-/// Класс для получения сигнатуры от хэша аттрибутов подписи PKCS7 на основе сообщения
-/// * Получает сообщение [getMessage] на основе выбранного сертификата
-/// * Высчитывает хэш от сообщения
-/// * Формирует PKCS7 и атрибуты подписи
-/// * Высчитывает хэш от атрибутов подписи
-/// * Подписание атрибутов подписи
-/// * Вставка сигнатуры в PKCS7
-class PKCS7MessageSignRequest extends PKCS7SignRequest {
-  /// Изначальное сообщение
-  late final String message;
-
-  /// Формат подписи (DETACHED/ATTACHED)
+class CMSMessageSignRequest extends CMSSignRequest {
+  /// Формат подписи (DETACHED/ATTACHED).
   final bool detached;
 
-  /// Получения изначального сообщения
+  /// Формирование сообщения на основе выбранного пользователем сертификата.
   final Future<String> Function(Certificate certificate) getMessage;
 
-  PKCS7MessageSignRequest(this.getMessage, {this.detached = true});
+  /// Создание подписи по стандарту CMS.
+  ///
+  /// Возвращает объект [CMSSignResult], который содержит [PKCS7] как результат подписи.
+  CMSMessageSignRequest(this.getMessage, {this.detached = true});
+
+  /// Изначальное сообщение. Сохраняется для вставки в PKCS#7 для случая External Digest.
+  String? _message;
 
   @override
   PKCS7 _createPKCS7(certificate, digest, certificateDigest, {message}) =>
-      super._createPKCS7(certificate, digest, certificateDigest, message: detached ? null : this.message);
+      super._createPKCS7(certificate, digest, certificateDigest, message: detached ? null : _message);
 
   @override
   Future<String> _getDigest(Certificate certificate, String password) async {
-    message = await getMessage(certificate);
-    DigestResult digestResult = await Native.digest(certificate, password, message);
+    _message = await getMessage(certificate);
+    DigestResult digestResult = await Native.digest(certificate, password, _message!);
     return digestResult.digest;
   }
 }
 
-/// Класс для получения сигнатуры от хэша аттрибутов подписи PKCS7 на основе хэша сообщения.
-/// Работает как [PKCS7MessageSignRequest], но не высчитывает хэш от изначального сообщения
-class PKCS7HASHSignRequest extends PKCS7SignRequest {
-  /// Получения хэша сообщения
+class CMSHashSignRequest extends CMSSignRequest {
+  /// Формирование хэша на основе выбранного пользователем сертификата.
   final Future<String> Function(Certificate certificate) getHash;
 
-  PKCS7HASHSignRequest(this.getHash);
+  /// Создание подписи по стандарту CMS, но с использованием уже готового хэша от сообщения (External Digest).
+  ///
+  /// Возвращает объект [CMSSignResult], который содержит [PKCS7] как результат подписи.
+  CMSHashSignRequest(this.getHash);
 
   @override
   Future<String> _getDigest(Certificate certificate, String password) => getHash(certificate);
 }
 
-/// Класс для своей логики подписи
+/// Класс для своей логики подписи.
 class CustomSignRequest<T extends SignResult> extends SignRequest<T> {
-  /// Вызывается при выборе сертификата, пользовательская логика подписи
+  /// Вызывается при выборе сертификата, пользовательская логика подписи.
   final Signer<T> onCertificateSelected;
 
   CustomSignRequest(this.onCertificateSelected);
