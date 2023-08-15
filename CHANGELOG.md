@@ -1,3 +1,15 @@
+## [5.4.1](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/compare/v5.4.0...v5.4.1) (2023-08-15)
+
+
+### Bug Fixes
+
+* после ошибки во время подписи повторно инициализировалось late поле ([8b6a50a](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/8b6a50af45a16b2309f5b86570351730332ca67a))
+
+
+### Code Improvements
+
+* переименовал классы по названию стандарта подписи ([591bf48](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/591bf4891cdc8c17b14b58f83c3784ee712d582c))
+
 ## [5.4.0](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/compare/v5.3.0...v5.4.0) (2023-08-15)
 
 
