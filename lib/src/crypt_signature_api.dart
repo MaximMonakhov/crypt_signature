@@ -30,10 +30,9 @@ class CryptSignature {
 
   CryptSignature._(this.certificateRepository);
 
-  /// Открыть экран выбора сертификата и подписать
-  /// В случает подписи PKCS7 на Android возвращает [PKCS7SignResult]
-  /// В случает подписи XML возвращает [XMLDSIGSignResult]
-  /// Возвращает [SignResult] для всеъ остальных
+  /// Открыть экран выбора сертификата и подписать сообщение или хэш.
+  /// В случает подписи CMS возвращает [CMSSignResult].
+  /// В случает подписи XML возвращает [XMLDSIGSignResult].
   Future<T?> interface<T extends SignResult>(BuildContext context, SignRequest<T> signRequest, {CryptSignatureTheme? theme}) async {
     NavigatorState navigator = Navigator.of(context);
     Directory directory = await getApplicationDocumentsDirectory();

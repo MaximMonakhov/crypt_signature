@@ -2,7 +2,7 @@ import 'package:crypt_signature/src/models/certificate.dart';
 import 'package:crypt_signature/src/models/pkcs7.dart';
 import 'package:crypt_signature/src/utils/extensions/extensions.dart';
 
-/// Результат подписи
+/// Результат подписи.
 class SignResult {
   /// Сертификат из контейнера с приватным ключем
   final Certificate certificate;
@@ -37,13 +37,13 @@ class SignResult {
   }
 }
 
-class PKCS7SignResult extends SignResult {
+class CMSSignResult extends SignResult {
   final PKCS7 pkcs7;
 
-  /// Хэш от изначального сообщения. Так как в signResult лежит хэш от атрибутов подписи
+  /// Хэш от изначального сообщения. Так как в [digest] лежит хэш от атрибутов подписи.
   final String initialDigest;
 
-  PKCS7SignResult(
+  CMSSignResult(
     this.pkcs7,
     super.certificate, {
     required this.initialDigest,
@@ -52,7 +52,7 @@ class PKCS7SignResult extends SignResult {
     required super.signatureAlgorithm,
   });
 
-  PKCS7SignResult.from(this.pkcs7, SignResult signResult, {required this.initialDigest}) : super.from(signResult);
+  CMSSignResult.from(this.pkcs7, SignResult signResult, {required this.initialDigest}) : super.from(signResult);
 
   @override
   String toString() => "${super.toString()}\nPKCS7: $pkcs7\nInitialDigest: $initialDigest";

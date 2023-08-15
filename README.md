@@ -52,13 +52,13 @@ dependencies {
 ## __Использование__
 Работать с плагином можно:
 - Используя собственный интерфейс плагина
-- Через классы по нужному типу подписи (MessageSignRequest, PKCS7MessageSignRequest, ...)
+- Через классы по нужному типу подписи (MessageSignRequest, CMSMessageSignRequest, ...)
 - Напрямую через методы
 
 Описание режимов работы:
 * ```MessageSignRequest```
     * Высчитывает хэш от сообщения, подписывает его и возвращает сигнатуру в формате Base64.
-* ```PKCS7MessageSignRequest```
+* ```CMSMessageSignRequest```
     * Поддерживает detached/attached форматы PKCS7.
     1. При выборе сертификата пользователем, получает сообщение через функцию ```getMessage```.
     2. Высчитывает хэш от полученного сообщения.
@@ -66,23 +66,23 @@ dependencies {
     4. Высчитывает хэш от атрибутов подписи.
     5. Подписывает этот хэш атрибутов.
     6. Вставляет сигнатуру в PKCS7 и возвращает его в формате Base64.
-* ```PKCS7HASHSignRequest```<br>
-    * Работает как и ```PKCS7MessageSignRequest```, но не высчитывает хэш от первоначального сообщения.
+* ```CMSHashSignRequest```<br>
+    * Работает как и ```CMSMessageSignRequest```, но не высчитывает хэш от первоначального сообщения.
     * External Digest.
     * При выборе сертификата пользователем, получает хэш для подписи через функцию ```getDigest```.
 * ```CustomSignRequest```<br>
     * Создан для выполнения собственной логики ЭП.
 
-__Иными словами. ```PKCS7MessageSignRequest``` считает хэш сам, а ```PKCS7HASHSignRequest``` получает его готовый извне.__
+__Иными словами. ```CMSMessageSignRequest``` считает хэш сам, а ```CMSHashSignRequest``` получает его готовый извне.__
 
 Пример работы режимов:
 * ```MessageSignRequest```
     <br>
     Применяется, когда у проверяющего есть сертификат пользователя и он хочет только проверить ЭП. Например, аутентификация путем ЭП случайного набора байт.
-* ```PKCS7MessageSignRequest```
+* ```CMSMessageSignRequest```
     <br>
     Применяется, когда у проверяющего нет информации о сертификате пользователя и дополнительной информации. Например, регистрация путем ЭП случайного набора байт.
-* ```PKCS7HASHSignRequest```
+* ```CMSHashSignRequest```
     <br>
     Применяется, когда с сервера нецелесообразно передавать изначальное сообщение (из-за его большого размера к примеру). Тогда на выполнение ЭП передается уже готовый хэш от этого сообщения. Например, ЭП документов.
 
@@ -137,17 +137,17 @@ SignResult? result = await crypt.interface(context, MessageSignRequest("СООБ
 print(result?.signature); // Сигнатура в формате Base64
 ```
 ```dart
-/// PKCS7MessageSignRequest
+/// CMSMessageSignRequest
 CryptSignature crypt = await CryptSignature.getInstance();
 Future<String> getMessage(Certificate certificate) async => message; // Callback для запроса на сервер с выбранным пользователем сертификатом для формирования сообщения
-PKCS7SignResult? result = await crypt.interface(context, PKCS7MessageSignRequest(getMessage));
+CMSSignResult? result = await crypt.interface(context, CMSMessageSignRequest(getMessage));
 print(result?.pkcs7.encoded); // PKCS7 в формате Base64
 ```
 ```dart
-/// PKCS7HASHSignRequest
+/// CMSHashSignRequest
 CryptSignature crypt = await CryptSignature.getInstance();
 Future<String> getDigest(Certificate certificate) async => digest; // Callback для запроса на сервер с выбранным пользователем сертификатом для формирования хэша
-PKCS7SignResult? result = await crypt.interface(context, PKCS7HASHSignRequest(getDigest));
+CMSSignResult? result = await crypt.interface(context, CMSHashSignRequest(getDigest));
 print(result?.pkcs7.encoded); // PKCS7 в формате Base64
 ```
 ### Пример использования плагина через SignRequest
@@ -162,23 +162,23 @@ SignResult result = await request.signer(certificate, password);
 print(result.signature); // Сигнатура в формате Base64
 ```
 ```dart
-/// PKCS7MessageSignRequest
+/// CMSMessageSignRequest
 CryptSignature crypt = await CryptSignature.getInstance();
 // Получение файла .pfx и запрос пароля
 Certificate certificate = await crypt.addCertificate(file, password);
 Future<String> getMessage(Certificate certificate) async => message; // Callback для запроса на сервер с выбранным пользователем сертификатом для формирования сообщения
-PKCS7MessageSignRequest request = PKCS7MessageSignRequest(getMessage);
-PKCS7SignResult result = await request.signer(certificate, password);
+CMSMessageSignRequest request = CMSMessageSignRequest(getMessage);
+CMSSignResult result = await request.signer(certificate, password);
 print(result.pkcs7.encoded); // PKCS7 в формате Base64
 ```
 ```dart
-/// PKCS7HASHSignRequest
+/// CMSHashSignRequest
 CryptSignature crypt = await CryptSignature.getInstance();
 // Получение файла .pfx и запрос пароля
 Certificate certificate = await crypt.addCertificate(file, password);
 Future<String> getDigest(Certificate certificate) async => digest; // Callback для запроса на сервер с выбранным пользователем сертификатом для формирования сообщения
-PKCS7HASHSignRequest request = PKCS7HASHSignRequest(getDigest);
-PKCS7SignResult result = await request.signer(certificate, password);
+CMSHashSignRequest request = CMSHashSignRequest(getDigest);
+CMSSignResult result = await request.signer(certificate, password);
 print(result.pkcs7.encoded); // PKCS7 в формате Base64
 ```
 
@@ -193,7 +193,7 @@ DigestResult digestResult = await crypt.digest(certificate, password, message);
 SignResult signResult = await crypt.sign(certificate, password, digestResult.digest);
 print(signResult.signature);
 ```
-В случае PKCS7 подписи, PKCS7 нужно будет сформировать самому и подписывать атрибуты подписи. Как пример можно посмотреть как работает Signer в PKCS7MessageSignRequest или PKCS7HASHSignRequest.
+В случае PKCS7 подписи, PKCS7 нужно будет сформировать самому и подписывать атрибуты подписи. Как пример можно посмотреть как работает Signer в CMSMessageSignRequest или CMSHashSignRequest.
 
 ## Известные проблемы
 - Ошибка при вызове encode у PKCS7 второй раз после прикрепления сигнатуры. Возникает из-за того, что пакет ASN1 зачем-то кэширует результат первого кодирования без сигнатуры.
