@@ -7,12 +7,13 @@ import 'utils/test_data.dart';
 
 void main() {
   group("Тестирование класса PKCS7.", () {
-    PKCS7 createPKCS7(String certificate, {String? signature}) => PKCS7(
+    PKCS7 createPKCS7(String certificate, {String? signature, String? message}) => PKCS7(
           Certificate.fromBase64({"certificate": certificate, "alias": "CERT_ALIAS"}),
           base64.encode(utf8.encode("DIGEST")),
           base64.encode(utf8.encode("CERTIFICATE_DIGEST")),
           signTime: DateTime.utc(1986),
           signature: signature,
+          message: message,
         );
 
     test('В base64. Сертификат Криста УЦ', () {
@@ -42,6 +43,13 @@ void main() {
       expect(pkcs7_2.signerInfo.signature, isNotNull);
       expect(() => pkcs7_1.signerInfo.attachSignature(base64.encode("TEST_SIGNATURE".codeUnits)), throwsException);
       expect(() => pkcs7_2.signerInfo.attachSignature(base64.encode("TEST_SIGNATURE".codeUnits)), throwsException);
+    });
+
+    test('Прикрепленная подпись', () {
+      PKCS7 pkcs7 = createPKCS7(TestData.kristaRawCertificate, message: "VEVTVF9NRVNTQUdFXzEyMw==");
+      String rawPKCS7 = pkcs7.encoded;
+      expect(rawPKCS7, TestData.kristaRawPKCS7Attached);
+      expect(pkcs7.toString().contains("TEST_MESSAGE_123"), true);
     });
   });
 }
