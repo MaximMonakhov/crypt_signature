@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:crypt_signature/src/models/certificate.dart';
 import 'package:crypt_signature/src/models/pkcs7.dart';
 import 'package:crypt_signature/src/utils/extensions/extensions.dart';
@@ -19,9 +16,7 @@ class SignResult {
   /// Алгоритм сигнатуры
   final String signatureAlgorithm;
 
-  SignResult(this.certificate, {required this.digest, required String signature, required this.signatureAlgorithm})
-      : // Нативные функции win32 возвращают развернутую сигнатуру
-        signature = Platform.isIOS ? reverseSignature(signature) : signature;
+  SignResult(this.certificate, {required this.digest, required this.signature, required this.signatureAlgorithm});
 
   SignResult.from(SignResult other)
       : certificate = other.certificate,
@@ -40,8 +35,6 @@ class SignResult {
 
     return stringBuffer.toString();
   }
-
-  static String reverseSignature(String signature) => base64.encode(base64.decode(signature.replaceAll("\n", "")).reversed.toList());
 }
 
 class PKCS7SignResult extends SignResult {

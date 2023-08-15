@@ -2,10 +2,11 @@
 
 import 'dart:convert';
 
-import 'package:crypt_signature/src/models/certificate.dart';
+import 'package:crypt_signature/crypt_signature.dart';
 import 'package:crypt_signature/src/native/native.dart';
 import 'package:file/file.dart';
 import 'package:file/memory.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -13,12 +14,13 @@ import 'utils/test_data.dart';
 
 void main() {
   const channel = MethodChannel('crypt_signature');
+  late Certificate certificate;
 
   group("Тестирование класса Native.", () {
-    test('Добавление сертификата', () async {
+    setUpAll(() {
       TestWidgetsFlutterBinding.ensureInitialized();
 
-      Certificate certificate = Certificate.fromBase64({"alias": TestData.kristaCertificateAlias, "certificate": TestData.kristaRawCertificate});
+      certificate = Certificate.fromBase64({"alias": TestData.kristaCertificateAlias, "certificate": TestData.kristaRawCertificate});
 
       Future<String> handler(MethodCall methodCall) async {
         Map<String, dynamic>? response;
@@ -34,12 +36,24 @@ void main() {
           };
         }
 
+        if (methodCall.method == 'sign') {
+          response = {
+            "success": true,
+            "digest": "DIGEST",
+            "signature": "dGVzdA==",
+            "signatureAlgorithm": "ALG",
+          };
+        }
+
         if (response == null) throw ArgumentError;
 
         return json.encode(response);
       }
 
       TestDefaultBinaryMessengerBinding.instance!.defaultBinaryMessenger.setMockMethodCallHandler(channel, handler);
+    });
+
+    test('Добавление сертификата', () async {
       const MethodChannel pathChannel = MethodChannel('plugins.flutter.io/path_provider');
       pathChannel.setMockMethodCallHandler((MethodCall methodCall) async => "");
 
@@ -57,6 +71,15 @@ void main() {
       expect(file.existsSync(), false);
       expect(createdFile.existsSync(), true);
       expect(createdFile.readAsBytesSync(), base64.decode(certificate.certificate));
+    });
+
+    test("Нативные функции win32 возвращают развернутую сигнатуру. Ее следует обязательно перевернуть", () async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      SignResult result = await Native.sign(certificate, "", "");
+      expect(result.signature, base64.encode(base64.decode("dGVzdA==").reversed.toList()));
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      result = await Native.sign(certificate, "", "");
+      expect(result.signature, "dGVzdA==");
     });
   });
 }
