@@ -52,9 +52,6 @@ abstract class CMSSignRequest extends SignRequest<CMSSignResult> {
 }
 
 class CMSMessageSignRequest extends CMSSignRequest {
-  /// Изначальное сообщение.
-  late final String message;
-
   /// Формат подписи (DETACHED/ATTACHED).
   final bool detached;
 
@@ -66,14 +63,17 @@ class CMSMessageSignRequest extends CMSSignRequest {
   /// Возвращает объект [CMSSignResult], который содержит [PKCS7] как результат подписи.
   CMSMessageSignRequest(this.getMessage, {this.detached = true});
 
+  /// Изначальное сообщение. Сохраняется для вставки в PKCS#7 для случая External Digest.
+  String? _message;
+
   @override
   PKCS7 _createPKCS7(certificate, digest, certificateDigest, {message}) =>
-      super._createPKCS7(certificate, digest, certificateDigest, message: detached ? null : this.message);
+      super._createPKCS7(certificate, digest, certificateDigest, message: detached ? null : _message);
 
   @override
   Future<String> _getDigest(Certificate certificate, String password) async {
-    message = await getMessage(certificate);
-    DigestResult digestResult = await Native.digest(certificate, password, message);
+    _message = await getMessage(certificate);
+    DigestResult digestResult = await Native.digest(certificate, password, _message!);
     return digestResult.digest;
   }
 }
