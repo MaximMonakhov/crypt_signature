@@ -1,3 +1,15 @@
+## [5.4.2](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/compare/v5.4.1...v5.4.2) (2023-09-26)
+
+
+### Bug Fixes
+
+* убрал маску у поля ввода лицензии ([b332f2f](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/b332f2f6096142e36cd882b7420ecc43f4cbcc39))
+
+
+### Docs
+
+* поправил неверное название класса ([83efc83](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/83efc838078c7dcac09f6e72dd9c47034b8d737c))
+
 ## [5.4.1](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/compare/v5.4.0...v5.4.1) (2023-08-15)
 
 
