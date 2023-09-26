@@ -1,3 +1,10 @@
+## [5.4.3](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/compare/v5.4.2...v5.4.3) (2023-09-26)
+
+
+### Bug Fixes
+
+* временно сделал ссылку на зависимость публичной ([f3153fc](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/f3153fc86b39db1052c66355e20bbbd33d73cc84))
+
 ## [5.4.2](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/compare/v5.4.1...v5.4.2) (2023-09-26)
 
 
