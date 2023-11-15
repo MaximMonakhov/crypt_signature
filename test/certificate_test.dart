@@ -59,5 +59,15 @@ void main() {
       expect(serialNumber3, "055cf6007bad0e9541c76d62897d879d");
       expect(serialNumber4, "00efbf14360000000004cf");
     });
+
+    test('Thumbprint', () {
+      String kristaThumbprint = "316d59698762ffaca7df0da052d9a7f6e2a8ca6b";
+      Certificate kristaCertificate = Certificate.fromBase64({"alias": TestData.kristaCertificateAlias, "certificate": TestData.kristaRawCertificate});
+      expect(kristaCertificate.thumbprint, kristaThumbprint);
+
+      String cryptoProThumbprint = "cb8c352a27d9abed118cf74d9d5ba222faca9678";
+      Certificate cryptoProCertificate = Certificate.fromBase64({"alias": TestData.cryptoProAlias, "certificate": TestData.cryptoProRawCertificate});
+      expect(cryptoProCertificate.thumbprint, cryptoProThumbprint);
+    });
   });
 }
