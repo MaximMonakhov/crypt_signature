@@ -4,7 +4,6 @@ import 'package:crypt_signature/src/services/lock_service.dart';
 import 'package:crypt_signature/src/ui/dialogs.dart';
 import 'package:crypt_signature/src/utils/exceptions/api_response_exception.dart';
 import 'package:flutter/material.dart';
-import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 class LicenseService extends ChangeNotifier {
   final LockService lockService;
@@ -57,16 +56,11 @@ class LicenseService extends ChangeNotifier {
   }
 
   Future<License?> setNewLicenseSheet(BuildContext context) async {
-    var maskFormatter = MaskTextInputFormatter(
-      mask: '#####-#####-#####-#####-#####',
-      filter: {"#": RegExp('[0-9+A-Z]')},
-    );
     String? newLicense = await showInputDialog(
       context,
       "Введите вашу лицензию Крипто ПРО",
       "Номер лицензии",
       TextInputType.emailAddress,
-      inputFormatters: [maskFormatter],
     );
 
     return newLicense != null && newLicense.isNotEmpty ? setLicense(context, newLicense) : null;

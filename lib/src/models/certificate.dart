@@ -1,11 +1,14 @@
+import 'dart:convert';
 import 'dart:io' show Platform;
 import 'dart:typed_data';
 
 import 'package:asn1lib/asn1lib.dart';
+import 'package:convert/convert.dart';
 import 'package:crypt_signature/src/models/algorithm.dart';
 import 'package:crypt_signature/src/models/x509certificate/identifiers/object_identifier.dart';
 import 'package:crypt_signature/src/models/x509certificate/x509_certificate.dart';
 import 'package:crypt_signature/src/utils/dart_converters.dart';
+import 'package:crypto/crypto.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
@@ -25,6 +28,7 @@ class Certificate {
 
   String get pem => PEM_START_STRING + certificate + PEM_END_STRING;
   X509Certificate get x509certificate => X509Certificate.fromPem(pem);
+  String get thumbprint => hex.encoder.convert(sha1.convert(base64.decode(certificate)).bytes);
 
   const Certificate({
     required this.uuid,

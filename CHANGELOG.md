@@ -1,3 +1,34 @@
+## [5.5.0](http://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/compare/v5.4.3...v5.5.0) (2023-11-15)
+
+
+### Features
+
+* добавил отпечаток сертификата ([7f22962](http://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/7f22962175089accd73a3bff7ec24eb3f1edf0c0))
+
+
+### Bug Fixes
+
+* перенес создание контроллера из builder ([cec72c9](http://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/cec72c93a5bfb4eb64f1f3d85d957c2b4ba34bb1))
+
+## [5.4.3](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/compare/v5.4.2...v5.4.3) (2023-09-26)
+
+
+### Bug Fixes
+
+* временно сделал ссылку на зависимость публичной ([f3153fc](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/f3153fc86b39db1052c66355e20bbbd33d73cc84))
+
+## [5.4.2](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/compare/v5.4.1...v5.4.2) (2023-09-26)
+
+
+### Bug Fixes
+
+* убрал маску у поля ввода лицензии ([b332f2f](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/b332f2f6096142e36cd882b7420ecc43f4cbcc39))
+
+
+### Docs
+
+* поправил неверное название класса ([83efc83](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/83efc838078c7dcac09f6e72dd9c47034b8d737c))
+
 ## [5.4.1](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/compare/v5.4.0...v5.4.1) (2023-08-15)
 
 

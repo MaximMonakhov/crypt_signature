@@ -1,6 +1,6 @@
 name: crypt_signature
 description: crypt
-version: 5.4.1+500401000
+version: 5.5.0+500500000
 homepage: https://github.com/MaximMonakhov/crypt_signature
 publish_to: none
 environment:
@@ -15,16 +15,16 @@ dependencies:
   intl: ^0.17.0
   path_provider: ^2.0.1
   file_picker: ^5.2.6
-  mask_text_input_formatter: ^2.0.0
   asn1lib: ^1.0.0
   pull_to_refresh: ^2.0.0
   device_info_plus: ^9.0.2
   figma_squircle: ^0.5.3
+  crypto: ^3.0.3
+  convert: ^3.1.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
   lints: ^2.0.1
-  crypto: ^3.0.3
   file: ^6.1.4
 flutter:
   uses-material-design: true
