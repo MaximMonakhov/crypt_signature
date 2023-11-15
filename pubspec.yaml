@@ -1,6 +1,6 @@
 name: crypt_signature
 description: crypt
-version: 5.4.3+500403000
+version: 5.5.0+500500000
 homepage: https://github.com/MaximMonakhov/crypt_signature
 publish_to: none
 environment:

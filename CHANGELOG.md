@@ -1,3 +1,15 @@
+## [5.5.0](http://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/compare/v5.4.3...v5.5.0) (2023-11-15)
+
+
+### Features
+
+* добавил отпечаток сертификата ([7f22962](http://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/7f22962175089accd73a3bff7ec24eb3f1edf0c0))
+
+
+### Bug Fixes
+
+* перенес создание контроллера из builder ([cec72c9](http://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/commit/cec72c93a5bfb4eb64f1f3d85d957c2b4ba34bb1))
+
 ## [5.4.3](https://ntp-gitlab.krista.ru/mobile/utils/crypt_signature/compare/v5.4.2...v5.4.3) (2023-09-26)
 
 
